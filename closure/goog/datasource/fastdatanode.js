@@ -41,7 +41,6 @@ goog.provide('goog.ds.FastListNode');
 goog.provide('goog.ds.PrimitiveFastDataNode');
 
 goog.require('goog.ds.DataManager');
-goog.require('goog.ds.DataNodeList');
 goog.require('goog.ds.EmptyNodeList');
 goog.require('goog.string');
 
@@ -66,7 +65,7 @@ goog.require('goog.string');
 // TODO(arv): Use interfaces when available.
 goog.ds.AbstractFastDataNode = function(dataName, opt_parent) {
   if (!dataName) {
-    throw new Error('Cannot create a fast data node without a data name');
+    throw Error('Cannot create a fast data node without a data name');
   }
   this['__dataName'] = dataName;
   this['__parent'] = opt_parent;
@@ -157,8 +156,9 @@ goog.ds.FastDataNode.fromJs = function(object, dataName, opt_parent) {
   } else if (goog.isObject(object)) {
     return new goog.ds.FastDataNode(object, dataName, opt_parent);
   } else {
-    return new goog.ds.PrimitiveFastDataNode(
-        object || !!object, dataName, opt_parent);
+    return new goog.ds.PrimitiveFastDataNode(object || !!object,
+                                             dataName,
+                                             opt_parent);
   }
 };
 
@@ -177,7 +177,7 @@ goog.ds.FastDataNode.emptyList_ = new goog.ds.EmptyNodeList();
  * @override
  */
 goog.ds.FastDataNode.prototype.set = function(value) {
-  throw new Error('Not implemented yet');
+  throw 'Not implemented yet';
 };
 
 
@@ -188,9 +188,9 @@ goog.ds.FastDataNode.prototype.getChildNodes = function(opt_selector) {
   } else if (opt_selector.indexOf(goog.ds.STR_WILDCARD) == -1) {
     var child = this.getChildNode(opt_selector);
     return child ? new goog.ds.FastListNode([child], '') :
-                   new goog.ds.EmptyNodeList();
+        new goog.ds.EmptyNodeList();
   } else {
-    throw new Error('Unsupported selector: ' + opt_selector);
+    throw Error('Unsupported selector: ' + opt_selector);
   }
 };
 
@@ -243,8 +243,8 @@ goog.ds.FastDataNode.prototype.setChildNode = function(name, value) {
   } else {
     delete this[name];
   }
-  goog.ds.DataManager.getInstance().fireDataChange(
-      this.getDataPath() + goog.ds.STR_PATH_SEPARATOR + name);
+  goog.ds.DataManager.getInstance().fireDataChange(this.getDataPath() +
+      goog.ds.STR_PATH_SEPARATOR + name);
   return null;
 };
 
@@ -286,8 +286,8 @@ goog.ds.FastDataNode.prototype.getJsObject = function() {
   var result = {};
   for (var key in this) {
     if (!goog.string.startsWith(key, '__') && !goog.isFunction(this[key])) {
-      result[key] =
-          (this[key]['__dataName'] ? this[key].getJsObject() : this[key]);
+      result[key] = (this[key]['__dataName'] ? this[key].getJsObject() :
+          this[key]);
     }
   }
   return result;
@@ -299,8 +299,8 @@ goog.ds.FastDataNode.prototype.getJsObject = function() {
  * @return {goog.ds.FastDataNode} Clone of this data node.
  */
 goog.ds.FastDataNode.prototype.clone = function() {
-  return /** @type {!goog.ds.FastDataNode} */ (
-      goog.ds.FastDataNode.fromJs(this.getJsObject(), this.getDataName()));
+  return /** @type {goog.ds.FastDataNode} */(goog.ds.FastDataNode.fromJs(
+      this.getJsObject(), this.getDataName()));
 };
 
 
@@ -433,7 +433,7 @@ goog.ds.PrimitiveFastDataNode.prototype.get = function() {
  */
 goog.ds.PrimitiveFastDataNode.prototype.set = function(value) {
   if (goog.isArray(value) || goog.isObject(value)) {
-    throw new Error('can only set PrimitiveFastDataNode to primitive values');
+    throw Error('can only set PrimitiveFastDataNode to primitive values');
   }
   this.value_ = value;
   goog.ds.DataManager.getInstance().fireDataChange(this.getDataPath());
@@ -479,8 +479,9 @@ goog.ds.PrimitiveFastDataNode.prototype.getChildNodeValue = function(name) {
  * @param {Object} value Value of child node.
  * @override
  */
-goog.ds.PrimitiveFastDataNode.prototype.setChildNode = function(name, value) {
-  throw new Error('Cannot set a child node for a PrimitiveFastDataNode');
+goog.ds.PrimitiveFastDataNode.prototype.setChildNode =
+    function(name, value) {
+  throw Error('Cannot set a child node for a PrimitiveFastDataNode');
 };
 
 
@@ -507,7 +508,7 @@ goog.ds.PrimitiveFastDataNode.prototype.getJsObject = function() {
 
 /**
  * Creates a new list node from an array.
- * @param {Array<?>} values values hold by this list node.
+ * @param {Array} values values hold by this list node.
  * @param {string} dataName name of this node.
  * @param {goog.ds.DataNode=} opt_parent parent of this node.
  * @extends {goog.ds.AbstractFastDataNode}
@@ -539,7 +540,7 @@ goog.inherits(goog.ds.FastListNode, goog.ds.AbstractFastDataNode);
  * @override
  */
 goog.ds.FastListNode.prototype.set = function(value) {
-  throw new Error('Cannot set a FastListNode to a new value');
+  throw Error('Cannot set a FastListNode to a new value');
 };
 
 
@@ -627,19 +628,9 @@ goog.ds.FastListNode.prototype.setChildNode = function(key, value) {
     var index = this.getKeyAsNumber_(key);
     if (index != null) {
       if (index < 0 || index >= this.values_.length) {
-        throw new Error('List index out of bounds: ' + index);
+        throw Error('List index out of bounds: ' + index);
       }
-      // NOTE: This code here appears to want to use "index" rather than
-      // "key" here (which would be better for an array. However, changing
-      // that would require knowing that there wasn't a mix of non-number
-      // keys, as using index that would risk overwriting those values if
-      // they were set first.  Instead we loosen the type so we can use
-      // strings as indexes.
-
-      /** @type {!Object} */
-      var values = this.values_;
-
-      values[key] = value;
+      this.values_[key] = value;
     } else {
       if (!this.map_) {
         this.map_ = {};
@@ -667,8 +658,8 @@ goog.ds.FastListNode.prototype.setChildNode = function(key, value) {
 goog.ds.FastListNode.prototype.listSizeChanged_ = function() {
   var dm = goog.ds.DataManager.getInstance();
   dm.fireDataChange(this.getDataPath());
-  dm.fireDataChange(
-      this.getDataPath() + goog.ds.STR_PATH_SEPARATOR + 'count()');
+  dm.fireDataChange(this.getDataPath() + goog.ds.STR_PATH_SEPARATOR +
+      'count()');
 };
 
 
@@ -708,14 +699,13 @@ goog.ds.FastListNode.prototype.getJsObject = function() {
  */
 goog.ds.FastListNode.prototype.add = function(value) {
   if (!value.getDataName) {
-    value = goog.ds.FastDataNode.fromJs(
-        value, String('[' + (this.values_.length) + ']'), this);
+    value = goog.ds.FastDataNode.fromJs(value,
+        String('[' + (this.values_.length) + ']'), this);
   }
   this.values_.push(value);
   var dm = goog.ds.DataManager.getInstance();
-  dm.fireDataChange(
-      this.getDataPath() + goog.ds.STR_PATH_SEPARATOR + '[' +
-      (this.values_.length - 1) + ']');
+  dm.fireDataChange(this.getDataPath() + goog.ds.STR_PATH_SEPARATOR +
+      '[' + (this.values_.length - 1) + ']');
   this.listSizeChanged_();
 };
 
@@ -746,7 +736,7 @@ goog.ds.FastListNode.prototype.get = function(opt_key) {
  */
 goog.ds.FastListNode.prototype.getByIndex = function(index) {
   var child = this.values_[index];
-  return (child != null ? child : null);  // never return undefined
+  return (child != null ? child : null); // never return undefined
 };
 
 
@@ -767,8 +757,7 @@ goog.ds.FastListNode.prototype.getCount = function() {
  * @override
  */
 goog.ds.FastListNode.prototype.setNode = function(name, value) {
-  throw new Error(
-      'Setting child nodes of a FastListNode is not implemented, yet');
+  throw Error('Setting child nodes of a FastListNode is not implemented, yet');
 };
 
 
@@ -797,8 +786,8 @@ goog.ds.FastListNode.prototype.removeNode = function(name) {
       }
     }
     var dm = goog.ds.DataManager.getInstance();
-    dm.fireDataChange(
-        this.getDataPath() + goog.ds.STR_PATH_SEPARATOR + '[' + index + ']');
+    dm.fireDataChange(this.getDataPath() + goog.ds.STR_PATH_SEPARATOR +
+        '[' + index + ']');
     this.listSizeChanged_();
   }
   return false;
@@ -818,7 +807,7 @@ goog.ds.FastListNode.prototype.indexOf = function(name) {
     index = this.map_[name];
   }
   if (index == null) {
-    throw new Error('Cannot determine index for: ' + name);
+    throw Error('Cannot determine index for: ' + name);
   }
-  return /** @type {number} */ (index);
+  return /** @type {number} */(index);
 };

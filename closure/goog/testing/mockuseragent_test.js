@@ -39,7 +39,8 @@ function testMockUserAgentInstall() {
 
   mockUserAgent.install();
   assertTrue(mockUserAgent.installed_);
-  assertNotEquals(goog.userAgent.getUserAgentString, originalUserAgentFunction);
+  assertNotEquals(goog.userAgent.getUserAgentString,
+      originalUserAgentFunction);
 
   mockUserAgent.uninstall();
   assertFalse(mockUserAgent.installed_);
@@ -70,14 +71,3 @@ function testMockUserAgentNavigator() {
   assertEquals(fakeNavigator, goog.userAgent.getNavigator());
 }
 
-function testMockUserAgentDocumentMode() {
-  var fakeDocumentMode = -1;
-
-  mockUserAgent = new goog.testing.MockUserAgent();
-  mockUserAgent.setDocumentMode(fakeDocumentMode);
-  mockUserAgent.install();
-
-  assertTrue(mockUserAgent.installed_);
-  assertEquals(fakeDocumentMode, goog.userAgent.getDocumentMode_());
-  assertEquals(fakeDocumentMode, goog.userAgent.DOCUMENT_MODE);
-}

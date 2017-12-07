@@ -19,21 +19,25 @@ goog.require('goog.cssom');
 goog.require('goog.cssom.iframe.style');
 goog.require('goog.dom');
 goog.require('goog.dom.DomHelper');
-goog.require('goog.dom.TagName');
 goog.require('goog.testing.jsunit');
 goog.require('goog.userAgent');
 
 // unit tests
 var propertiesToTest = [
-  'color', 'font-family', 'font-style', 'font-size', 'font-variant',
-  'border-top-style', 'border-top-width', 'border-top-color',
-  'background-color', 'margin-bottom'
+  'color',
+  'font-family',
+  'font-style',
+  'font-size',
+  'font-variant',
+  'border-top-style',
+  'border-top-width',
+  'border-top-color',
+  'background-color',
+  'margin-bottom'
 ];
 
 function crawlDom(startNode, func) {
-  if (startNode.nodeType != 1) {
-    return;
-  }
+  if (startNode.nodeType != 1) { return; }
   func(startNode);
   for (var i = 0; i < startNode.childNodes.length; i++) {
     crawlDom(startNode.childNodes[i], func);
@@ -42,22 +46,20 @@ function crawlDom(startNode, func) {
 
 function getCurrentCssProperties(node, propList) {
   var props = {};
-  if (node.nodeType != 1) {
-    return;
-  }
+  if (node.nodeType != 1) { return; }
   for (var i = 0; i < propList.length; i++) {
     var prop = propList[i];
-    if (node.currentStyle) {  // IE
+    if (node.currentStyle) { // IE
       var propCamelCase = '';
       var propParts = prop.split('-');
       for (var j = 0; j < propParts.length; j++) {
         propCamelCase += propParts[j].charAt(0).toUpperCase() +
-            propParts[j].substring(1, propParts[j].length);
+                         propParts[j].substring(1, propParts[j].length);
       }
       props[prop] = node.currentStyle[propCamelCase];
-    } else {  // standards-compliant browsers
-      props[prop] = node.ownerDocument.defaultView.getComputedStyle(node, '')
-                        .getPropertyValue(prop);
+    } else { // standards-compliant browsers
+      props[prop] = node.ownerDocument.defaultView.getComputedStyle(
+          node, '').getPropertyValue(prop);
     }
   }
   return props;
@@ -69,9 +71,7 @@ function CssPropertyCollector() {
 
   this.collectProps = function(node) {
     var nodeProps = getCurrentCssProperties(node, propertiesToTest);
-    if (nodeProps) {
-      propsList.push([nodeProps, node]);
-    }
+    if (nodeProps) { propsList.push([nodeProps, node]); }
   };
 }
 
@@ -82,9 +82,9 @@ function recursivelyListCssProperties(el) {
 }
 
 function testMatchCssSelector() {
-  var container = goog.dom.createElement(goog.dom.TagName.DIV);
+  var container = document.createElement('div');
   container.className = 'container';
-  var el = goog.dom.createElement(goog.dom.TagName.DIV);
+  var el = document.createElement('div');
   x = el;
   el.id = 'mydiv';
   el.className = 'colorful foo';
@@ -100,13 +100,23 @@ function testMatchCssSelector() {
   // that we expect to match - for example, in 'body div div.colorful',
   // 'div.colorful' has an index of 2.
   var expectedResults = [
-    ['body div', [4, 1]], ['h1', null], ['body div h1', [4, 1]],
-    ['body div.colorful h1', [4, 1]], ['body div div', [4, 2]],
-    ['body div div div', [4, 2]], ['body div div.somethingelse div', [4, 1]],
-    ['body div.somethingelse div', [2, 0]], ['div.container', [3, 0]],
-    ['div.container div', [4, 1]], ['#mydiv', [4, 0]], ['div#mydiv', [4, 0]],
-    ['div.colorful', [4, 0]], ['div#mydiv .colorful', [4, 0]],
-    ['.colorful', [4, 0]], ['body * div', [4, 2]], ['body * *', [4, 2]]
+    ['body div', [4, 1]],
+    ['h1', null],
+    ['body div h1', [4, 1]],
+    ['body div.colorful h1', [4, 1]],
+    ['body div div', [4, 2]],
+    ['body div div div', [4, 2]],
+    ['body div div.somethingelse div', [4, 1]],
+    ['body div.somethingelse div', [2, 0]],
+    ['div.container', [3, 0]],
+    ['div.container div', [4, 1]],
+    ['#mydiv', [4, 0]],
+    ['div#mydiv', [4, 0]],
+    ['div.colorful', [4, 0]],
+    ['div#mydiv .colorful', [4, 0]],
+    ['.colorful', [4, 0]],
+    ['body * div', [4, 2]],
+    ['body * *', [4, 2]]
   ];
   for (var i = 0; i < expectedResults.length; i++) {
     var input = expectedResults[i][0];
@@ -116,12 +126,12 @@ function testMatchCssSelector() {
     if (expectedResult == null) {
       assertEquals('Expected null result', expectedResult, result);
     } else {
-      assertEquals(
-          'Expected element index for ' + input, expectedResult[0],
-          result.elementIndex);
-      assertEquals(
-          'Expected selector part index for ' + input, expectedResult[1],
-          result.selectorPartIndex);
+      assertEquals('Expected element index for ' + input,
+                   expectedResult[0],
+                   result.elementIndex);
+      assertEquals('Expected selector part index for ' + input,
+                   expectedResult[1],
+                   result.selectorPartIndex);
     }
   }
   document.body.removeChild(container);
@@ -140,9 +150,10 @@ function makeIframeDocument(iframe) {
 function testCopyCss() {
   for (var i = 1; i <= 4; i++) {
     var sourceElement = document.getElementById('source' + i);
-    var newFrame = goog.dom.createElement(goog.dom.TagName.IFRAME);
+    var newFrame = document.createElement('iframe');
     newFrame.allowTransparency = true;
-    sourceElement.parentNode.insertBefore(newFrame, sourceElement.nextSibling);
+    sourceElement.parentNode.insertBefore(newFrame,
+                                          sourceElement.nextSibling);
     var doc = makeIframeDocument(newFrame);
     goog.cssom.addCssText(
         goog.cssom.iframe.style.getElementContext(sourceElement),
@@ -155,10 +166,9 @@ function testCopyCss() {
     assertEquals(oldProps.length, newProps.length);
     for (var j = 0; j < oldProps.length; j++) {
       for (var k = 0; k < propertiesToTest.length; k++) {
-        assertEquals(
-            'testing property ' + propertiesToTest[k],
-            oldProps[j][0][propertiesToTest[k]],
-            newProps[j][0][propertiesToTest[k]]);
+        assertEquals('testing property ' + propertiesToTest[k],
+                     oldProps[j][0][propertiesToTest[k]],
+                     newProps[j][0][propertiesToTest[k]]);
       }
     }
   }
@@ -171,8 +181,8 @@ function normalizeCssText(cssText) {
 
 function testAImportantInFF2() {
   var testDiv = document.getElementById('source1');
-  var cssText =
-      normalizeCssText(goog.cssom.iframe.style.getElementContext(testDiv));
+  var cssText = normalizeCssText(
+      goog.cssom.iframe.style.getElementContext(testDiv));
   var color = standardizeCSSValue('color', 'red');
   var NORMAL_RULE = 'a{color:' + color;
   var FF_2_RULE = 'a{color:' + color + '!important';
@@ -186,8 +196,10 @@ function testAImportantInFF2() {
 
 function testCopyBackgroundContext() {
   var testDiv = document.getElementById('backgroundTest');
-  var cssText = goog.cssom.iframe.style.getElementContext(testDiv, null, true);
-  var iframe = goog.dom.createElement(goog.dom.TagName.IFRAME);
+  var cssText = goog.cssom.iframe.style.getElementContext(testDiv,
+                                                          null,
+                                                          true);
+  var iframe = document.createElement('iframe');
   var ancestor = document.getElementById('backgroundTest-ancestor-1');
   ancestor.parentNode.insertBefore(iframe, ancestor.nextSibling);
   iframe.style.width = '100%';
@@ -213,15 +225,14 @@ function testCopyBackgroundContext() {
     // Expected y position is:
     // originalBackgroundPositionY - elementOffsetLeft
     // 70px - (1px + 10px + 5px) == 54px;
-    assertTrue(
-        'Background image position should be adjusted correctly',
+    assertTrue('Background image position should be adjusted correctly',
         /body{[^{]*background-position:31px54px/.test(normalizedCssText));
   }
 }
 
 function testCopyBackgroundContextFromIframe() {
   var testDiv = document.getElementById('backgroundTest');
-  var iframe = goog.dom.createElement(goog.dom.TagName.IFRAME);
+  var iframe = document.createElement('iframe');
   iframe.allowTransparency = true;
   iframe.style.position = 'absolute';
   iframe.style.top = '5px';
@@ -257,15 +268,16 @@ function testCopyBackgroundContextFromIframe() {
     // Expected y position is:
     // originalBackgroundPositionY - elementOffsetLeft
     // 70px - (1px + 10px + 5px + 5px + 2px) == 47px;
-    assertTrue(
-        'Background image position should be adjusted correctly',
-        !!/body{[^{]*background-position:24px47px/.exec(normalizedCssText));
+    assertTrue('Background image position should be adjusted correctly',
+        !!/body{[^{]*background-position:24px47px/.exec(
+            normalizedCssText));
   }
   iframe.parentNode.removeChild(iframe);
 }
 
 function testCopyFontFaceRules() {
-  var isFontFaceCssomSupported = goog.userAgent.WEBKIT ||
+  var isFontFaceCssomSupported =
+      goog.userAgent.WEBKIT ||
       goog.userAgent.OPERA ||
       (goog.userAgent.GECKO && goog.userAgent.isVersionOrHigher('1.9.1'));
   // We cannot use goog.testing.ExpectedFailures since it dynamically
@@ -274,8 +286,7 @@ function testCopyFontFaceRules() {
   if (isFontFaceCssomSupported) {
     var cssText = goog.cssom.iframe.style.getElementContext(
         document.getElementById('cavalier'));
-    assertTrue(
-        'The font face rule should have been copied correctly',
-        /@font-face/.test(cssText));
+    assertTrue('The font face rule should have been copied correctly',
+               /@font-face/.test(cssText));
   }
 }

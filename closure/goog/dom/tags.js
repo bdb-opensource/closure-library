@@ -23,11 +23,12 @@ goog.require('goog.object');
 /**
  * The void elements specified by
  * http://www.w3.org/TR/html-markup/syntax.html#void-elements.
- * @const @private {!Object<string, boolean>}
+ * @const
+ * @type {!Object}
+ * @private
  */
-goog.dom.tags.VOID_TAGS_ = goog.object.createSet(
-    'area', 'base', 'br', 'col', 'command', 'embed', 'hr', 'img', 'input',
-    'keygen', 'link', 'meta', 'param', 'source', 'track', 'wbr');
+goog.dom.tags.VOID_TAGS_ = goog.object.createSet(('area,base,br,col,command,' +
+    'embed,hr,img,input,keygen,link,meta,param,source,track,wbr').split(','));
 
 
 /**

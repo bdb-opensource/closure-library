@@ -24,7 +24,6 @@ goog.provide('goog.ds.JsPropertyDataSource');
 goog.require('goog.ds.BaseDataNode');
 goog.require('goog.ds.BasicNodeList');
 goog.require('goog.ds.DataManager');
-goog.require('goog.ds.DataNode');
 goog.require('goog.ds.EmptyNodeList');
 goog.require('goog.ds.LoadState');
 
@@ -99,7 +98,7 @@ goog.ds.JsDataSource.prototype.get = function() {
  */
 goog.ds.JsDataSource.prototype.set = function(value) {
   if (value && goog.isObject(this.root_)) {
-    throw new Error('Can\'t set group nodes to new values yet');
+    throw Error('Can\'t set group nodes to new values yet');
   }
 
   if (this.parent_) {
@@ -131,7 +130,7 @@ goog.ds.JsDataSource.prototype.getChildNodes = function(opt_selector) {
       return new goog.ds.EmptyNodeList();
     }
   } else {
-    throw new Error('Selector not supported yet (' + opt_selector + ')');
+    throw Error('Selector not supported yet (' + opt_selector + ')');
   }
 
 };
@@ -385,7 +384,7 @@ goog.ds.JsDataSource.prototype.load = function() {
  */
 goog.ds.JsDataSource.prototype.getLoadState = function() {
   return (this.root_ == null) ? goog.ds.LoadState.NOT_LOADED :
-                                goog.ds.LoadState.LOADED;
+      goog.ds.LoadState.LOADED;
 };
 
 

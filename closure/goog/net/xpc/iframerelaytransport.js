@@ -20,10 +20,7 @@
 goog.provide('goog.net.xpc.IframeRelayTransport');
 
 goog.require('goog.dom');
-goog.require('goog.dom.TagName');
-goog.require('goog.dom.safe');
 goog.require('goog.events');
-goog.require('goog.html.SafeHtml');
 goog.require('goog.log');
 goog.require('goog.log.Level');
 goog.require('goog.net.xpc');
@@ -31,7 +28,6 @@ goog.require('goog.net.xpc.CfgFields');
 goog.require('goog.net.xpc.Transport');
 goog.require('goog.net.xpc.TransportTypes');
 goog.require('goog.string');
-goog.require('goog.string.Const');
 goog.require('goog.userAgent');
 
 
@@ -88,7 +84,7 @@ if (goog.userAgent.WEBKIT) {
    * Array to keep references to the relay-iframes. Used only if
    * there is no way to detect when the iframes are loaded. In that
    * case the relay-iframes are removed after a timeout.
-   * @type {Array<Object>}
+   * @type {Array.<Object>}
    * @private
    */
   goog.net.xpc.IframeRelayTransport.iframeRefs_ = [];
@@ -124,10 +120,9 @@ if (goog.userAgent.WEBKIT) {
    */
   goog.net.xpc.IframeRelayTransport.startCleanupTimer_ = function() {
     if (!goog.net.xpc.IframeRelayTransport.cleanupTimer_) {
-      goog.net.xpc.IframeRelayTransport.cleanupTimer_ =
-          window.setTimeout(function() {
-            goog.net.xpc.IframeRelayTransport.cleanup_();
-          }, goog.net.xpc.IframeRelayTransport.CLEANUP_INTERVAL_);
+      goog.net.xpc.IframeRelayTransport.cleanupTimer_ = window.setTimeout(
+          function() { goog.net.xpc.IframeRelayTransport.cleanup_(); },
+          goog.net.xpc.IframeRelayTransport.CLEANUP_INTERVAL_);
     }
   };
 
@@ -144,12 +139,12 @@ if (goog.userAgent.WEBKIT) {
 
     while (goog.net.xpc.IframeRelayTransport.iframeRefs_.length &&
            now - goog.net.xpc.IframeRelayTransport.iframeRefs_[0].timestamp >=
-               maxAge) {
-      var ifr =
-          goog.net.xpc.IframeRelayTransport.iframeRefs_.shift().iframeElement;
+           maxAge) {
+      var ifr = goog.net.xpc.IframeRelayTransport.iframeRefs_.
+          shift().iframeElement;
       goog.dom.removeNode(ifr);
-      goog.log.log(
-          goog.net.xpc.logger, goog.log.Level.FINEST, 'iframe removed');
+      goog.log.log(goog.net.xpc.logger, goog.log.Level.FINEST,
+          'iframe removed');
     }
 
     goog.net.xpc.IframeRelayTransport.cleanupTimer_ = window.setTimeout(
@@ -177,7 +172,7 @@ goog.net.xpc.IframeRelayTransport.IE_PAYLOAD_MAX_SIZE_ = 1800;
 
 
 /**
- * @typedef {{fragments: !Array<string>, received: number, expected: number}}
+ * @typedef {{fragments: !Array.<string>, received: number, expected: number}}
  */
 goog.net.xpc.IframeRelayTransport.FragmentInfo;
 
@@ -187,7 +182,7 @@ goog.net.xpc.IframeRelayTransport.FragmentInfo;
  * incoming fragments from several channels at a time, even if data is
  * out-of-order or interleaved.
  *
- * @type {!Object<string, !goog.net.xpc.IframeRelayTransport.FragmentInfo>}
+ * @type {!Object.<string, !goog.net.xpc.IframeRelayTransport.FragmentInfo>}
  * @private
  */
 goog.net.xpc.IframeRelayTransport.fragmentMap_ = {};
@@ -223,8 +218,8 @@ goog.net.xpc.IframeRelayTransport.prototype.connect = function() {
  * @param {string} frame The raw frame content.
  * @private
  */
-goog.net.xpc.IframeRelayTransport.receiveMessage_ = function(
-    channelName, frame) {
+goog.net.xpc.IframeRelayTransport.receiveMessage_ =
+    function(channelName, frame) {
   var pos = frame.indexOf(':');
   var header = frame.substr(0, pos);
   var payload = frame.substr(pos + 1);
@@ -249,7 +244,7 @@ goog.net.xpc.IframeRelayTransport.receiveMessage_ = function(
     if (!fragmentInfo) {
       fragmentInfo =
           goog.net.xpc.IframeRelayTransport.fragmentMap_[messageIdStr] =
-              {fragments: [], received: 0, expected: 0};
+          {fragments: [], received: 0, expected: 0};
     }
 
     if (goog.string.contains(fragmentIdStr, '++')) {
@@ -268,8 +263,8 @@ goog.net.xpc.IframeRelayTransport.receiveMessage_ = function(
     delete goog.net.xpc.IframeRelayTransport.fragmentMap_[messageIdStr];
   }
 
-  goog.net.xpc.channels[channelName].xpcDeliver(
-      service, decodeURIComponent(payload));
+  goog.net.xpc.channels[channelName].
+      xpcDeliver(service, decodeURIComponent(payload));
 };
 
 
@@ -278,14 +273,15 @@ goog.net.xpc.IframeRelayTransport.receiveMessage_ = function(
  * @param {string} payload The message content.
  * @override
  */
-goog.net.xpc.IframeRelayTransport.prototype.transportServiceHandler = function(
-    payload) {
+goog.net.xpc.IframeRelayTransport.prototype.transportServiceHandler =
+    function(payload) {
   if (payload == goog.net.xpc.SETUP) {
     // TODO(user) Safari swallows the SETUP_ACK from the iframe to the
     // container after hitting reload.
     this.send(goog.net.xpc.TRANSPORT_SERVICE_, goog.net.xpc.SETUP_ACK_);
     this.channel_.notifyConnected();
-  } else if (payload == goog.net.xpc.SETUP_ACK_) {
+  }
+  else if (payload == goog.net.xpc.SETUP_ACK_) {
     this.channel_.notifyConnected();
   }
 };
@@ -333,35 +329,29 @@ goog.net.xpc.IframeRelayTransport.prototype.send = function(service, payload) {
  *     identifies the fragment.
  * @private
  */
-goog.net.xpc.IframeRelayTransport.prototype.send_ = function(
-    service, encodedPayload, opt_fragmentIdStr) {
+goog.net.xpc.IframeRelayTransport.prototype.send_ =
+    function(service, encodedPayload, opt_fragmentIdStr) {
   // IE requires that we create the onload attribute inline, otherwise the
   // handler is not triggered
   if (goog.userAgent.IE) {
-    var div =
-        this.getWindow().document.createElement(String(goog.dom.TagName.DIV));
-    // TODO(mlourenco): It might be possible to set the sandbox attribute
-    // to restrict the privileges of the created iframe.
-    goog.dom.safe.setInnerHtml(
-        div, goog.html.SafeHtml.createIframe(null, null, {
-          'onload': goog.string.Const.from('this.xpcOnload()'),
-          'sandbox': null
-        }));
+    var div = this.getWindow().document.createElement('div');
+    div.innerHTML = '<iframe onload="this.xpcOnload()"></iframe>';
     var ifr = div.childNodes[0];
     div = null;
     ifr['xpcOnload'] = goog.net.xpc.IframeRelayTransport.iframeLoadHandler_;
   } else {
-    var ifr = this.getWindow().document.createElement(
-        String(goog.dom.TagName.IFRAME));
+    var ifr = this.getWindow().document.createElement('iframe');
 
     if (goog.userAgent.WEBKIT) {
       // safari doesn't fire load-events on iframes.
       // keep a reference and remove after a timeout.
-      goog.net.xpc.IframeRelayTransport.iframeRefs_.push(
-          {timestamp: goog.now(), iframeElement: ifr});
+      goog.net.xpc.IframeRelayTransport.iframeRefs_.push({
+        timestamp: goog.now(),
+        iframeElement: ifr
+      });
     } else {
-      goog.events.listen(
-          ifr, 'load', goog.net.xpc.IframeRelayTransport.iframeLoadHandler_);
+      goog.events.listen(ifr, 'load',
+                         goog.net.xpc.IframeRelayTransport.iframeLoadHandler_);
     }
   }
 
@@ -392,7 +382,7 @@ goog.net.xpc.IframeRelayTransport.prototype.send_ = function(
 /**
  * The iframe load handler. Gets called as method on the iframe element.
  * @private
- * @this {Element}
+ * @this Element
  */
 goog.net.xpc.IframeRelayTransport.iframeLoadHandler_ = function() {
   goog.log.log(goog.net.xpc.logger, goog.log.Level.FINEST, 'iframe-load');

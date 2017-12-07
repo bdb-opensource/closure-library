@@ -48,8 +48,8 @@ goog.db.KeyRange = function(range) {
  * @type {!Object}
  * @private
  */
-goog.db.KeyRange.IDB_KEY_RANGE_ =
-    goog.global.IDBKeyRange || goog.global.webkitIDBKeyRange;
+goog.db.KeyRange.IDB_KEY_RANGE_ = goog.global.IDBKeyRange ||
+    goog.global.webkitIDBKeyRange;
 
 
 /**
@@ -75,9 +75,8 @@ goog.db.KeyRange.only = function(key) {
  * @return {!goog.db.KeyRange} The key range.
  */
 goog.db.KeyRange.bound = function(lower, upper, opt_lowerOpen, opt_upperOpen) {
-  return new goog.db.KeyRange(
-      goog.db.KeyRange.IDB_KEY_RANGE_.bound(
-          lower, upper, opt_lowerOpen, opt_upperOpen));
+  return new goog.db.KeyRange(goog.db.KeyRange.IDB_KEY_RANGE_.bound(
+      lower, upper, opt_lowerOpen, opt_upperOpen));
 };
 
 
@@ -90,8 +89,8 @@ goog.db.KeyRange.bound = function(lower, upper, opt_lowerOpen, opt_upperOpen) {
  * @return {!goog.db.KeyRange} The key range.
  */
 goog.db.KeyRange.lowerBound = function(lower, opt_lowerOpen) {
-  return new goog.db.KeyRange(
-      goog.db.KeyRange.IDB_KEY_RANGE_.lowerBound(lower, opt_lowerOpen));
+  return new goog.db.KeyRange(goog.db.KeyRange.IDB_KEY_RANGE_.lowerBound(
+      lower, opt_lowerOpen));
 };
 
 
@@ -104,8 +103,8 @@ goog.db.KeyRange.lowerBound = function(lower, opt_lowerOpen) {
  * @return {!goog.db.KeyRange} The key range.
  */
 goog.db.KeyRange.upperBound = function(upper, opt_upperOpen) {
-  return new goog.db.KeyRange(
-      goog.db.KeyRange.IDB_KEY_RANGE_.upperBound(upper, opt_upperOpen));
+  return new goog.db.KeyRange(goog.db.KeyRange.IDB_KEY_RANGE_.upperBound(
+      upper, opt_upperOpen));
 };
 
 

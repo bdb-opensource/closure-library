@@ -23,7 +23,7 @@
 goog.provide('goog.debug.Console');
 
 goog.require('goog.debug.LogManager');
-goog.require('goog.debug.Logger');
+goog.require('goog.debug.Logger.Level');
 goog.require('goog.debug.TextFormatter');
 
 
@@ -43,15 +43,13 @@ goog.debug.Console = function() {
   this.formatter_ = new goog.debug.TextFormatter();
   this.formatter_.showAbsoluteTime = false;
   this.formatter_.showExceptionText = false;
-  // The console logging methods automatically append a newline.
-  this.formatter_.appendNewline = false;
 
   this.isCapturing_ = false;
   this.logBuffer_ = '';
 
   /**
    * Loggers that we shouldn't output.
-   * @type {!Object<boolean>}
+   * @type {!Object.<boolean>}
    * @private
    */
   this.filteredLoggers_ = {};
@@ -113,9 +111,13 @@ goog.debug.Console.prototype.addLogRecord = function(logRecord) {
         goog.debug.Console.logToConsole_(console, 'warn', record);
         break;
       default:
-        goog.debug.Console.logToConsole_(console, 'log', record);
+        goog.debug.Console.logToConsole_(console, 'debug', record);
         break;
     }
+  } else if (window.opera) {
+    // window.opera.postError is considered an undefined property reference
+    // by JSCompiler, so it has to be referenced using array notation instead.
+    window.opera['postError'](record);
   } else {
     this.logBuffer_ += record;
   }
@@ -149,12 +151,11 @@ goog.debug.Console.instance = null;
 
 /**
  * The console to which to log.  This is a property so it can be mocked out in
- * this unit test for goog.debug.Console. Using goog.global, as console might be
- * used in window-less contexts.
- * @type {!{log:!Function}}
+ * this unit test for goog.debug.Console.
+ * @type {Object}
  * @private
  */
-goog.debug.Console.console_ = goog.global['console'];
+goog.debug.Console.console_ = window.console;
 
 
 /**
@@ -162,7 +163,7 @@ goog.debug.Console.console_ = goog.global['console'];
  * @param {!Object} console The console to which to log.
  */
 goog.debug.Console.setConsole = function(console) {
-  goog.debug.Console.console_ = /** @type {!{log:!Function}} */ (console);
+  goog.debug.Console.console_ = console;
 };
 
 
@@ -174,8 +175,7 @@ goog.debug.Console.autoInstall = function() {
     goog.debug.Console.instance = new goog.debug.Console();
   }
 
-  if (goog.global.location &&
-      goog.global.location.href.indexOf('Debug=true') != -1) {
+  if (window.location.href.indexOf('Debug=true') != -1) {
     goog.debug.Console.instance.setCapturing(true);
   }
 };
@@ -193,7 +193,7 @@ goog.debug.Console.show = function() {
 /**
  * Logs the record to the console using the given function.  If the function is
  * not available on the console object, the log function is used instead.
- * @param {!{log:!Function}} console The console object.
+ * @param {!Object} console The console object.
  * @param {string} fnName The name of the function to use.
  * @param {string} record The record to log.
  * @private

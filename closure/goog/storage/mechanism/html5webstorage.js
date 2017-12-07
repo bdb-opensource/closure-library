@@ -33,7 +33,6 @@ goog.require('goog.storage.mechanism.IterableMechanism');
  *
  * @param {Storage} storage The Web storage object.
  * @constructor
- * @struct
  * @extends {goog.storage.mechanism.IterableMechanism}
  */
 goog.storage.mechanism.HTML5WebStorage = function(storage) {
@@ -45,9 +44,8 @@ goog.storage.mechanism.HTML5WebStorage = function(storage) {
    */
   this.storage_ = storage;
 };
-goog.inherits(
-    goog.storage.mechanism.HTML5WebStorage,
-    goog.storage.mechanism.IterableMechanism);
+goog.inherits(goog.storage.mechanism.HTML5WebStorage,
+              goog.storage.mechanism.IterableMechanism);
 
 
 /**
@@ -68,7 +66,7 @@ goog.storage.mechanism.HTML5WebStorage.prototype.isAvailable = function() {
   if (!this.storage_) {
     return false;
   }
-
+  /** @preserveTry */
   try {
     // setItem will throw an exception if we cannot access WebStorage (e.g.,
     // Safari in private mode).
@@ -85,7 +83,7 @@ goog.storage.mechanism.HTML5WebStorage.prototype.isAvailable = function() {
 
 /** @override */
 goog.storage.mechanism.HTML5WebStorage.prototype.set = function(key, value) {
-
+  /** @preserveTry */
   try {
     // May throw an exception if storage quota is exceeded.
     this.storage_.setItem(key, value);

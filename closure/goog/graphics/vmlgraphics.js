@@ -16,6 +16,7 @@
 /**
  * @fileoverview VmlGraphics sub class that uses VML to draw the graphics.
  * @author arv@google.com (Erik Arvidsson)
+ * @author yoah@google.com (Yoah Bar-David)
  */
 
 
@@ -23,13 +24,10 @@ goog.provide('goog.graphics.VmlGraphics');
 
 
 goog.require('goog.array');
-goog.require('goog.dom.TagName');
-goog.require('goog.dom.safe');
 goog.require('goog.events');
 goog.require('goog.events.EventHandler');
 goog.require('goog.events.EventType');
 goog.require('goog.graphics.AbstractGraphics');
-goog.require('goog.graphics.Font');
 goog.require('goog.graphics.LinearGradient');
 goog.require('goog.graphics.Path');
 goog.require('goog.graphics.SolidFill');
@@ -39,14 +37,10 @@ goog.require('goog.graphics.VmlImageElement');
 goog.require('goog.graphics.VmlPathElement');
 goog.require('goog.graphics.VmlRectElement');
 goog.require('goog.graphics.VmlTextElement');
-goog.require('goog.html.uncheckedconversions');
 goog.require('goog.math');
 goog.require('goog.math.Size');
-goog.require('goog.reflect');
 goog.require('goog.string');
-goog.require('goog.string.Const');
 goog.require('goog.style');
-goog.require('goog.userAgent');
 
 
 
@@ -69,12 +63,13 @@ goog.require('goog.userAgent');
  *     http://en.wikipedia.org/wiki/Canvas_element for details.
  * @final
  */
-goog.graphics.VmlGraphics = function(
-    width, height, opt_coordWidth, opt_coordHeight, opt_domHelper) {
-  goog.graphics.AbstractGraphics.call(
-      this, width, height, opt_coordWidth, opt_coordHeight, opt_domHelper);
+goog.graphics.VmlGraphics = function(width, height,
+                                     opt_coordWidth, opt_coordHeight,
+                                     opt_domHelper) {
+  goog.graphics.AbstractGraphics.call(this, width, height,
+                                      opt_coordWidth, opt_coordHeight,
+                                      opt_domHelper);
   this.handler_ = new goog.events.EventHandler(this);
-  this.registerDisposable(this.handler_);
 };
 goog.inherits(goog.graphics.VmlGraphics, goog.graphics.AbstractGraphics);
 
@@ -108,8 +103,8 @@ goog.graphics.VmlGraphics.VML_IMPORT_ = '#default#VML';
  * @private
  * @type {boolean}
  */
-goog.graphics.VmlGraphics.IE8_MODE_ = goog.global.document &&
-    goog.global.document.documentMode && goog.global.document.documentMode >= 8;
+goog.graphics.VmlGraphics.IE8_MODE_ = document.documentMode &&
+    document.documentMode >= 8;
 
 
 /**
@@ -128,8 +123,7 @@ goog.graphics.VmlGraphics.COORD_MULTIPLIER = 100;
  */
 goog.graphics.VmlGraphics.toCssSize = function(size) {
   return goog.isString(size) && goog.string.endsWith(size, '%') ?
-      size :
-      parseFloat(size.toString()) + 'px';
+         size : parseFloat(size.toString()) + 'px';
 };
 
 
@@ -144,8 +138,7 @@ goog.graphics.VmlGraphics.toCssSize = function(size) {
  * @return {number} The position adjusted for COORD_MULTIPLIER.
  */
 goog.graphics.VmlGraphics.toPosCoord = function(number) {
-  return Math.round(
-      (parseFloat(number.toString()) - 0.5) *
+  return Math.round((parseFloat(number.toString()) - 0.5) *
       goog.graphics.VmlGraphics.COORD_MULTIPLIER);
 };
 
@@ -176,8 +169,7 @@ goog.graphics.VmlGraphics.toPosPx = function(number) {
  * @return {number} The size multiplied by the correct factor.
  */
 goog.graphics.VmlGraphics.toSizeCoord = function(number) {
-  return Math.round(
-      parseFloat(number.toString()) *
+  return Math.round(parseFloat(number.toString()) *
       goog.graphics.VmlGraphics.COORD_MULTIPLIER);
 };
 
@@ -228,8 +220,9 @@ goog.graphics.VmlGraphics.prototype.handler_;
  * @return {!Element} The created element.
  */
 goog.graphics.VmlGraphics.prototype.createVmlElement = function(tagName) {
-  var element = this.dom_.createElement(
-      goog.graphics.VmlGraphics.VML_PREFIX_ + ':' + tagName);
+  var element =
+      this.dom_.createElement(goog.graphics.VmlGraphics.VML_PREFIX_ + ':' +
+                              tagName);
   element.id = goog.string.createUniqueString();
   return element;
 };
@@ -254,16 +247,7 @@ goog.graphics.VmlGraphics.prototype.getVmlElement = function(id) {
  */
 goog.graphics.VmlGraphics.prototype.updateGraphics_ = function() {
   if (goog.graphics.VmlGraphics.IE8_MODE_ && this.isInDocument()) {
-    // There's a risk of mXSS here, as the browser is not guaranteed to
-    // return the HTML that was originally written, when innerHTML is read.
-    // However, given that this a deprecated API and affects only IE, it seems
-    // an acceptable risk.
-    var html = goog.html.uncheckedconversions
-                   .safeHtmlFromStringKnownToSatisfyTypeContract(
-                       goog.string.Const.from('Assign innerHTML to itself'),
-                       this.getElement().innerHTML);
-    goog.dom.safe.setInnerHtml(
-        /** @type {!Element} */ (this.getElement()), html);
+    this.getElement().innerHTML = this.getElement().innerHTML;
   }
 };
 
@@ -291,7 +275,7 @@ goog.graphics.VmlGraphics.prototype.append_ = function(element, opt_group) {
  */
 goog.graphics.VmlGraphics.prototype.setElementFill = function(element, fill) {
   var vmlElement = element.getElement();
-  goog.graphics.VmlGraphics.removeFill_(vmlElement);
+  this.removeFill(vmlElement);
   if (fill instanceof goog.graphics.SolidFill) {
     // NOTE(arv): VML does not understand 'transparent' so hard code support
     // for it.
@@ -320,8 +304,8 @@ goog.graphics.VmlGraphics.prototype.setElementFill = function(element, fill) {
     if (goog.isNumber(fill.getOpacity2())) {
       gradient.opacity2 = fill.getOpacity2();
     }
-    var angle =
-        goog.math.angle(fill.getX1(), fill.getY1(), fill.getX2(), fill.getY2());
+    var angle = goog.math.angle(fill.getX1(), fill.getY1(),
+        fill.getX2(), fill.getY2());
     // Our angles start from 0 to the right, and grow clockwise.
     // MSIE starts from 0 to top, and grows anti-clockwise.
     angle = Math.round(goog.math.standardAngle(270 - angle));
@@ -341,8 +325,8 @@ goog.graphics.VmlGraphics.prototype.setElementFill = function(element, fill) {
  * @param {goog.graphics.Stroke?} stroke The stroke object.
  * @override
  */
-goog.graphics.VmlGraphics.prototype.setElementStroke = function(
-    element, stroke) {
+goog.graphics.VmlGraphics.prototype.setElementStroke = function(element,
+    stroke) {
   var vmlElement = element.getElement();
   if (stroke) {
     vmlElement.stroked = true;
@@ -355,13 +339,19 @@ goog.graphics.VmlGraphics.prototype.setElementStroke = function(
     }
 
     var strokeElement = vmlElement.getElementsByTagName('stroke')[0];
-    if (!strokeElement) {
+    if (width < 1) {
       strokeElement = strokeElement || this.createVmlElement('stroke');
+      strokeElement.opacity = width;
+      strokeElement.weight = '1px';
+      strokeElement.color = stroke.getColor();
       vmlElement.appendChild(strokeElement);
+    } else {
+      if (strokeElement) {
+        vmlElement.removeChild(strokeElement);
+      }
+      vmlElement.strokecolor = stroke.getColor();
+      vmlElement.strokeweight = width + 'px';
     }
-    strokeElement.opacity = stroke.getOpacity();
-    strokeElement.weight = width + 'px';
-    strokeElement.color = stroke.getColor();
   } else {
     vmlElement.stroked = false;
   }
@@ -370,10 +360,7 @@ goog.graphics.VmlGraphics.prototype.setElementStroke = function(
 
 
 /**
- * Set the translation and rotation of an element.
- *
- * If a more general affine transform is needed than this provides
- * (e.g. skew and scale) then use setElementAffineTransform.
+ * Set the transformation of an element.
  * @param {goog.graphics.Element} element The element wrapper.
  * @param {number} x The x coordinate of the translation transform.
  * @param {number} y The y coordinate of the translation transform.
@@ -382,8 +369,8 @@ goog.graphics.VmlGraphics.prototype.setElementStroke = function(
  * @param {number} centerY The vertical center of the rotation transform.
  * @override
  */
-goog.graphics.VmlGraphics.prototype.setElementTransform = function(
-    element, x, y, angle, centerX, centerY) {
+goog.graphics.VmlGraphics.prototype.setElementTransform = function(element, x,
+    y, angle, centerX, centerY) {
   var el = element.getElement();
 
   el.style.left = goog.graphics.VmlGraphics.toPosPx(x);
@@ -397,62 +384,18 @@ goog.graphics.VmlGraphics.prototype.setElementTransform = function(
 
 
 /**
- * Set the transformation of an element.
- * @param {!goog.graphics.Element} element The element wrapper.
- * @param {!goog.graphics.AffineTransform} affineTransform The
- *     transformation applied to this element.
- * @override
- */
-goog.graphics.VmlGraphics.prototype.setElementAffineTransform = function(
-    element, affineTransform) {
-  var t = affineTransform;
-  var vmlElement = element.getElement();
-  goog.graphics.VmlGraphics.removeSkew_(vmlElement);
-  var skewNode = this.createVmlElement('skew');
-  skewNode.on = 'true';
-  // Move the transform origin to 0px,0px of the graphics.
-  // In VML, 0,0 means the center of the element, -0.5,-0.5 left top conner of
-  // it.
-  skewNode.origin =
-      (-vmlElement.style.pixelLeft / vmlElement.style.pixelWidth - 0.5) + ',' +
-      (-vmlElement.style.pixelTop / vmlElement.style.pixelHeight - 0.5);
-  skewNode.offset = t.getTranslateX().toFixed(1) + 'px,' +
-      t.getTranslateY().toFixed(1) + 'px';
-  skewNode.matrix = [
-    t.getScaleX().toFixed(6), t.getShearX().toFixed(6),
-    t.getShearY().toFixed(6), t.getScaleY().toFixed(6), 0, 0
-  ].join(',');
-  vmlElement.appendChild(skewNode);
-  this.updateGraphics_();
-};
-
-
-/**
- * Removes the skew information from a dom element.
- * @param {Element} element DOM element.
- * @private
- */
-goog.graphics.VmlGraphics.removeSkew_ = function(element) {
-  goog.array.forEach(element.childNodes, function(child) {
-    if (child.tagName == 'skew') {
-      element.removeChild(child);
-    }
-  });
-};
-
-
-/**
  * Removes the fill information from a dom element.
  * @param {Element} element DOM element.
- * @private
  */
-goog.graphics.VmlGraphics.removeFill_ = function(element) {
+goog.graphics.VmlGraphics.prototype.removeFill = function(element) {
   element.fillcolor = '';
-  goog.array.forEach(element.childNodes, function(child) {
+  var v = element.childNodes.length;
+  for (var i = 0; i < element.childNodes.length; i++) {
+    var child = element.childNodes[i];
     if (child.tagName == 'fill') {
       element.removeChild(child);
     }
-  });
+  }
 };
 
 
@@ -478,7 +421,7 @@ goog.graphics.VmlGraphics.setPositionAndSize = function(
 
   if (element.tagName == 'shape') {
     element.coordsize = goog.graphics.VmlGraphics.toSizeCoord(width) + ' ' +
-        goog.graphics.VmlGraphics.toSizeCoord(height);
+                        goog.graphics.VmlGraphics.toSizeCoord(height);
   }
 };
 
@@ -493,27 +436,24 @@ goog.graphics.VmlGraphics.setPositionAndSize = function(
 goog.graphics.VmlGraphics.prototype.createFullSizeElement_ = function(type) {
   var element = this.createVmlElement(type);
   var size = this.getCoordSize();
-  goog.graphics.VmlGraphics.setPositionAndSize(
-      element, 0, 0, size.width, size.height);
+  goog.graphics.VmlGraphics.setPositionAndSize(element, 0, 0, size.width,
+      size.height);
   return element;
 };
 
 
 /**
- * IE magic - if this "no-op" logic is not here, the 'if' statement in createDom
- * will fail intermittently.  The logic is used to prevent the JsCompiler from
+ * IE magic - if this "no-op" line is not here, the if statement below will
+ * fail intermittently.  The eval is used to prevent the JsCompiler from
  * stripping this piece of code, which it quite reasonably thinks is doing
  * nothing. Put it in try-catch block to prevent "Unspecified Error" when
  * this statement is executed in a defer JS in IE.
  * More info here:
  * http://www.mail-archive.com/users@openlayers.org/msg01838.html
  */
-if (goog.userAgent.IE) {
-  try {
-    goog.reflect.sinkValue(document.namespaces);
-  } catch (e) {
-  }
-}
+try {
+  eval('document.namespaces');
+} catch (ex) {}
 
 
 /**
@@ -526,28 +466,26 @@ goog.graphics.VmlGraphics.prototype.createDom = function() {
   // Add the namespace.
   if (!doc.namespaces[goog.graphics.VmlGraphics.VML_PREFIX_]) {
     if (goog.graphics.VmlGraphics.IE8_MODE_) {
-      doc.namespaces.add(
-          goog.graphics.VmlGraphics.VML_PREFIX_,
-          goog.graphics.VmlGraphics.VML_NS_,
-          goog.graphics.VmlGraphics.VML_IMPORT_);
+      doc.namespaces.add(goog.graphics.VmlGraphics.VML_PREFIX_,
+                         goog.graphics.VmlGraphics.VML_NS_,
+                         goog.graphics.VmlGraphics.VML_IMPORT_);
     } else {
-      doc.namespaces.add(
-          goog.graphics.VmlGraphics.VML_PREFIX_,
-          goog.graphics.VmlGraphics.VML_NS_);
+      doc.namespaces.add(goog.graphics.VmlGraphics.VML_PREFIX_,
+                         goog.graphics.VmlGraphics.VML_NS_);
     }
 
     // We assume that we only need to add the CSS if the namespace was not
     // present
     var ss = doc.createStyleSheet();
     ss.cssText = goog.graphics.VmlGraphics.VML_PREFIX_ + '\\:*' +
-        '{behavior:url(#default#VML)}';
+                 '{behavior:url(#default#VML)}';
   }
 
   // Outer a DIV with overflow hidden for clipping.
-  // All inner elements are absolutely positioned on-top of this div.
+  // All inner elements are absolutly positioned on-top of this div.
   var pixelWidth = this.width;
   var pixelHeight = this.height;
-  var divElement = this.dom_.createDom(goog.dom.TagName.DIV, {
+  var divElement = this.dom_.createDom('div', {
     'style': 'overflow:hidden;position:relative;width:' +
         goog.graphics.VmlGraphics.toCssSize(pixelWidth) + ';height:' +
         goog.graphics.VmlGraphics.toCssSize(pixelHeight)
@@ -559,12 +497,12 @@ goog.graphics.VmlGraphics.prototype.createDom = function() {
   var style = group.style;
 
   style.position = 'absolute';
-  style.left = style.top = '0';
+  style.left = style.top = 0;
   style.width = this.width;
   style.height = this.height;
   if (this.coordWidth) {
-    group.coordsize = goog.graphics.VmlGraphics.toSizeCoord(this.coordWidth) +
-        ' ' +
+    group.coordsize =
+        goog.graphics.VmlGraphics.toSizeCoord(this.coordWidth) + ' ' +
         goog.graphics.VmlGraphics.toSizeCoord(
             /** @type {number} */ (this.coordHeight));
   } else {
@@ -582,9 +520,8 @@ goog.graphics.VmlGraphics.prototype.createDom = function() {
 
   this.canvasElement = new goog.graphics.VmlGroupElement(group, this);
 
-  goog.events.listen(
-      divElement, goog.events.EventType.RESIZE,
-      goog.bind(this.handleContainerResize_, this));
+  goog.events.listen(divElement, goog.events.EventType.RESIZE, goog.bind(
+      this.handleContainerResize_, this));
 };
 
 
@@ -602,12 +539,12 @@ goog.graphics.VmlGraphics.prototype.handleContainerResize_ = function() {
   } else {
     var current = this.getElement();
     while (current && current.currentStyle &&
-           current.currentStyle.display != 'none') {
+        current.currentStyle.display != 'none') {
       current = current.parentNode;
     }
     if (current && current.currentStyle) {
-      this.handler_.listen(
-          current, 'propertychange', this.handleContainerResize_);
+      this.handler_.listen(current, 'propertychange',
+          this.handleContainerResize_);
     }
   }
 
@@ -623,9 +560,8 @@ goog.graphics.VmlGraphics.prototype.handleContainerResize_ = function() {
 goog.graphics.VmlGraphics.prototype.handlePropertyChange_ = function(e) {
   var prop = e.getBrowserEvent().propertyName;
   if (prop == 'display' || prop == 'className') {
-    this.handler_.unlisten(
-        /** @type {Element} */ (e.target), 'propertychange',
-        this.handlePropertyChange_);
+    this.handler_.unlisten(/** @type {Element} */(e.target),
+        'propertychange', this.handlePropertyChange_);
     this.handleContainerResize_();
   }
 };
@@ -653,8 +589,8 @@ goog.graphics.VmlGraphics.prototype.setCoordOrigin = function(left, top) {
  * @param {number} coordHeight The coordinate height.
  * @override
  */
-goog.graphics.VmlGraphics.prototype.setCoordSize = function(
-    coordWidth, coordHeight) {
+goog.graphics.VmlGraphics.prototype.setCoordSize = function(coordWidth,
+                                                            coordHeight) {
   goog.graphics.VmlGraphics.superClass_.setCoordSize.apply(this, arguments);
 
   this.canvasElement.getElement().coordsize =
@@ -669,8 +605,8 @@ goog.graphics.VmlGraphics.prototype.setCoordSize = function(
  * @param {number} pixelHeight The height in pixels.
  * @override
  */
-goog.graphics.VmlGraphics.prototype.setSize = function(
-    pixelWidth, pixelHeight) {
+goog.graphics.VmlGraphics.prototype.setSize = function(pixelWidth,
+    pixelHeight) {
   goog.style.setSize(this.getElement(), pixelWidth, pixelHeight);
 };
 
@@ -683,8 +619,7 @@ goog.graphics.VmlGraphics.prototype.setSize = function(
 goog.graphics.VmlGraphics.prototype.getPixelSize = function() {
   var el = this.getElement();
   // The following relies on the fact that the size can never be 0.
-  return new goog.math.Size(
-      el.style.pixelWidth || el.offsetWidth || 1,
+  return new goog.math.Size(el.style.pixelWidth || el.offsetWidth || 1,
       el.style.pixelHeight || el.offsetHeight || 1);
 };
 
@@ -714,13 +649,13 @@ goog.graphics.VmlGraphics.prototype.clear = function() {
  * @return {!goog.graphics.EllipseElement} The newly created element.
  * @override
  */
-goog.graphics.VmlGraphics.prototype.drawEllipse = function(
-    cx, cy, rx, ry, stroke, fill, opt_group) {
+goog.graphics.VmlGraphics.prototype.drawEllipse = function(cx, cy, rx, ry,
+    stroke, fill, opt_group) {
   var element = this.createVmlElement('oval');
-  goog.graphics.VmlGraphics.setPositionAndSize(
-      element, cx - rx, cy - ry, rx * 2, ry * 2);
-  var wrapper = new goog.graphics.VmlEllipseElement(
-      element, this, cx, cy, rx, ry, stroke, fill);
+  goog.graphics.VmlGraphics.setPositionAndSize(element, cx - rx, cy - ry,
+      rx * 2, ry * 2);
+  var wrapper = new goog.graphics.VmlEllipseElement(element, this,
+      cx, cy, rx, ry, stroke, fill);
   this.append_(wrapper, opt_group);
   return wrapper;
 };
@@ -742,8 +677,8 @@ goog.graphics.VmlGraphics.prototype.drawEllipse = function(
  * @return {!goog.graphics.RectElement} The newly created element.
  * @override
  */
-goog.graphics.VmlGraphics.prototype.drawRect = function(
-    x, y, width, height, stroke, fill, opt_group) {
+goog.graphics.VmlGraphics.prototype.drawRect = function(x, y, width, height,
+    stroke, fill, opt_group) {
   var element = this.createVmlElement('rect');
   goog.graphics.VmlGraphics.setPositionAndSize(element, x, y, width, height);
   var wrapper = new goog.graphics.VmlRectElement(element, this, stroke, fill);
@@ -765,8 +700,8 @@ goog.graphics.VmlGraphics.prototype.drawRect = function(
  *
  * @return {!goog.graphics.ImageElement} The newly created element.
  */
-goog.graphics.VmlGraphics.prototype.drawImage = function(
-    x, y, width, height, src, opt_group) {
+goog.graphics.VmlGraphics.prototype.drawImage = function(x, y, width, height,
+    src, opt_group) {
   var element = this.createVmlElement('image');
   goog.graphics.VmlGraphics.setPositionAndSize(element, x, y, width, height);
   goog.graphics.VmlGraphics.setAttribute(element, 'src', src);
@@ -800,9 +735,9 @@ goog.graphics.VmlGraphics.prototype.drawTextOnLine = function(
 
   var pathElement = this.createVmlElement('path');
   var path = 'M' + goog.graphics.VmlGraphics.toPosCoord(x1) + ',' +
-      goog.graphics.VmlGraphics.toPosCoord(y1) + 'L' +
-      goog.graphics.VmlGraphics.toPosCoord(x2) + ',' +
-      goog.graphics.VmlGraphics.toPosCoord(y2) + 'E';
+             goog.graphics.VmlGraphics.toPosCoord(y1) + 'L' +
+             goog.graphics.VmlGraphics.toPosCoord(x2) + ',' +
+             goog.graphics.VmlGraphics.toPosCoord(y2) + 'E';
   goog.graphics.VmlGraphics.setAttribute(pathElement, 'v', path);
   goog.graphics.VmlGraphics.setAttribute(pathElement, 'textpathok', 'true');
 
@@ -842,11 +777,11 @@ goog.graphics.VmlGraphics.prototype.drawTextOnLine = function(
  * @return {!goog.graphics.PathElement} The newly created element.
  * @override
  */
-goog.graphics.VmlGraphics.prototype.drawPath = function(
-    path, stroke, fill, opt_group) {
+goog.graphics.VmlGraphics.prototype.drawPath = function(path, stroke, fill,
+    opt_group) {
   var element = this.createFullSizeElement_('shape');
-  goog.graphics.VmlGraphics.setAttribute(
-      element, 'path', goog.graphics.VmlGraphics.getVmlPath(path));
+  goog.graphics.VmlGraphics.setAttribute(element, 'path',
+      goog.graphics.VmlGraphics.getVmlPath(path));
 
   var wrapper = new goog.graphics.VmlPathElement(element, this, stroke, fill);
   this.append_(wrapper, opt_group);
@@ -868,18 +803,18 @@ goog.graphics.VmlGraphics.getVmlPath = function(path) {
     switch (segment) {
       case goog.graphics.Path.Segment.MOVETO:
         list.push('m');
-        Array.prototype.push.apply(
-            list, goog.array.map(args, goog.graphics.VmlGraphics.toSizeCoord));
+        Array.prototype.push.apply(list, goog.array.map(args,
+            goog.graphics.VmlGraphics.toSizeCoord));
         break;
       case goog.graphics.Path.Segment.LINETO:
         list.push('l');
-        Array.prototype.push.apply(
-            list, goog.array.map(args, goog.graphics.VmlGraphics.toSizeCoord));
+        Array.prototype.push.apply(list, goog.array.map(args,
+            goog.graphics.VmlGraphics.toSizeCoord));
         break;
       case goog.graphics.Path.Segment.CURVETO:
         list.push('c');
-        Array.prototype.push.apply(
-            list, goog.array.map(args, goog.graphics.VmlGraphics.toSizeCoord));
+        Array.prototype.push.apply(list, goog.array.map(args,
+            goog.graphics.VmlGraphics.toSizeCoord));
         break;
       case goog.graphics.Path.Segment.CLOSE:
         list.push('x');
@@ -925,7 +860,7 @@ goog.graphics.VmlGraphics.prototype.createGroup = function(opt_group) {
  * Measure and return the width (in pixels) of a given text string.
  * Text measurement is needed to make sure a text can fit in the allocated
  * area. The way text length is measured is by writing it into a div that is
- * after the visible area, measure the div width, and immediately erase the
+ * after the visible area, measure the div width, and immediatly erase the
  * written value.
  *
  * @param {string} text The text string to measure.

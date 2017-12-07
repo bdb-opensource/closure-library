@@ -28,8 +28,6 @@ goog.require('goog.ui.ButtonSide');
 goog.require('goog.ui.Component');
 goog.require('goog.ui.ControlRenderer');
 
-goog.forwardDeclare('goog.ui.Button');  // circular
-
 
 
 /**
@@ -84,13 +82,14 @@ goog.ui.ButtonRenderer.prototype.getAriaRole = function() {
  * @protected
  * @override
  */
-goog.ui.ButtonRenderer.prototype.updateAriaState = function(
-    element, state, enable) {
+goog.ui.ButtonRenderer.prototype.updateAriaState = function(element, state,
+    enable) {
   switch (state) {
     // If button has CHECKED or SELECTED state, assign aria-pressed
     case goog.ui.Component.State.SELECTED:
     case goog.ui.Component.State.CHECKED:
-      goog.asserts.assert(element, 'The button DOM element cannot be null.');
+      goog.asserts.assert(element,
+          'The button DOM element cannot be null.');
       goog.a11y.aria.setState(element, goog.a11y.aria.State.PRESSED, enable);
       break;
     default:
@@ -115,8 +114,8 @@ goog.ui.ButtonRenderer.prototype.createDom = function(button) {
 
   // If this is a toggle button, set ARIA state
   if (button.isSupportedState(goog.ui.Component.State.CHECKED)) {
-    this.updateAriaState(
-        element, goog.ui.Component.State.CHECKED, button.isChecked());
+    this.updateAriaState(element, goog.ui.Component.State.CHECKED,
+                         button.isChecked());
   }
 
   return element;
@@ -127,16 +126,16 @@ goog.ui.ButtonRenderer.prototype.createDom = function(button) {
 goog.ui.ButtonRenderer.prototype.decorate = function(button, element) {
   // The superclass implementation takes care of common attributes; we only
   // need to set the value and the tooltip.
-  element =
-      goog.ui.ButtonRenderer.superClass_.decorate.call(this, button, element);
+  element = goog.ui.ButtonRenderer.superClass_.decorate.call(this, button,
+      element);
 
   button.setValueInternal(this.getValue(element));
   button.setTooltipInternal(this.getTooltip(element));
 
   // If this is a toggle button, set ARIA state
   if (button.isSupportedState(goog.ui.Component.State.CHECKED)) {
-    this.updateAriaState(
-        element, goog.ui.Component.State.CHECKED, button.isChecked());
+    this.updateAriaState(element, goog.ui.Component.State.CHECKED,
+                         button.isChecked());
   }
 
   return element;
@@ -179,14 +178,10 @@ goog.ui.ButtonRenderer.prototype.getTooltip = function(element) {
  * @protected
  */
 goog.ui.ButtonRenderer.prototype.setTooltip = function(element, tooltip) {
-  if (element) {
-    // Don't set a title attribute if there isn't a tooltip. Blank title
-    // attributes can be interpreted incorrectly by screen readers.
-    if (tooltip) {
-      element.title = tooltip;
-    } else {
-      element.removeAttribute('title');
-    }
+  // Don't set a title attribute if there isn't a tooltip. Blank title
+  // attributes can be interpreted incorrectly by screen readers.
+  if (element && tooltip) {
+    element.title = tooltip;
   }
 };
 
@@ -207,11 +202,9 @@ goog.ui.ButtonRenderer.prototype.setCollapsed = function(button, sides) {
   var collapseRightClassName =
       goog.getCssName(this.getStructuralCssClass(), 'collapse-right');
 
-  button.enableClassName(
-      isRtl ? collapseRightClassName : collapseLeftClassName,
+  button.enableClassName(isRtl ? collapseRightClassName : collapseLeftClassName,
       !!(sides & goog.ui.ButtonSide.START));
-  button.enableClassName(
-      isRtl ? collapseLeftClassName : collapseRightClassName,
+  button.enableClassName(isRtl ? collapseLeftClassName : collapseRightClassName,
       !!(sides & goog.ui.ButtonSide.END));
 };
 

@@ -52,18 +52,19 @@ function testSetWithString() {
 
 
 function testSetWithSingleProperty() {
-  goog.style.transition.set(
-      element,
+  goog.style.transition.set(element,
       {property: 'opacity', duration: 1, timing: 'ease-in', delay: 0.125});
   assertEquals('opacity 1s ease-in 0.125s', getTransitionStyle(element));
 }
 
 
 function testSetWithMultipleStrings() {
-  goog.style.transition.set(
-      element, ['width 1s ease-in', 'height 0.5s linear 1s']);
-  assertEquals(
-      'width 1s ease-in,height 0.5s linear 1s', getTransitionStyle(element));
+  goog.style.transition.set(element, [
+    'width 1s ease-in',
+    'height 0.5s linear 1s'
+  ]);
+  assertEquals('width 1s ease-in,height 0.5s linear 1s',
+               getTransitionStyle(element));
 }
 
 
@@ -72,8 +73,8 @@ function testSetWithMultipleProperty() {
     {property: 'width', duration: 1, timing: 'ease-in', delay: 0},
     {property: 'height', duration: 0.5, timing: 'linear', delay: 1}
   ]);
-  assertEquals(
-      'width 1s ease-in 0s,height 0.5s linear 1s', getTransitionStyle(element));
+  assertEquals('width 1s ease-in 0s,height 0.5s linear 1s',
+      getTransitionStyle(element));
 }
 
 
@@ -90,8 +91,8 @@ function testAddAndRemoveOnRealElement() {
   }
 
   var div = document.getElementById('test');
-  goog.style.transition.set(div, 'opacity 1s ease-in 125ms');
-  assertEquals('opacity 1s ease-in 125ms', getTransitionStyle(div));
+  goog.style.transition.set(div, 'opacity 1s ease-in 0.125s');
+  assertEquals('opacity 1s ease-in 0.125s', getTransitionStyle(div));
   goog.style.transition.removeAll(div);
   assertEquals('', getTransitionStyle(div));
 }

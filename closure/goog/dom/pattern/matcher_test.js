@@ -16,7 +16,6 @@ goog.provide('goog.dom.pattern.matcherTest');
 goog.setTestOnly('goog.dom.pattern.matcherTest');
 
 goog.require('goog.dom');
-goog.require('goog.dom.TagName');
 goog.require('goog.dom.pattern.EndTag');
 goog.require('goog.dom.pattern.FullTag');
 goog.require('goog.dom.pattern.Matcher');
@@ -36,7 +35,8 @@ function testMatcherAndStartTag() {
   matcher.addPattern(pattern, counter.getCallback());
   matcher.match(document.body);
 
-  assertEquals('StartTag(p) should match 5 times in body', 5, counter.count);
+  assertEquals('StartTag(p) should match 5 times in body', 5,
+      counter.count);
 }
 
 function testMatcherAndStartTagTwice() {
@@ -47,14 +47,15 @@ function testMatcherAndStartTagTwice() {
   matcher.addPattern(pattern, counter.getCallback());
   matcher.match(document.body);
 
-  assertEquals('StartTag(p) should match 5 times in body', 5, counter.count);
+  assertEquals('StartTag(p) should match 5 times in body', 5,
+      counter.count);
 
   // Make sure no state got mangled.
   counter.reset();
   matcher.match(document.body);
 
-  assertEquals(
-      'StartTag(p) should match 5 times in body again', 5, counter.count);
+  assertEquals('StartTag(p) should match 5 times in body again', 5,
+      counter.count);
 }
 
 function testMatcherAndStartTagAttributes() {
@@ -65,8 +66,8 @@ function testMatcherAndStartTagAttributes() {
   matcher.addPattern(pattern, counter.getCallback());
   matcher.match(document.body);
 
-  assertEquals(
-      'StartTag(span,id) should match 2 times in body', 2, counter.count);
+  assertEquals('StartTag(span,id) should match 2 times in body', 2,
+      counter.count);
 }
 
 function testMatcherWithTwoPatterns() {
@@ -81,8 +82,8 @@ function testMatcherWithTwoPatterns() {
 
   matcher.match(document.body);
 
-  assertEquals(
-      'StartTag(span|p) should match 8 times in body', 8, counter.count);
+  assertEquals('StartTag(span|p) should match 8 times in body', 8,
+      counter.count);
 }
 
 function testMatcherWithQuit() {
@@ -91,7 +92,7 @@ function testMatcherWithQuit() {
 
   var count = 0;
   var callback = function(node, position) {
-    if (node.nodeName == goog.dom.TagName.SPAN) {
+    if (node.nodeName == 'SPAN') {
       throw goog.iter.StopIteration;
       return true;
     }
@@ -114,8 +115,8 @@ function testMatcherWithReplace() {
   var count = 0;
   var callback = function(node, position) {
     count++;
-    if (node.nodeName == goog.dom.TagName.B) {
-      var i = goog.dom.createDom(goog.dom.TagName.I);
+    if (node.nodeName == 'B') {
+      var i = goog.dom.createDom('I');
       node.parentNode.insertBefore(i, node);
       goog.dom.removeNode(node);
 
@@ -153,13 +154,12 @@ function testMatcherAndFullTag() {
 }
 
 function testMatcherAndSequence() {
-  var pattern = new goog.dom.pattern.Sequence(
-      [
-        new goog.dom.pattern.StartTag('P'),
-        new goog.dom.pattern.StartTag('SPAN'),
-        new goog.dom.pattern.EndTag('SPAN'), new goog.dom.pattern.EndTag('P')
-      ],
-      true);
+  var pattern = new goog.dom.pattern.Sequence([
+    new goog.dom.pattern.StartTag('P'),
+    new goog.dom.pattern.StartTag('SPAN'),
+    new goog.dom.pattern.EndTag('SPAN'),
+    new goog.dom.pattern.EndTag('P')
+  ], true);
 
   var counter = new goog.dom.pattern.callback.Counter();
   var matcher = new goog.dom.pattern.Matcher();
@@ -170,8 +170,8 @@ function testMatcherAndSequence() {
 }
 
 function testMatcherAndRepeatFullTag() {
-  var pattern =
-      new goog.dom.pattern.Repeat(new goog.dom.pattern.FullTag('P'), 1);
+  var pattern = new goog.dom.pattern.Repeat(
+      new goog.dom.pattern.FullTag('P'), 1);
 
   var count = 0;
   var tcount = 0;

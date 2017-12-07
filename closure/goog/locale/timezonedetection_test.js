@@ -29,7 +29,7 @@ function MockDate() {
   /**
    * Time zone offset. For time zones with daylight saving, the different
    * offsets are represented as array of offsets.
-   * @type {Array<number>}
+   * @type {Array.<number>}
    * @private
    */
   this.timezoneOffset_ = [];
@@ -55,7 +55,7 @@ MockDate.prototype.setTime = function(ms) {
 
 /**
  * Sets the time zone offset.
- * @param {Array<number>} offset Time zone offset.
+ * @param {Array.<number>} offset Time zone offset.
  */
 MockDate.prototype.setTimezoneOffset = function(offset) {
   this.timezoneOffset_ = offset;
@@ -123,7 +123,8 @@ function testGetTimeZoneList() {
   assertEquals('Asia/Chongqing', timeZoneList[7]);
   assertEquals(16, timeZoneList.length);
 
-  timeZoneList = goog.locale.timeZoneDetection.getTimeZoneList('AU', mockDate);
+  timeZoneList =
+      goog.locale.timeZoneDetection.getTimeZoneList('AU', mockDate);
   assertEquals(1, timeZoneList.length);
   assertEquals('Australia/Perth', timeZoneList[0]);
 }

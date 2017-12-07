@@ -24,6 +24,7 @@
  * curves of arbitrary degree.
  *
  * @author robbyw@google.com (Robby Walker)
+ * @author wcrosby@google.com (Wayne Crosby)
  */
 
 goog.provide('goog.math.Bezier');
@@ -43,7 +44,6 @@ goog.require('goog.math.Coordinate');
  * @param {number} y2 Y coordinate of the second control point.
  * @param {number} x3 X coordinate of the end point.
  * @param {number} y3 Y coordinate of the end point.
- * @struct
  * @constructor
  * @final
  */
@@ -110,8 +110,8 @@ goog.math.Bezier.KAPPA = 4 * (Math.sqrt(2) - 1) / 3;
  * @return {!goog.math.Bezier} A copy of this curve.
  */
 goog.math.Bezier.prototype.clone = function() {
-  return new goog.math.Bezier(
-      this.x0, this.y0, this.x1, this.y1, this.x2, this.y2, this.x3, this.y3);
+  return new goog.math.Bezier(this.x0, this.y0, this.x1, this.y1, this.x2,
+      this.y2, this.x3, this.y3);
 };
 
 
@@ -122,8 +122,8 @@ goog.math.Bezier.prototype.clone = function() {
  */
 goog.math.Bezier.prototype.equals = function(other) {
   return this.x0 == other.x0 && this.y0 == other.y0 && this.x1 == other.x1 &&
-      this.y1 == other.y1 && this.x2 == other.x2 && this.y2 == other.y2 &&
-      this.x3 == other.x3 && this.y3 == other.y3;
+         this.y1 == other.y1 && this.x2 == other.x2 && this.y2 == other.y2 &&
+         this.x3 == other.x3 && this.y3 == other.y3;
 };
 
 
@@ -296,9 +296,8 @@ goog.math.Bezier.prototype.solvePositionFromXValue = function(xVal) {
   // Try gradient descent to solve for t. If it works, it is very fast.
   var tMin = 0;
   var tMax = 1;
-  var value = 0;
   for (var i = 0; i < 8; i++) {
-    value = this.getPointX(t);
+    var value = this.getPointX(t);
     var derivative = (this.getPointX(t + epsilon) - value) / epsilon;
     if (Math.abs(value - xVal) < epsilon) {
       return t;

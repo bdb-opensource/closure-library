@@ -27,7 +27,7 @@ goog.require('goog.net.IframeLoadMonitor');
  * Provides a wrapper around IframeLoadMonitor, to allow the caller to wait for
  * multiple iframes to load.
  *
- * @param {Array<HTMLIFrameElement>} iframes Array of iframe elements to
+ * @param {Array.<HTMLIFrameElement>} iframes Array of iframe elements to
  *     wait until they are loaded.
  * @param {function():void} callback The callback to invoke once the frames have
  *     loaded.
@@ -40,7 +40,7 @@ goog.net.MultiIframeLoadMonitor = function(iframes, callback, opt_hasContent) {
   /**
    * Array of IframeLoadMonitors we use to track the loaded status of any
    * currently unloaded iframes.
-   * @type {Array<goog.net.IframeLoadMonitor>}
+   * @type {Array.<goog.net.IframeLoadMonitor>}
    * @private
    */
   this.pendingIframeLoadMonitors_ = [];
@@ -53,8 +53,8 @@ goog.net.MultiIframeLoadMonitor = function(iframes, callback, opt_hasContent) {
   this.callback_ = callback;
 
   for (var i = 0; i < iframes.length; i++) {
-    var iframeLoadMonitor =
-        new goog.net.IframeLoadMonitor(iframes[i], opt_hasContent);
+    var iframeLoadMonitor = new goog.net.IframeLoadMonitor(
+        iframes[i], opt_hasContent);
     if (iframeLoadMonitor.isLoaded()) {
       // Already loaded - don't need to wait
       iframeLoadMonitor.dispose();
@@ -115,3 +115,4 @@ goog.net.MultiIframeLoadMonitor.prototype.stopMonitoring = function() {
   }
   this.pendingIframeLoadMonitors_.length = 0;
 };
+

@@ -58,27 +58,16 @@ goog.require('goog.math.Size');
  * @extends {goog.events.EventTarget}
  */
 goog.dom.ViewportSizeMonitor = function(opt_window) {
-  goog.dom.ViewportSizeMonitor.base(this, 'constructor');
+  goog.events.EventTarget.call(this);
 
-  /**
-   * The window to monitor. Defaults to the window in which the code is running.
-   * @private {Window}
-   */
+  // Default the window to the current window if unspecified.
   this.window_ = opt_window || window;
 
-  /**
-   * Event listener key for window the window resize handler, as returned by
-   * {@link goog.events.listen}.
-   * @private {goog.events.Key}
-   */
-  this.listenerKey_ = goog.events.listen(
-      this.window_, goog.events.EventType.RESIZE, this.handleResize_, false,
-      this);
+  // Listen for window resize events.
+  this.listenerKey_ = goog.events.listen(this.window_,
+      goog.events.EventType.RESIZE, this.handleResize_, false, this);
 
-  /**
-   * The most recently recorded size of the viewport, in pixels.
-   * @private {goog.math.Size}
-   */
+  // Set the initial size.
   this.size_ = goog.dom.getViewportSize(this.window_);
 };
 goog.inherits(goog.dom.ViewportSizeMonitor, goog.events.EventTarget);
@@ -97,7 +86,7 @@ goog.dom.ViewportSizeMonitor.getInstanceForWindow = function(opt_window) {
   var uid = goog.getUid(currentWindow);
 
   return goog.dom.ViewportSizeMonitor.windowInstanceMap_[uid] =
-             goog.dom.ViewportSizeMonitor.windowInstanceMap_[uid] ||
+      goog.dom.ViewportSizeMonitor.windowInstanceMap_[uid] ||
       new goog.dom.ViewportSizeMonitor(currentWindow);
 };
 
@@ -119,10 +108,35 @@ goog.dom.ViewportSizeMonitor.removeInstanceForWindow = function(opt_window) {
 /**
  * Map of window hash code to viewport size monitor for that window, if
  * created.
- * @type {Object<number,goog.dom.ViewportSizeMonitor>}
+ * @type {Object.<number,goog.dom.ViewportSizeMonitor>}
  * @private
  */
 goog.dom.ViewportSizeMonitor.windowInstanceMap_ = {};
+
+
+/**
+ * Event listener key for window the window resize handler, as returned by
+ * {@link goog.events.listen}.
+ * @type {goog.events.Key}
+ * @private
+ */
+goog.dom.ViewportSizeMonitor.prototype.listenerKey_ = null;
+
+
+/**
+ * The window to monitor.  Defaults to the window in which the code is running.
+ * @type {Window}
+ * @private
+ */
+goog.dom.ViewportSizeMonitor.prototype.window_ = null;
+
+
+/**
+ * The most recently recorded size of the viewport, in pixels.
+ * @type {goog.math.Size?}
+ * @private
+ */
+goog.dom.ViewportSizeMonitor.prototype.size_ = null;
 
 
 /**

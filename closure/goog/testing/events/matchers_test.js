@@ -27,7 +27,9 @@ function testEventMatcher() {
   assertFalse(matcher.matches(new goog.events.Event('bar')));
 
   assertTrue(matcher.matches(new goog.events.Event('foo')));
-  var FooEvent = function() { goog.events.Event.call(this, 'foo'); };
+  var FooEvent = function() {
+    goog.events.Event.call(this, 'foo');
+  };
   goog.inherits(FooEvent, goog.events.Event);
   assertTrue(matcher.matches(new FooEvent()));
 }

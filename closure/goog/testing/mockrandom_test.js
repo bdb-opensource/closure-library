@@ -55,13 +55,19 @@ function testRandomStrictlyFromSequence() {
   var random = new goog.testing.MockRandom([], /* install */ true);
   random.setStrictlyFromSequence(true);
   assertFalse(random.hasMoreValues());
-  assertThrows(function() { Math.random(); });
+  assertThrows(function() {
+    Math.random();
+  });
 
   random.inject(3);
   assertTrue(random.hasMoreValues());
-  assertNotThrows(function() { Math.random(); });
+  assertNotThrows(function() {
+    Math.random();
+  });
 
   random.setStrictlyFromSequence(false);
   assertFalse(random.hasMoreValues());
-  assertNotThrows(function() { Math.random(); });
+  assertNotThrows(function() {
+    Math.random();
+  });
 }

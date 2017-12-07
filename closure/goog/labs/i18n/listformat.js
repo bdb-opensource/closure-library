@@ -112,8 +112,8 @@ goog.labs.i18n.ListFormat = function() {
  * @return {string} The formatted list string.
  * @private
  */
-goog.labs.i18n.ListFormat.prototype.patternBasedJoinTwoStrings_ = function(
-    pattern, first, second) {
+goog.labs.i18n.ListFormat.prototype.patternBasedJoinTwoStrings_ =
+    function(pattern, first, second) {
   return pattern.replace('{0}', first).replace('{1}', second);
 };
 
@@ -122,7 +122,7 @@ goog.labs.i18n.ListFormat.prototype.patternBasedJoinTwoStrings_ = function(
  * Formats an array of strings into a string.
  * It is a user facing, locale-aware list (i.e. 'red, green, and blue').
  *
- * @param {!Array<string|number>} items Items to format.
+ * @param {!Array.<string|number>} items Items to format.
  * @return {string} The items formatted into a string, as a list.
  */
 goog.labs.i18n.ListFormat.prototype.format = function(items) {
@@ -133,20 +133,20 @@ goog.labs.i18n.ListFormat.prototype.format = function(items) {
     case 1:
       return String(items[0]);
     case 2:
-      return this.patternBasedJoinTwoStrings_(
-          this.listTwoPattern_, String(items[0]), String(items[1]));
+      return this.patternBasedJoinTwoStrings_(this.listTwoPattern_,
+          String(items[0]), String(items[1]));
   }
 
-  var result = this.patternBasedJoinTwoStrings_(
-      this.listStartPattern_, String(items[0]), String(items[1]));
+  var result = this.patternBasedJoinTwoStrings_(this.listStartPattern_,
+      String(items[0]), String(items[1]));
 
   for (var i = 2; i < count - 1; ++i) {
-    result = this.patternBasedJoinTwoStrings_(
-        this.listMiddlePattern_, result, String(items[i]));
+    result = this.patternBasedJoinTwoStrings_(this.listMiddlePattern_,
+        result, String(items[i]));
   }
 
-  return this.patternBasedJoinTwoStrings_(
-      this.listEndPattern_, result, String(items[count - 1]));
+  return this.patternBasedJoinTwoStrings_(this.listEndPattern_,
+      result, String(items[count - 1]));
 };
 
 
@@ -204,7 +204,7 @@ goog.labs.i18n.GenderInfo.Gender = {
 /**
  * Determines the overal gender of a list based on the gender of all the list
  * items, in a locale-aware way.
- * @param {!Array<!goog.labs.i18n.GenderInfo.Gender>} genders An array of
+ * @param {!Array.<!goog.labs.i18n.GenderInfo.Gender>} genders An array of
  *        genders, will give the gender of the list.
  * @return {goog.labs.i18n.GenderInfo.Gender} Get the gender of the list.
 */
@@ -213,10 +213,10 @@ goog.labs.i18n.GenderInfo.prototype.getListGender = function(genders) {
 
   var count = genders.length;
   if (count == 0) {
-    return Gender.OTHER;  // degenerate case
+    return Gender.OTHER; // degenerate case
   }
   if (count == 1) {
-    return genders[0];  // degenerate case
+    return genders[0]; // degenerate case
   }
 
   switch (this.listGenderStyle_) {
@@ -241,9 +241,9 @@ goog.labs.i18n.GenderInfo.prototype.getListGender = function(genders) {
             break;
           case Gender.OTHER:
             return Gender.OTHER;
-          default:  // Should never happen, but just in case
-            goog.asserts.assert(
-                false, 'Invalid genders[' + i + '] = ' + genders[i]);
+          default: // Should never happen, but just in case
+            goog.asserts.assert(false,
+                'Invalid genders[' + i + '] = ' + genders[i]);
             return Gender.OTHER;
         }
       }

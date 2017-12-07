@@ -33,33 +33,24 @@ function testSavedCaretRangeDoesntChangeSelection() {
   // way to detect it is to run this test manually and look at the selection
   // when it ends.
   var div = goog.dom.getElement('bug1480638');
-  var range =
-      goog.dom.Range.createFromNodes(div.firstChild, 0, div.lastChild, 1);
+  var range = goog.dom.Range.createFromNodes(
+      div.firstChild, 0, div.lastChild, 1);
   range.select();
 
   // Observe visible selection.  Then move to next line and see it change.
   // If the bug exists, it starts with "foo" selected and ends with
   // it not selected.
-  // debugger;
+  //debugger;
   var saved = range.saveUsingCarets();
 }
 
 function testSavedCaretRange() {
-  if (goog.userAgent.IE && !goog.userAgent.isDocumentModeOrHigher(8)) {
-    // testSavedCaretRange fails in IE7 unless the source files are loaded in a
-    // certain order. Adding goog.require('goog.dom.classes') to dom.js or
-    // goog.require('goog.array') to savedcaretrange_test.js after the
-    // goog.require('goog.dom') line fixes the test, but it's better to not
-    // rely on such hacks without understanding the reason of the failure.
-    return;
-  }
-
   var parent = goog.dom.getElement('caretRangeTest');
   var def = goog.dom.getElement('def');
   var jkl = goog.dom.getElement('jkl');
 
-  var range =
-      goog.dom.Range.createFromNodes(def.firstChild, 1, jkl.firstChild, 2);
+  var range = goog.dom.Range.createFromNodes(
+      def.firstChild, 1, jkl.firstChild, 2);
   assertFalse(range.isReversed());
   range.select();
 
@@ -70,7 +61,8 @@ function testSavedCaretRange() {
       'jk<span id="' + saved.endCaretId_ + '"></span>l', jkl.innerHTML);
 
   goog.testing.dom.assertRangeEquals(
-      def.childNodes[1], 0, jkl.childNodes[1], 0, saved.toAbstractRange());
+      def.childNodes[1], 0, jkl.childNodes[1], 0,
+      saved.toAbstractRange());
 
   def = goog.dom.getElement('def');
   jkl = goog.dom.getElement('jkl');
@@ -84,28 +76,25 @@ function testSavedCaretRange() {
   assertHTMLEquals('jkl', jkl.innerHTML);
 
   // def and jkl now contain fragmented text nodes.
-  var endNode = selection.getEndNode();
-  if (endNode == jkl.childNodes[0]) {
-    // Webkit (up to Chrome 57) and IE < 9.
+  if (goog.userAgent.WEBKIT || goog.userAgent.IE) {
     goog.testing.dom.assertRangeEquals(
         def.childNodes[1], 0, jkl.childNodes[0], 2, selection);
-  } else if (endNode == jkl.childNodes[1]) {
-    // Opera
+  } else if (goog.userAgent.OPERA) {
     goog.testing.dom.assertRangeEquals(
         def.childNodes[1], 0, jkl.childNodes[1], 0, selection);
   } else {
-    // Gecko, newer Chromes
-    goog.testing.dom.assertRangeEquals(def, 1, jkl, 1, selection);
+    goog.testing.dom.assertRangeEquals(
+        def, 1, jkl, 1, selection);
   }
 }
 
 function testReversedSavedCaretRange() {
   var parent = goog.dom.getElement('caretRangeTest');
-  var def = goog.dom.getElement('def-5');
-  var jkl = goog.dom.getElement('jkl-5');
+  var def = goog.dom.getElement('def');
+  var jkl = goog.dom.getElement('jkl');
 
-  var range =
-      goog.dom.Range.createFromNodes(jkl.firstChild, 1, def.firstChild, 2);
+  var range = goog.dom.Range.createFromNodes(
+      jkl.firstChild, 1, def.firstChild, 2);
   assertTrue(range.isReversed());
   range.select();
 
@@ -144,7 +133,7 @@ function testReversedSavedCaretRange() {
    }
    */
 
-function testRemoveContents() {
+function testRemoveContents()  {
   var def = goog.dom.getElement('def-4');
   var jkl = goog.dom.getElement('jkl-4');
 
@@ -154,8 +143,8 @@ function testRemoveContents() {
   assertEquals('def', def.innerHTML);
   assertEquals('jkl', jkl.innerHTML);
 
-  var range =
-      goog.dom.Range.createFromNodes(def.firstChild, 1, jkl.firstChild, 2);
+  var range = goog.dom.Range.createFromNodes(
+      def.firstChild, 1, jkl.firstChild, 2);
   range.select();
 
   var saved = range.saveUsingCarets();
@@ -172,8 +161,8 @@ function testHtmlEqual() {
   var def = goog.dom.getElement('def-2');
   var jkl = goog.dom.getElement('jkl-2');
 
-  var range =
-      goog.dom.Range.createFromNodes(def.firstChild, 1, jkl.firstChild, 2);
+  var range = goog.dom.Range.createFromNodes(
+      def.firstChild, 1, jkl.firstChild, 2);
   range.select();
   var saved = range.saveUsingCarets();
   var html1 = parent.innerHTML;
@@ -183,14 +172,11 @@ function testHtmlEqual() {
   var html2 = parent.innerHTML;
   saved2.removeCarets();
 
-  assertNotEquals(
-      'Same selection with different saved caret range carets ' +
-          'must have different html.',
-      html1, html2);
+  assertNotEquals('Same selection with different saved caret range carets ' +
+      'must have different html.', html1, html2);
 
-  assertTrue(
-      'Same selection with different saved caret range carets must ' +
-          'be considered equal by htmlEqual',
+  assertTrue('Same selection with different saved caret range carets must ' +
+      'be considered equal by htmlEqual',
       goog.dom.SavedCaretRange.htmlEqual(html1, html2));
 
   saved.dispose();
@@ -202,7 +188,8 @@ function testStartCaretIsAtEndOfParent() {
   var def = goog.dom.getElement('def-3');
   var jkl = goog.dom.getElement('jkl-3');
 
-  var range = goog.dom.Range.createFromNodes(def, 1, jkl, 1);
+  var range = goog.dom.Range.createFromNodes(
+      def, 1, jkl, 1);
   range.select();
   var saved = range.saveUsingCarets();
   clearSelectionAndRestoreSaved(parent, saved);

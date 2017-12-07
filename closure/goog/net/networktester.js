@@ -32,7 +32,7 @@ goog.require('goog.log');
  *     was reachable, false indicates it wasn't.
  * @param {Object=} opt_handler Handler object for the callback.
  * @param {goog.Uri=} opt_uri URI to use for testing.
- * @constructor @struct
+ * @constructor
  * @final
  */
 goog.net.NetworkTester = function(callback, opt_handler, opt_uri) {
@@ -143,10 +143,6 @@ goog.net.NetworkTester.prototype.timeoutTimer_ = null;
 goog.net.NetworkTester.prototype.pauseTimer_ = null;
 
 
-/** @private {?Image} */
-goog.net.NetworkTester.prototype.image_;
-
-
 /**
  * Returns the timeout in milliseconds.
  * @return {number} Timeout in milliseconds.
@@ -211,15 +207,6 @@ goog.net.NetworkTester.prototype.getUri = function() {
 
 
 /**
- * Returns the current attempt count.
- * @return {number} The attempt count.
- */
-goog.net.NetworkTester.prototype.getAttemptCount = function() {
-  return this.attempt_;
-};
-
-
-/**
  * Sets the uri to use for the test.
  * @param {goog.Uri} uri The uri for the test.
  */
@@ -242,7 +229,7 @@ goog.net.NetworkTester.prototype.isRunning = function() {
  */
 goog.net.NetworkTester.prototype.start = function() {
   if (this.running_) {
-    throw new Error('NetworkTester.start called when already running');
+    throw Error('NetworkTester.start called when already running');
   }
   this.running_ = true;
 
@@ -273,16 +260,15 @@ goog.net.NetworkTester.prototype.startNextAttempt_ = function() {
     // Call in a timeout to make async like the rest.
     goog.Timer.callOnce(goog.bind(this.onResult, this, false), 0);
   } else {
-    goog.log.info(
-        this.logger_,
-        'Loading image (attempt ' + this.attempt_ + ') at ' + this.uri_);
+    goog.log.info(this.logger_, 'Loading image (attempt ' + this.attempt_ +
+                      ') at ' + this.uri_);
     this.image_ = new Image();
     this.image_.onload = goog.bind(this.onImageLoad_, this);
     this.image_.onerror = goog.bind(this.onImageError_, this);
     this.image_.onabort = goog.bind(this.onImageAbort_, this);
 
-    this.timeoutTimer_ =
-        goog.Timer.callOnce(this.onImageTimeout_, this.timeoutMs_, this);
+    this.timeoutTimer_ = goog.Timer.callOnce(this.onImageTimeout_,
+        this.timeoutMs_, this);
     this.image_.src = String(this.uri_);
   }
 };
@@ -293,7 +279,7 @@ goog.net.NetworkTester.prototype.startNextAttempt_ = function() {
  * @private
  */
 goog.net.NetworkTester.getNavigatorOffline_ = function() {
-  return navigator !== null && 'onLine' in navigator && !navigator.onLine;
+  return 'onLine' in navigator && !navigator.onLine;
 };
 
 
@@ -350,8 +336,8 @@ goog.net.NetworkTester.prototype.onResult = function(succeeded) {
   } else {
     if (this.attempt_ <= this.retries_) {
       if (this.pauseBetweenRetriesMs_) {
-        this.pauseTimer_ = goog.Timer.callOnce(
-            this.onPauseFinished_, this.pauseBetweenRetriesMs_, this);
+        this.pauseTimer_ = goog.Timer.callOnce(this.onPauseFinished_,
+            this.pauseBetweenRetriesMs_, this);
       } else {
         this.startNextAttempt_();
       }

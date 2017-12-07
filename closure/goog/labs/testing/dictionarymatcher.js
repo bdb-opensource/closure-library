@@ -25,9 +25,10 @@ goog.provide('goog.labs.testing.HasKeyMatcher');
 goog.provide('goog.labs.testing.HasValueMatcher');
 
 
+goog.require('goog.array');
 goog.require('goog.asserts');
 goog.require('goog.labs.testing.Matcher');
-goog.require('goog.object');
+goog.require('goog.string');
 
 
 
@@ -55,11 +56,13 @@ goog.labs.testing.HasEntriesMatcher = function(entries) {
  *
  * @override
  */
-goog.labs.testing.HasEntriesMatcher.prototype.matches = function(actualObject) {
+goog.labs.testing.HasEntriesMatcher.prototype.matches =
+    function(actualObject) {
   goog.asserts.assertObject(actualObject, 'Expected an Object');
-  var object = /** @type {!Object} */ (actualObject);
+  var object = /** @type {!Object} */(actualObject);
   return goog.object.every(this.entries_, function(value, key) {
-    return goog.object.containsKey(object, key) && object[key] === value;
+    return goog.object.containsKey(object, key) &&
+           object[key] === value;
   });
 };
 
@@ -67,13 +70,14 @@ goog.labs.testing.HasEntriesMatcher.prototype.matches = function(actualObject) {
 /**
  * @override
  */
-goog.labs.testing.HasEntriesMatcher.prototype.describe = function(
-    actualObject) {
+goog.labs.testing.HasEntriesMatcher.prototype.describe =
+    function(actualObject) {
   goog.asserts.assertObject(actualObject, 'Expected an Object');
-  var object = /** @type {!Object} */ (actualObject);
+  var object = /** @type {!Object} */(actualObject);
   var errorString = 'Input object did not contain the following entries:\n';
   goog.object.forEach(this.entries_, function(value, key) {
-    if (!goog.object.containsKey(object, key) || object[key] !== value) {
+    if (!goog.object.containsKey(object, key) ||
+        object[key] !== value) {
       errorString += key + ': ' + value + '\n';
     }
   });
@@ -112,17 +116,19 @@ goog.labs.testing.HasEntryMatcher = function(key, value) {
  *
  * @override
  */
-goog.labs.testing.HasEntryMatcher.prototype.matches = function(actualObject) {
+goog.labs.testing.HasEntryMatcher.prototype.matches =
+    function(actualObject) {
   goog.asserts.assertObject(actualObject);
   return goog.object.containsKey(actualObject, this.key_) &&
-      actualObject[this.key_] === this.value_;
+         actualObject[this.key_] === this.value_;
 };
 
 
 /**
  * @override
  */
-goog.labs.testing.HasEntryMatcher.prototype.describe = function(actualObject) {
+goog.labs.testing.HasEntryMatcher.prototype.describe =
+    function(actualObject) {
   goog.asserts.assertObject(actualObject);
   var errorMsg;
   if (goog.object.containsKey(actualObject, this.key_)) {
@@ -159,7 +165,8 @@ goog.labs.testing.HasKeyMatcher = function(key) {
  *
  * @override
  */
-goog.labs.testing.HasKeyMatcher.prototype.matches = function(actualObject) {
+goog.labs.testing.HasKeyMatcher.prototype.matches =
+    function(actualObject) {
   goog.asserts.assertObject(actualObject);
   return goog.object.containsKey(actualObject, this.key_);
 };
@@ -168,7 +175,8 @@ goog.labs.testing.HasKeyMatcher.prototype.matches = function(actualObject) {
 /**
  * @override
  */
-goog.labs.testing.HasKeyMatcher.prototype.describe = function(actualObject) {
+goog.labs.testing.HasKeyMatcher.prototype.describe =
+    function(actualObject) {
   goog.asserts.assertObject(actualObject);
   return 'Input object did not contain the key: ' + this.key_;
 };
@@ -199,9 +207,10 @@ goog.labs.testing.HasValueMatcher = function(value) {
  *
  * @override
  */
-goog.labs.testing.HasValueMatcher.prototype.matches = function(actualObject) {
+goog.labs.testing.HasValueMatcher.prototype.matches =
+    function(actualObject) {
   goog.asserts.assertObject(actualObject, 'Expected an Object');
-  var object = /** @type {!Object} */ (actualObject);
+  var object = /** @type {!Object} */(actualObject);
   return goog.object.containsValue(object, this.value_);
 };
 
@@ -209,7 +218,8 @@ goog.labs.testing.HasValueMatcher.prototype.matches = function(actualObject) {
 /**
  * @override
  */
-goog.labs.testing.HasValueMatcher.prototype.describe = function(actualObject) {
+goog.labs.testing.HasValueMatcher.prototype.describe =
+    function(actualObject) {
   return 'Input object did not contain the value: ' + this.value_;
 };
 

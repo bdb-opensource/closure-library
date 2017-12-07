@@ -16,6 +16,7 @@
  * @fileoverview A toolbar toggle button control.
  *
  * @author attila@google.com (Attila Bodis)
+ * @author ssaviano@google.com (Steven Saviano)
  */
 
 goog.provide('goog.ui.ToolbarToggleButton');
@@ -34,21 +35,20 @@ goog.require('goog.ui.registry');
  * @param {goog.ui.ToolbarButtonRenderer=} opt_renderer Optional renderer used
  *     to render or decorate the button; defaults to
  *     {@link goog.ui.ToolbarButtonRenderer}.
- * @param {goog.dom.DomHelper=} opt_domHelper Optional DOM helper, used for
+ * @param {goog.dom.DomHelper=} opt_domHelper Optional DOM hepler, used for
  *     document interaction.
  * @constructor
  * @extends {goog.ui.ToggleButton}
  */
 goog.ui.ToolbarToggleButton = function(content, opt_renderer, opt_domHelper) {
-  goog.ui.ToggleButton.call(
-      this, content,
-      opt_renderer || goog.ui.ToolbarButtonRenderer.getInstance(),
-      opt_domHelper);
+  goog.ui.ToggleButton.call(this, content, opt_renderer ||
+      goog.ui.ToolbarButtonRenderer.getInstance(), opt_domHelper);
 };
 goog.inherits(goog.ui.ToolbarToggleButton, goog.ui.ToggleButton);
 
 
 // Registers a decorator factory function for toggle buttons in toolbars.
 goog.ui.registry.setDecoratorByClassName(
-    goog.getCssName('goog-toolbar-toggle-button'),
-    function() { return new goog.ui.ToolbarToggleButton(null); });
+    goog.getCssName('goog-toolbar-toggle-button'), function() {
+      return new goog.ui.ToolbarToggleButton(null);
+    });

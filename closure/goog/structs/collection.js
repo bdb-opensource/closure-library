@@ -53,3 +53,4 @@ goog.structs.Collection.prototype.contains;
  * @return {number} The number of values stored in the collection.
  */
 goog.structs.Collection.prototype.getCount;
+

@@ -16,7 +16,6 @@
  * @fileoverview A class for representing items in menus.
  * @see goog.ui.Menu
  *
- * @author attila@google.com (Attila Bodis)
  * @see ../demos/menuitem.html
  */
 
@@ -32,8 +31,6 @@ goog.require('goog.ui.Component');
 goog.require('goog.ui.Control');
 goog.require('goog.ui.MenuItemRenderer');
 goog.require('goog.ui.registry');
-
-goog.forwardDeclare('goog.ui.Menu'); // circular
 
 
 
@@ -51,13 +48,11 @@ goog.forwardDeclare('goog.ui.Menu'); // circular
  * @extends {goog.ui.Control}
  */
 goog.ui.MenuItem = function(content, opt_model, opt_domHelper, opt_renderer) {
-  goog.ui.Control.call(
-      this, content, opt_renderer || goog.ui.MenuItemRenderer.getInstance(),
-      opt_domHelper);
+  goog.ui.Control.call(this, content, opt_renderer ||
+      goog.ui.MenuItemRenderer.getInstance(), opt_domHelper);
   this.setValue(opt_model);
 };
 goog.inherits(goog.ui.MenuItem, goog.ui.Control);
-goog.tagUnsealableClass(goog.ui.MenuItem);
 
 
 /**
@@ -69,7 +64,7 @@ goog.tagUnsealableClass(goog.ui.MenuItem);
  * @type {goog.events.KeyCodes}
  * @private
  */
-goog.ui.MenuItem.prototype.mnemonicKey_;
+goog.ui.MenuItem.mnemonicKey_;
 
 
 /**
@@ -89,8 +84,9 @@ goog.ui.MenuItem.MNEMONIC_WRAPPER_CLASS_ =
 /**
  * The class set on an element that contains a keyboard accelerator hint.
  * @type {string}
+ * @private
  */
-goog.ui.MenuItem.ACCELERATOR_CLASS = goog.getCssName('goog-menuitem-accel');
+goog.ui.MenuItem.ACCELERATOR_CLASS_ = goog.getCssName('goog-menuitem-accel');
 
 
 // goog.ui.Component and goog.ui.Control implementation.
@@ -117,20 +113,6 @@ goog.ui.MenuItem.prototype.setValue = function(value) {
 };
 
 
-/** @override */
-goog.ui.MenuItem.prototype.setSupportedState = function(state, support) {
-  goog.ui.MenuItem.base(this, 'setSupportedState', state, support);
-  switch (state) {
-    case goog.ui.Component.State.SELECTED:
-      this.setSelectableInternal_(support);
-      break;
-    case goog.ui.Component.State.CHECKED:
-      this.setCheckableInternal_(support);
-      break;
-  }
-};
-
-
 /**
  * Sets the menu item to be selectable or not.  Set to true for menu items
  * that represent selectable options.
@@ -138,15 +120,6 @@ goog.ui.MenuItem.prototype.setSupportedState = function(state, support) {
  */
 goog.ui.MenuItem.prototype.setSelectable = function(selectable) {
   this.setSupportedState(goog.ui.Component.State.SELECTED, selectable);
-};
-
-
-/**
- * Sets the menu item to be selectable or not.
- * @param {boolean} selectable  Whether the menu item is selectable.
- * @private
- */
-goog.ui.MenuItem.prototype.setSelectableInternal_ = function(selectable) {
   if (this.isChecked() && !selectable) {
     this.setChecked(false);
   }
@@ -165,15 +138,7 @@ goog.ui.MenuItem.prototype.setSelectableInternal_ = function(selectable) {
  */
 goog.ui.MenuItem.prototype.setCheckable = function(checkable) {
   this.setSupportedState(goog.ui.Component.State.CHECKED, checkable);
-};
 
-
-/**
- * Sets the menu item to be checkable or not.
- * @param {boolean} checkable Whether the menu item is checkable.
- * @private
- */
-goog.ui.MenuItem.prototype.setCheckableInternal_ = function(checkable) {
   var element = this.getElement();
   if (element) {
     this.getRenderer().setCheckable(this, element, checkable);
@@ -188,48 +153,22 @@ goog.ui.MenuItem.prototype.setCheckableInternal_ = function(checkable) {
 goog.ui.MenuItem.prototype.getCaption = function() {
   var content = this.getContent();
   if (goog.isArray(content)) {
-    var acceleratorClass = goog.ui.MenuItem.ACCELERATOR_CLASS;
+    var acceleratorClass = goog.ui.MenuItem.ACCELERATOR_CLASS_;
     var mnemonicWrapClass = goog.ui.MenuItem.MNEMONIC_WRAPPER_CLASS_;
-    var caption =
-        goog.array
-            .map(
-                content,
-                function(node) {
-                  if (goog.dom.isElement(node) &&
-                      (goog.dom.classlist.contains(
-                           /** @type {!Element} */ (node), acceleratorClass) ||
-                       goog.dom.classlist.contains(
-                           /** @type {!Element} */ (node),
-                           mnemonicWrapClass))) {
-                    return '';
-                  } else {
-                    return goog.dom.getRawTextContent(node);
-                  }
-                })
-            .join('');
+    var caption = goog.array.map(content, function(node) {
+      if (goog.dom.isElement(node) &&
+          (goog.dom.classlist.contains(/** @type {!Element} */ (node),
+              acceleratorClass) ||
+          goog.dom.classlist.contains(/** @type {!Element} */ (node),
+              mnemonicWrapClass))) {
+        return '';
+      } else {
+        return goog.dom.getRawTextContent(node);
+      }
+    }).join('');
     return goog.string.collapseBreakingSpaces(caption);
   }
   return goog.ui.MenuItem.superClass_.getCaption.call(this);
-};
-
-
-/**
- * @return {?string} The keyboard accelerator text, or null if the menu item
- *     doesn't have one.
- */
-goog.ui.MenuItem.prototype.getAccelerator = function() {
-  var dom = this.getDomHelper();
-  var content = this.getContent();
-  if (goog.isArray(content)) {
-    var acceleratorEl = goog.array.find(content, function(e) {
-      return goog.dom.classlist.contains(
-          /** @type {!Element} */ (e), goog.ui.MenuItem.ACCELERATOR_CLASS);
-    });
-    if (acceleratorEl) {
-      return dom.getTextContent(acceleratorEl);
-    }
-  }
-  return null;
 };
 
 
@@ -290,11 +229,20 @@ goog.ui.MenuItem.prototype.getMnemonic = function() {
 
 
 // Register a decorator factory function for goog.ui.MenuItems.
-goog.ui.registry.setDecoratorByClassName(
-    goog.ui.MenuItemRenderer.CSS_CLASS, function() {
+goog.ui.registry.setDecoratorByClassName(goog.ui.MenuItemRenderer.CSS_CLASS,
+    function() {
       // MenuItem defaults to using MenuItemRenderer.
       return new goog.ui.MenuItem(null);
     });
+
+
+/**
+ * @override
+ */
+goog.ui.MenuItem.prototype.createDom = function() {
+  goog.ui.MenuItem.base(this, 'createDom');
+  this.getRenderer().correctAriaRole(this, this.getElement());
+};
 
 
 /**
@@ -308,24 +256,4 @@ goog.ui.MenuItem.prototype.getPreferredAriaRole = function() {
     return goog.a11y.aria.Role.MENU_ITEM_RADIO;
   }
   return goog.ui.MenuItem.base(this, 'getPreferredAriaRole');
-};
-
-
-/**
- * @override
- * @return {goog.ui.Menu}
- */
-goog.ui.MenuItem.prototype.getParent = function() {
-  return /** @type {goog.ui.Menu} */ (
-      goog.ui.Control.prototype.getParent.call(this));
-};
-
-
-/**
- * @override
- * @return {goog.ui.Menu}
- */
-goog.ui.MenuItem.prototype.getParentEventTarget = function() {
-  return /** @type {goog.ui.Menu} */ (
-      goog.ui.Control.prototype.getParentEventTarget.call(this));
 };

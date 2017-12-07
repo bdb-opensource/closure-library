@@ -17,6 +17,7 @@
  *
  * @author arv@google.com (Erik Arvidsson)
  * @author eae@google.com (Emil A Eklund)
+ * @author jonp@google.com (Jon Perlow)
  *
  * This is a based on the webfx tree control. See file comment in
  * treecontrol.js.
@@ -26,14 +27,11 @@ goog.provide('goog.ui.tree.TreeNode');
 
 goog.require('goog.ui.tree.BaseNode');
 
-goog.forwardDeclare('goog.ui.tree.TreeControl');  // circular
-
 
 
 /**
  * A single node in the tree.
- * @param {string|!goog.html.SafeHtml} content The content of the node label.
- *     Strings are treated as plain-text and will be HTML escaped.
+ * @param {string|!goog.html.SafeHtml} html The html content of the node label.
  * @param {Object=} opt_config The configuration for the tree. See
  *    goog.ui.tree.TreeControl.defaultConfig. If not specified, a default config
  *    will be used.
@@ -41,8 +39,8 @@ goog.forwardDeclare('goog.ui.tree.TreeControl');  // circular
  * @constructor
  * @extends {goog.ui.tree.BaseNode}
  */
-goog.ui.tree.TreeNode = function(content, opt_config, opt_domHelper) {
-  goog.ui.tree.BaseNode.call(this, content, opt_config, opt_domHelper);
+goog.ui.tree.TreeNode = function(html, opt_config, opt_domHelper) {
+  goog.ui.tree.BaseNode.call(this, html, opt_config, opt_domHelper);
 };
 goog.inherits(goog.ui.tree.TreeNode, goog.ui.tree.BaseNode);
 
@@ -88,9 +86,11 @@ goog.ui.tree.TreeNode.prototype.getCalculatedIconClass = function() {
   var config = this.getConfig();
   if (this.hasChildren()) {
     if (expanded && config.cssExpandedFolderIcon) {
-      return config.cssTreeIcon + ' ' + config.cssExpandedFolderIcon;
+      return config.cssTreeIcon + ' ' +
+             config.cssExpandedFolderIcon;
     } else if (!expanded && config.cssCollapsedFolderIcon) {
-      return config.cssTreeIcon + ' ' + config.cssCollapsedFolderIcon;
+      return config.cssTreeIcon + ' ' +
+             config.cssCollapsedFolderIcon;
     }
   } else {
     if (config.cssFileIcon) {

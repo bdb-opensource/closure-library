@@ -35,7 +35,7 @@ var promisesAplusTests = /** @type {function(!Object, function(*))} */ (
 
 /**
  * Adapter for specifying Promise-creating functions to the Promises test suite.
- * @const
+ * @type {!Object}
  */
 goog.promise.testSuiteAdapter = {
   /** @type {function(*): !goog.Promise} */

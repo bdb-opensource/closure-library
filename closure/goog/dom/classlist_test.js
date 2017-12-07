@@ -20,24 +20,20 @@ goog.provide('goog.dom.classlist_test');
 goog.setTestOnly('goog.dom.classlist_test');
 
 goog.require('goog.dom');
-goog.require('goog.dom.TagName');
 goog.require('goog.dom.classlist');
 goog.require('goog.testing.ExpectedFailures');
 goog.require('goog.testing.jsunit');
+goog.require('goog.userAgent.product');
 
-var expectedFailures;
+var expectedFailures = new goog.testing.ExpectedFailures();
 var classlist = goog.dom.classlist;
-
-function setUpPage() {
-  expectedFailures = new goog.testing.ExpectedFailures();
-}
 
 function tearDown() {
   expectedFailures.handleTearDown();
 }
 
 function testGet() {
-  var el = goog.dom.createElement(goog.dom.TagName.DIV);
+  var el = document.createElement('div');
   assertTrue(classlist.get(el).length == 0);
   el.className = 'C';
   assertElementsEquals(['C'], classlist.get(el));
@@ -52,21 +48,24 @@ function testGet() {
 function testContainsWithNewlines() {
   var el = goog.dom.getElement('p1');
   assertTrue('Should not have SOMECLASS', classlist.contains(el, 'SOMECLASS'));
-  assertTrue(
-      'Should also have OTHERCLASS', classlist.contains(el, 'OTHERCLASS'));
-  assertFalse(
-      'Should not have WEIRDCLASS', classlist.contains(el, 'WEIRDCLASS'));
+  assertTrue('Should also have OTHERCLASS',
+      classlist.contains(el, 'OTHERCLASS'));
+  assertFalse('Should not have WEIRDCLASS',
+      classlist.contains(el, 'WEIRDCLASS'));
 }
 
 function testContainsCaseSensitive() {
   var el = goog.dom.getElement('p2');
-  assertFalse('Should not have camelcase', classlist.contains(el, 'camelcase'));
-  assertFalse('Should not have CAMELCASE', classlist.contains(el, 'CAMELCASE'));
-  assertTrue('Should have camelCase', classlist.contains(el, 'camelCase'));
+  assertFalse('Should not have camelcase',
+      classlist.contains(el, 'camelcase'));
+  assertFalse('Should not have CAMELCASE',
+      classlist.contains(el, 'CAMELCASE'));
+  assertTrue('Should have camelCase',
+      classlist.contains(el, 'camelCase'));
 }
 
 function testAddNotAddingMultiples() {
-  var el = goog.dom.createElement(goog.dom.TagName.DIV);
+  var el = document.createElement('div');
   classlist.add(el, 'A');
   assertEquals('A', el.className);
   classlist.add(el, 'A');
@@ -76,7 +75,7 @@ function testAddNotAddingMultiples() {
 }
 
 function testAddCaseSensitive() {
-  var el = goog.dom.createElement(goog.dom.TagName.DIV);
+  var el = document.createElement('div');
   classlist.add(el, 'A');
   assertTrue(classlist.contains(el, 'A'));
   assertFalse(classlist.contains(el, 'a'));
@@ -87,7 +86,7 @@ function testAddCaseSensitive() {
 }
 
 function testAddAll() {
-  var elem = goog.dom.createElement(goog.dom.TagName.DIV);
+  var elem = document.createElement('div');
   elem.className = 'foo goog-bar';
 
   goog.dom.classlist.addAll(elem, ['goog-baz', 'foo']);
@@ -99,7 +98,7 @@ function testAddAll() {
 
 function testAddAllEmpty() {
   var classes = 'foo bar';
-  var elem = goog.dom.createElement(goog.dom.TagName.DIV);
+  var elem = document.createElement('div');
   elem.className = classes;
 
   goog.dom.classlist.addAll(elem, []);
@@ -107,21 +106,21 @@ function testAddAllEmpty() {
 }
 
 function testRemove() {
-  var el = goog.dom.createElement(goog.dom.TagName.DIV);
+  var el = document.createElement('div');
   el.className = 'A B C';
   classlist.remove(el, 'B');
   assertEquals('A C', el.className);
 }
 
 function testRemoveCaseSensitive() {
-  var el = goog.dom.createElement(goog.dom.TagName.DIV);
+  var el = document.createElement('div');
   el.className = 'A B C';
   classlist.remove(el, 'b');
   assertEquals('A B C', el.className);
 }
 
 function testRemoveAll() {
-  var elem = goog.dom.createElement(goog.dom.TagName.DIV);
+  var elem = document.createElement('div');
   elem.className = 'foo bar baz';
 
   goog.dom.classlist.removeAll(elem, ['bar', 'foo']);
@@ -131,7 +130,7 @@ function testRemoveAll() {
 }
 
 function testRemoveAllOne() {
-  var elem = goog.dom.createElement(goog.dom.TagName.DIV);
+  var elem = document.createElement('div');
   elem.className = 'foo bar baz';
 
   goog.dom.classlist.removeAll(elem, ['bar']);
@@ -141,7 +140,7 @@ function testRemoveAllOne() {
 }
 
 function testRemoveAllSomeNotPresent() {
-  var elem = goog.dom.createElement(goog.dom.TagName.DIV);
+  var elem = document.createElement('div');
   elem.className = 'foo bar baz';
 
   goog.dom.classlist.removeAll(elem, ['a', 'bar']);
@@ -151,7 +150,7 @@ function testRemoveAllSomeNotPresent() {
 }
 
 function testRemoveAllCaseSensitive() {
-  var elem = goog.dom.createElement(goog.dom.TagName.DIV);
+  var elem = document.createElement('div');
   elem.className = 'foo bar baz';
 
   goog.dom.classlist.removeAll(elem, ['BAR', 'foo']);
@@ -165,24 +164,24 @@ function testEnable() {
   classlist.set(el, 'SOMECLASS FIRST');
 
   assertTrue('Should have FIRST class', classlist.contains(el, 'FIRST'));
-  assertTrue(
-      'Should have SOMECLASS class', classlist.contains(el, 'SOMECLASS'));
+  assertTrue('Should have SOMECLASS class',
+      classlist.contains(el, 'SOMECLASS'));
 
   classlist.enable(el, 'FIRST', false);
 
   assertFalse('Should not have FIRST class', classlist.contains(el, 'FIRST'));
-  assertTrue(
-      'Should have SOMECLASS class', classlist.contains(el, 'SOMECLASS'));
+  assertTrue('Should have SOMECLASS class',
+      classlist.contains(el, 'SOMECLASS'));
 
   classlist.enable(el, 'FIRST', true);
 
   assertTrue('Should have FIRST class', classlist.contains(el, 'FIRST'));
-  assertTrue(
-      'Should have SOMECLASS class', classlist.contains(el, 'SOMECLASS'));
+  assertTrue('Should have SOMECLASS class',
+      classlist.contains(el, 'SOMECLASS'));
 }
 
 function testEnableNotAddingMultiples() {
-  var el = goog.dom.createElement(goog.dom.TagName.DIV);
+  var el = document.createElement('div');
   classlist.enable(el, 'A', true);
   assertEquals('A', el.className);
   classlist.enable(el, 'A', true);
@@ -192,7 +191,7 @@ function testEnableNotAddingMultiples() {
 }
 
 function testEnableAllRemove() {
-  var elem = goog.dom.createElement(goog.dom.TagName.DIV);
+  var elem = document.createElement('div');
   elem.className = 'foo bar baz';
 
   // Test removing some classes (some not present).
@@ -204,7 +203,7 @@ function testEnableAllRemove() {
 }
 
 function testEnableAllAdd() {
-  var elem = goog.dom.createElement(goog.dom.TagName.DIV);
+  var elem = document.createElement('div');
   elem.className = 'foo bar';
 
   // Test adding some classes (some duplicate).
@@ -241,26 +240,26 @@ function testToggle() {
   classlist.set(el, 'SOMECLASS FIRST');
 
   assertTrue('Should have FIRST class', classlist.contains(el, 'FIRST'));
-  assertTrue(
-      'Should have SOMECLASS class', classlist.contains(el, 'SOMECLASS'));
+  assertTrue('Should have SOMECLASS class',
+      classlist.contains(el, 'SOMECLASS'));
 
   var ret = classlist.toggle(el, 'FIRST');
 
   assertFalse('Should not have FIRST class', classlist.contains(el, 'FIRST'));
-  assertTrue(
-      'Should have SOMECLASS class', classlist.contains(el, 'SOMECLASS'));
+  assertTrue('Should have SOMECLASS class',
+      classlist.contains(el, 'SOMECLASS'));
   assertFalse('Return value should have been false', ret);
 
   ret = classlist.toggle(el, 'FIRST');
 
   assertTrue('Should have FIRST class', classlist.contains(el, 'FIRST'));
-  assertTrue(
-      'Should have SOMECLASS class', classlist.contains(el, 'SOMECLASS'));
+  assertTrue('Should have SOMECLASS class',
+      classlist.contains(el, 'SOMECLASS'));
   assertTrue('Return value should have been true', ret);
 }
 
 function testAddRemoveString() {
-  var el = goog.dom.createElement(goog.dom.TagName.DIV);
+  var el = document.createElement('div');
   el.className = 'A';
 
   classlist.addRemove(el, 'A', 'B');
@@ -274,4 +273,25 @@ function testAddRemoveString() {
 
   classlist.addRemove(el, 'D', 'B');
   assertEquals('B', el.className);
+}
+
+function testSvg() {
+  // Safari 5 does not support classList, and the fallback of reading
+  // from className does not work on SVG elements.
+  expectedFailures.expectFailureFor(goog.userAgent.product.SAFARI,
+      'className on SVGElement is not a string');
+
+  try {
+    var el = goog.dom.getElement('rect1');
+    assertTrue(classlist.contains(el, 'svgclass'));
+    assertElementsEquals(['svgclass'], classlist.get(el));
+
+    classlist.add(el, 'svgclass2');
+    assertElementsEquals(['svgclass', 'svgclass2'], classlist.get(el));
+
+    classlist.remove(el, 'svgclass');
+    assertElementsEquals(['svgclass2'], classlist.get(el));
+  } catch (e) {
+    expectedFailures.handleException(e);
+  }
 }

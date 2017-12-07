@@ -158,8 +158,7 @@ goog.net.xpc.NixTransport.isNixSupported = function() {
     window.opener = /** @type {Window} */ ({});
     isSupported = goog.reflect.canAccessProperty(window, 'opener');
     window.opener = oldOpener;
-  } catch (e) {
-  }
+  } catch (e) { }
   return isSupported;
 };
 
@@ -227,15 +226,15 @@ goog.net.xpc.NixTransport.conductGlobalSetup_ = function(listenWindow) {
       // A wrapper method which causes a
       // message to be sent to the other context.
       'Public Sub SendMessage(service, payload)\n ' +
-      'Call m_Transport.' + goog.net.xpc.NixTransport.NIX_HANDLE_MESSAGE +
-      '(service, payload)\n' +
+      'Call m_Transport.' +
+      goog.net.xpc.NixTransport.NIX_HANDLE_MESSAGE + '(service, payload)\n' +
       'End Sub\n' +
 
       // Method for setting up the inner->outer
       // channel.
       'Public Sub CreateChannel(channel)\n ' +
-      'Call m_Transport.' + goog.net.xpc.NixTransport.NIX_CREATE_CHANNEL +
-      '(channel)\n' +
+      'Call m_Transport.' +
+      goog.net.xpc.NixTransport.NIX_CREATE_CHANNEL + '(channel)\n' +
       'End Sub\n' +
 
       // An empty field with a unique identifier to
@@ -246,8 +245,8 @@ goog.net.xpc.NixTransport.conductGlobalSetup_ = function(listenWindow) {
       'End Class\n ' +
 
       // Function to get a reference to the wrapper.
-      'Function ' + goog.net.xpc.NixTransport.NIX_GET_WRAPPER +
-      '(transport, auth)\n' +
+      'Function ' +
+      goog.net.xpc.NixTransport.NIX_GET_WRAPPER + '(transport, auth)\n' +
       'Dim wrap\n' +
       'Set wrap = New ' + goog.net.xpc.NixTransport.NIX_WRAPPER + '\n' +
       'wrap.SetTransport transport\n' +
@@ -258,9 +257,9 @@ goog.net.xpc.NixTransport.conductGlobalSetup_ = function(listenWindow) {
   try {
     listenWindow.execScript(vbscript, 'vbscript');
     listenWindow['nix_setup_complete'] = true;
-  } catch (e) {
-    goog.log.error(
-        goog.net.xpc.logger,
+  }
+  catch (e) {
+    goog.log.error(goog.net.xpc.logger,
         'exception caught while attempting global setup: ' + e);
   }
 };
@@ -337,9 +336,10 @@ goog.net.xpc.NixTransport.prototype.attemptOuterSetup_ = function() {
     var getWrapper = theWindow[goog.net.xpc.NixTransport.NIX_GET_WRAPPER];
     innerFrame.contentWindow.opener = getWrapper(this, this.authToken_);
     this.localSetupCompleted_ = true;
-  } catch (e) {
-    goog.log.error(
-        goog.net.xpc.logger, 'exception caught while attempting setup: ' + e);
+  }
+  catch (e) {
+    goog.log.error(goog.net.xpc.logger,
+        'exception caught while attempting setup: ' + e);
   }
 
   // If the retry is necessary, reattempt this setup.
@@ -378,8 +378,8 @@ goog.net.xpc.NixTransport.prototype.attemptInnerSetup_ = function() {
       var remoteAuthToken = this.nixChannel_['GetAuthToken']();
 
       if (remoteAuthToken != this.remoteAuthToken_) {
-        goog.log.error(
-            goog.net.xpc.logger, 'Invalid auth token from other party');
+        goog.log.error(goog.net.xpc.logger,
+            'Invalid auth token from other party');
         return;
       }
 
@@ -394,9 +394,10 @@ goog.net.xpc.NixTransport.prototype.attemptInnerSetup_ = function() {
       // Notify channel that the transport is ready.
       this.channel_.notifyConnected();
     }
-  } catch (e) {
-    goog.log.error(
-        goog.net.xpc.logger, 'exception caught while attempting setup: ' + e);
+  }
+  catch (e) {
+    goog.log.error(goog.net.xpc.logger,
+        'exception caught while attempting setup: ' + e);
     return;
   }
 
@@ -419,8 +420,8 @@ goog.net.xpc.NixTransport.prototype.createChannel_ = function(channel) {
   // Verify that the channel is in fact a NIX wrapper.
   if (typeof channel != 'unknown' ||
       !(goog.net.xpc.NixTransport.NIX_ID_FIELD in channel)) {
-    goog.log.error(
-        goog.net.xpc.logger, 'Invalid NIX channel given to createChannel_');
+    goog.log.error(goog.net.xpc.logger,
+        'Invalid NIX channel given to createChannel_');
   }
 
   this.nixChannel_ = channel;
@@ -447,8 +448,8 @@ goog.net.xpc.NixTransport.prototype.createChannel_ = function(channel) {
  * @param {string} payload The message to process.
  * @private
  */
-goog.net.xpc.NixTransport.prototype.handleMessage_ = function(
-    serviceName, payload) {
+goog.net.xpc.NixTransport.prototype.handleMessage_ =
+    function(serviceName, payload) {
   /** @this {goog.net.xpc.NixTransport} */
   var deliveryHandler = function() {
     this.channel_.xpcDeliver(serviceName, payload);

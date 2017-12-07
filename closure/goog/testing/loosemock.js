@@ -16,7 +16,6 @@
  * @fileoverview This file defines a loose mock implementation.
  */
 
-goog.setTestOnly('goog.testing.LooseExpectationCollection');
 goog.provide('goog.testing.LooseExpectationCollection');
 goog.provide('goog.testing.LooseMock');
 
@@ -37,7 +36,7 @@ goog.require('goog.testing.Mock');
 goog.testing.LooseExpectationCollection = function() {
   /**
    * The list of expectations. All of these should have the same name.
-   * @type {Array<goog.testing.MockExpectation>}
+   * @type {Array.<goog.testing.MockExpectation>}
    * @private
    */
   this.expectations_ = [];
@@ -48,15 +47,15 @@ goog.testing.LooseExpectationCollection = function() {
  * Adds an expectation to this collection.
  * @param {goog.testing.MockExpectation} expectation The expectation to add.
  */
-goog.testing.LooseExpectationCollection.prototype.addExpectation = function(
-    expectation) {
+goog.testing.LooseExpectationCollection.prototype.addExpectation =
+    function(expectation) {
   this.expectations_.push(expectation);
 };
 
 
 /**
  * Gets the list of expectations in this collection.
- * @return {Array<goog.testing.MockExpectation>} The array of expectations.
+ * @return {Array.<goog.testing.MockExpectation>} The array of expectations.
  */
 goog.testing.LooseExpectationCollection.prototype.getExpectations = function() {
   return this.expectations_;
@@ -80,11 +79,10 @@ goog.testing.LooseExpectationCollection.prototype.getExpectations = function() {
  * @constructor
  * @extends {goog.testing.Mock}
  */
-goog.testing.LooseMock = function(
-    objectToMock, opt_ignoreUnexpectedCalls, opt_mockStaticMethods,
-    opt_createProxy) {
-  goog.testing.Mock.call(
-      this, objectToMock, opt_mockStaticMethods, opt_createProxy);
+goog.testing.LooseMock = function(objectToMock, opt_ignoreUnexpectedCalls,
+    opt_mockStaticMethods, opt_createProxy) {
+  goog.testing.Mock.call(this, objectToMock, opt_mockStaticMethods,
+      opt_createProxy);
 
   /**
    * A map of method names to a LooseExpectationCollection for that method.
@@ -97,7 +95,7 @@ goog.testing.LooseMock = function(
    * The calls that have been made; we cache them to verify at the end. Each
    * element is an array where the first element is the name, and the second
    * element is the arguments.
-   * @type {Array<Array<*>>}
+   * @type {Array.<Array.<*>>}
    * @private
    */
   this.$calls_ = [];
@@ -127,8 +125,7 @@ goog.testing.LooseMock.prototype.$setIgnoreUnexpectedCalls = function(
 /** @override */
 goog.testing.LooseMock.prototype.$recordExpectation = function() {
   if (!this.$expectations_.containsKey(this.$pendingExpectation.name)) {
-    this.$expectations_.set(
-        this.$pendingExpectation.name,
+    this.$expectations_.set(this.$pendingExpectation.name,
         new goog.testing.LooseExpectationCollection());
   }
 
@@ -158,7 +155,7 @@ goog.testing.LooseMock.prototype.$recordCall = function(name, args) {
       matchingExpectation = expectation;
       if (expectation.actualCalls < expectation.maxCalls) {
         break;
-      }  // else continue and see if we can find something that does match
+      } // else continue and see if we can find something that does match
     }
   }
   if (matchingExpectation == null) {
@@ -167,10 +164,9 @@ goog.testing.LooseMock.prototype.$recordCall = function(name, args) {
 
   matchingExpectation.actualCalls++;
   if (matchingExpectation.actualCalls > matchingExpectation.maxCalls) {
-    this.$throwException(
-        'Too many calls to ' + matchingExpectation.name + '\nExpected: ' +
-        matchingExpectation.maxCalls + ' but was: ' +
-        matchingExpectation.actualCalls);
+    this.$throwException('Too many calls to ' + matchingExpectation.name +
+            '\nExpected: ' + matchingExpectation.maxCalls + ' but was: ' +
+            matchingExpectation.actualCalls);
   }
 
   this.$calls_.push([name, args]);
@@ -206,8 +202,8 @@ goog.testing.LooseMock.prototype.$replay = function() {
         for (var k = j + 1; k < expectations.length; k++) {
           var laterExpectation = expectations[k];
           if (laterExpectation.minCalls > 0 &&
-              goog.array.equals(
-                  expectation.argumentList, laterExpectation.argumentList)) {
+              goog.array.equals(expectation.argumentList,
+                  laterExpectation.argumentList)) {
             var name = expectation.name;
             var argsString = this.$argumentsAsString(expectation.argumentList);
             this.$throwException([
@@ -233,13 +229,13 @@ goog.testing.LooseMock.prototype.$verify = function() {
     for (var j = 0; j < expectations.length; j++) {
       var expectation = expectations[j];
       if (expectation.actualCalls > expectation.maxCalls) {
-        this.$throwException(
-            'Too many calls to ' + expectation.name + '\nExpected: ' +
-            expectation.maxCalls + ' but was: ' + expectation.actualCalls);
+        this.$throwException('Too many calls to ' + expectation.name +
+            '\nExpected: ' + expectation.maxCalls + ' but was: ' +
+            expectation.actualCalls);
       } else if (expectation.actualCalls < expectation.minCalls) {
-        this.$throwException(
-            'Not enough calls to ' + expectation.name + '\nExpected: ' +
-            expectation.minCalls + ' but was: ' + expectation.actualCalls);
+        this.$throwException('Not enough calls to ' + expectation.name +
+            '\nExpected: ' + expectation.minCalls + ' but was: ' +
+            expectation.actualCalls);
       }
     }
   }

@@ -20,7 +20,6 @@
 goog.provide('goog.math.interpolator.Linear1');
 
 goog.require('goog.array');
-goog.require('goog.asserts');
 goog.require('goog.math');
 goog.require('goog.math.interpolator.Interpolator1');
 
@@ -35,14 +34,14 @@ goog.require('goog.math.interpolator.Interpolator1');
 goog.math.interpolator.Linear1 = function() {
   /**
    * The abscissa of the data points.
-   * @type {!Array<number>}
+   * @type {!Array.<number>}
    * @private
    */
   this.x_ = [];
 
   /**
    * The ordinate of the data points.
-   * @type {!Array<number>}
+   * @type {!Array.<number>}
    * @private
    */
   this.y_ = [];
@@ -51,8 +50,7 @@ goog.math.interpolator.Linear1 = function() {
 
 /** @override */
 goog.math.interpolator.Linear1.prototype.setData = function(x, y) {
-  goog.asserts.assert(
-      x.length == y.length,
+  goog.asserts.assert(x.length == y.length,
       'input arrays to setData should have the same length');
   if (x.length == 1) {
     this.x_ = [x[0], x[0] + 1];

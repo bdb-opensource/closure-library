@@ -57,7 +57,8 @@ goog.demos.editor.HelloWorld.COMMAND = {
 
 
 /** @override */
-goog.demos.editor.HelloWorld.prototype.isSupportedCommand = function(command) {
+goog.demos.editor.HelloWorld.prototype.isSupportedCommand = function(
+    command) {
   return command == goog.demos.editor.HelloWorld.COMMAND.HELLO_WORLD;
 };
 
@@ -70,7 +71,8 @@ goog.demos.editor.HelloWorld.prototype.isSupportedCommand = function(command) {
  * @override
  * @protected
  */
-goog.demos.editor.HelloWorld.prototype.execCommandInternal = function(command) {
+goog.demos.editor.HelloWorld.prototype.execCommandInternal = function(
+    command) {
   var domHelper = this.getFieldObject().getEditableDomHelper();
   var range = this.getFieldObject().getRange();
   range.removeContents();

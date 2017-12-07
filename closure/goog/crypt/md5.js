@@ -52,14 +52,14 @@ goog.crypt.Md5 = function() {
 
   /**
    * Holds the current values of accumulated A-D variables (MD buffer).
-   * @type {!Array<number>}
+   * @type {Array.<number>}
    * @private
    */
   this.chain_ = new Array(4);
 
   /**
    * A buffer holding the data until the whole block can be processed.
-   * @type {!Array<number>}
+   * @type {Array.<number>}
    * @private
    */
   this.block_ = new Array(this.blockSize);
@@ -87,7 +87,7 @@ goog.inherits(goog.crypt.Md5, goog.crypt.Hash);
  * Integer rotation constants used by the abbreviated implementation.
  * They are hardcoded in the unrolled implementation, so it is left
  * here commented out.
- * @type {Array<number>}
+ * @type {Array.<number>}
  * @private
  *
 goog.crypt.Md5.S_ = [
@@ -102,7 +102,7 @@ goog.crypt.Md5.S_ = [
  * Sine function constants used by the abbreviated implementation.
  * They are hardcoded in the unrolled implementation, so it is left
  * here commented out.
- * @type {Array<number>}
+ * @type {Array.<number>}
  * @private
  *
 goog.crypt.Md5.T_ = [
@@ -141,7 +141,7 @@ goog.crypt.Md5.prototype.reset = function() {
 /**
  * Internal compress helper function. It takes a block of data (64 bytes)
  * and updates the accumulator.
- * @param {Array<number>|Uint8Array|string} buf The block to compress.
+ * @param {Array.<number>|Uint8Array|string} buf The block to compress.
  * @param {number=} opt_offset Offset of the block in the buffer.
  * @private
  */
@@ -157,14 +157,16 @@ goog.crypt.Md5.prototype.compress_ = function(buf, opt_offset) {
   if (goog.isString(buf)) {
     for (var i = 0; i < 16; ++i) {
       X[i] = (buf.charCodeAt(opt_offset++)) |
-          (buf.charCodeAt(opt_offset++) << 8) |
-          (buf.charCodeAt(opt_offset++) << 16) |
-          (buf.charCodeAt(opt_offset++) << 24);
+             (buf.charCodeAt(opt_offset++) << 8) |
+             (buf.charCodeAt(opt_offset++) << 16) |
+             (buf.charCodeAt(opt_offset++) << 24);
     }
   } else {
     for (var i = 0; i < 16; ++i) {
-      X[i] = (buf[opt_offset++]) | (buf[opt_offset++] << 8) |
-          (buf[opt_offset++] << 16) | (buf[opt_offset++] << 24);
+      X[i] = (buf[opt_offset++]) |
+             (buf[opt_offset++] << 8) |
+             (buf[opt_offset++] << 16) |
+             (buf[opt_offset++] << 24);
     }
   }
 
@@ -405,9 +407,9 @@ goog.crypt.Md5.prototype.update = function(bytes, opt_length) {
 goog.crypt.Md5.prototype.digest = function() {
   // This must accommodate at least 1 padding byte (0x80), 8 bytes of
   // total bitlength, and must end at a 64-byte boundary.
-  var pad = new Array(
-      (this.blockLength_ < 56 ? this.blockSize : this.blockSize * 2) -
-      this.blockLength_);
+  var pad = new Array((this.blockLength_ < 56 ?
+                       this.blockSize :
+                       this.blockSize * 2) - this.blockLength_);
 
   // Add padding: 0x80 0x00*
   pad[0] = 0x80;
@@ -418,7 +420,7 @@ goog.crypt.Md5.prototype.digest = function() {
   var totalBits = this.totalLength_ * 8;
   for (var i = pad.length - 8; i < pad.length; ++i) {
     pad[i] = totalBits & 0xff;
-    totalBits /= 0x100;  // Don't use bit-shifting here!
+    totalBits /= 0x100; // Don't use bit-shifting here!
   }
   this.update(pad);
 

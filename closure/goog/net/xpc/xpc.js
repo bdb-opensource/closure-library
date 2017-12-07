@@ -28,8 +28,6 @@
  * CrossPageChannel abstracts the underlying transport mechanism to
  * provide a common interface in all browsers.
  *
- *
- * @suppress {underscore}
  */
 
 /*
@@ -47,9 +45,8 @@ goog.provide('goog.net.xpc.ChannelStates');
 goog.provide('goog.net.xpc.TransportNames');
 goog.provide('goog.net.xpc.TransportTypes');
 goog.provide('goog.net.xpc.UriCfgFields');
-goog.require('goog.log');
 
-goog.forwardDeclare('goog.net.xpc.CrossPageChannel');  // circular
+goog.require('goog.log');
 
 
 /**
@@ -70,7 +67,7 @@ goog.net.xpc.TransportTypes = {
 /**
  * Enum containing transport names. These need to correspond to the
  * transport class names for createTransport_() to work.
- * @const {!Object<string,string>}
+ * @type {Object}
  */
 goog.net.xpc.TransportNames = {
   '1': 'NativeMessagingTransport',
@@ -88,7 +85,7 @@ goog.net.xpc.TransportNames = {
 
 /**
  * Field names used on configuration object.
- * @const
+ * @type {Object}
  */
 goog.net.xpc.CfgFields = {
   /**
@@ -204,11 +201,13 @@ goog.net.xpc.CfgFields = {
 
 /**
  * Config properties that need to be URL sanitized.
- * @type {Array<string>}
+ * @type {Array}.<string>
  */
 goog.net.xpc.UriCfgFields = [
-  goog.net.xpc.CfgFields.PEER_URI, goog.net.xpc.CfgFields.LOCAL_RELAY_URI,
-  goog.net.xpc.CfgFields.PEER_RELAY_URI, goog.net.xpc.CfgFields.LOCAL_POLL_URI,
+  goog.net.xpc.CfgFields.PEER_URI,
+  goog.net.xpc.CfgFields.LOCAL_RELAY_URI,
+  goog.net.xpc.CfgFields.PEER_RELAY_URI,
+  goog.net.xpc.CfgFields.LOCAL_POLL_URI,
   goog.net.xpc.CfgFields.PEER_POLL_URI
 ];
 
@@ -262,8 +261,9 @@ goog.net.xpc.SETUP_ACK_NTPV2 = 'SETUP_ACK_NTPV2';
 
 /**
  * Object holding active channels.
+ * Package private. Do not call from outside goog.net.xpc.
  *
- * @package {Object<string, goog.net.xpc.CrossPageChannel>}
+ * @type {Object.<string, goog.net.xpc.CrossPageChannel>}
  */
 goog.net.xpc.channels = {};
 

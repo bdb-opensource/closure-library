@@ -42,14 +42,12 @@ goog.require('goog.ui.registry');
  * @constructor
  * @extends {goog.ui.MenuItem}
  */
-goog.ui.FilterObservingMenuItem = function(
-    content, opt_model, opt_domHelper, opt_renderer) {
-  goog.ui.MenuItem.call(
-      this, content, opt_model, opt_domHelper,
+goog.ui.FilterObservingMenuItem = function(content, opt_model, opt_domHelper,
+                                           opt_renderer) {
+  goog.ui.MenuItem.call(this, content, opt_model, opt_domHelper,
       opt_renderer || new goog.ui.FilterObservingMenuItemRenderer());
 };
 goog.inherits(goog.ui.FilterObservingMenuItem, goog.ui.MenuItem);
-goog.tagUnsealableClass(goog.ui.FilterObservingMenuItem);
 
 
 /**
@@ -91,7 +89,8 @@ goog.ui.FilterObservingMenuItem.prototype.callObserver = function(opt_str) {
 // Register a decorator factory function for
 // goog.ui.FilterObservingMenuItemRenderer.
 goog.ui.registry.setDecoratorByClassName(
-    goog.ui.FilterObservingMenuItemRenderer.CSS_CLASS, function() {
+    goog.ui.FilterObservingMenuItemRenderer.CSS_CLASS,
+    function() {
       // FilterObservingMenuItem defaults to using
       // FilterObservingMenuItemRenderer.
       return new goog.ui.FilterObservingMenuItem(null);

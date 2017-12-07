@@ -17,13 +17,11 @@ goog.setTestOnly('goog.editor.plugins.TableEditorTest');
 
 goog.require('goog.dom');
 goog.require('goog.dom.Range');
-goog.require('goog.dom.TagName');
 goog.require('goog.editor.plugins.TableEditor');
 goog.require('goog.object');
 goog.require('goog.string');
 goog.require('goog.testing.ExpectedFailures');
 goog.require('goog.testing.JsUnitException');
-goog.require('goog.testing.TestCase');
 goog.require('goog.testing.editor.FieldMock');
 goog.require('goog.testing.editor.TestHelper');
 goog.require('goog.testing.jsunit');
@@ -41,10 +39,8 @@ function setUpPage() {
 }
 
 function setUp() {
-  // TODO(b/25875505): Fix unreported assertions (go/failonunreportedasserts).
-  goog.testing.TestCase.getActiveTestCase().failOnUnreportedAsserts = false;
-
-  testHelper = new goog.testing.editor.TestHelper(goog.dom.getElement('field'));
+  testHelper = new goog.testing.editor.TestHelper(
+      goog.dom.getElement('field'));
   testHelper.setUpEditableElement();
   field.focus();
   plugin = new goog.editor.plugins.TableEditor();
@@ -75,9 +71,8 @@ function testEnable() {
     expectedFailures.expectFailureFor(goog.userAgent.GECKO);
     try {
       var doc = plugin.getFieldDomHelper().getDocument();
-      assertTrue(
-          'Object resizing should be enabled',
-          doc.queryCommandValue('enableObjectResizing'));
+      assertTrue('Object resizing should be enabled',
+                 doc.queryCommandValue('enableObjectResizing'));
     } catch (e) {
       // We need to marshal our exception in order for it to be handled
       // properly.
@@ -88,15 +83,13 @@ function testEnable() {
 }
 
 function testIsSupportedCommand() {
-  goog.object.forEach(
-      goog.editor.plugins.TableEditor.COMMAND, function(command) {
-        assertTrue(
-            goog.string.subs('Plugin should support %s', command),
+  goog.object.forEach(goog.editor.plugins.TableEditor.COMMAND,
+      function(command) {
+        assertTrue(goog.string.subs('Plugin should support %s', command),
             plugin.isSupportedCommand(command));
       });
-  assertFalse(
-      'Plugin shouldn\'t support a bogus command',
-      plugin.isSupportedCommand('+fable'));
+  assertFalse('Plugin shouldn\'t support a bogus command',
+              plugin.isSupportedCommand('+fable'));
 }
 
 function testCreateTable() {
@@ -104,10 +97,12 @@ function testCreateTable() {
   createTableAndSelectCell();
   var table = plugin.getCurrentTable_();
   assertNotNull('Table should not be null', table);
-  assertEquals(
-      'Table should have the default number of rows', 2, table.rows.length);
-  assertEquals(
-      'Table should have the default number of cells', 8, getCellCount(table));
+  assertEquals('Table should have the default number of rows',
+               2,
+               table.rows.length);
+  assertEquals('Table should have the default number of cells',
+               8,
+               getCellCount(table));
   fieldMock.$verify();
 }
 
@@ -116,18 +111,16 @@ function testInsertRowBefore() {
   createTableAndSelectCell();
   var table = plugin.getCurrentTable_();
   var selectedRow = fieldMock.getRange().getContainerElement().parentNode;
-  assertNull(
-      'Selected row shouldn\'t have a previous sibling',
-      selectedRow.previousSibling);
+  assertNull('Selected row shouldn\'t have a previous sibling',
+             selectedRow.previousSibling);
   assertEquals('Table should have two rows', 2, table.rows.length);
   plugin.execCommandInternal(
       goog.editor.plugins.TableEditor.COMMAND.INSERT_ROW_BEFORE);
   assertEquals('A row should have been inserted', 3, table.rows.length);
 
   // Assert that we inserted a row above the currently selected row.
-  assertNotNull(
-      'Selected row should have a previous sibling',
-      selectedRow.previousSibling);
+  assertNotNull('Selected row should have a previous sibling',
+                selectedRow.previousSibling);
   fieldMock.$verify();
 }
 
@@ -137,14 +130,14 @@ function testInsertRowAfter() {
   var selectedRow = fieldMock.getRange().getContainerElement().parentNode;
   var table = plugin.getCurrentTable_();
   assertEquals('Table should have one row', 1, table.rows.length);
-  assertNull(
-      'Selected row shouldn\'t have a next sibling', selectedRow.nextSibling);
+  assertNull('Selected row shouldn\'t have a next sibling',
+             selectedRow.nextSibling);
   plugin.execCommandInternal(
       goog.editor.plugins.TableEditor.COMMAND.INSERT_ROW_AFTER);
   assertEquals('A row should have been inserted', 2, table.rows.length);
   // Assert that we inserted a row after the currently selected row.
-  assertNotNull(
-      'Selected row should have a next sibling', selectedRow.nextSibling);
+  assertNotNull('Selected row should have a next sibling',
+                selectedRow.nextSibling);
   fieldMock.$verify();
 }
 
@@ -154,15 +147,13 @@ function testInsertColumnBefore() {
   var table = plugin.getCurrentTable_();
   var selectedCell = fieldMock.getRange().getContainerElement();
   assertEquals('Table should have one cell', 1, getCellCount(table));
-  assertNull(
-      'Selected cell shouldn\'t have a previous sibling',
-      selectedCell.previousSibling);
+  assertNull('Selected cell shouldn\'t have a previous sibling',
+             selectedCell.previousSibling);
   plugin.execCommandInternal(
       goog.editor.plugins.TableEditor.COMMAND.INSERT_COLUMN_BEFORE);
   assertEquals('A cell should have been inserted', 2, getCellCount(table));
-  assertNotNull(
-      'Selected cell should have a previous sibling',
-      selectedCell.previousSibling);
+  assertNotNull('Selected cell should have a previous sibling',
+                selectedCell.previousSibling);
   fieldMock.$verify();
 }
 
@@ -172,13 +163,13 @@ function testInsertColumnAfter() {
   var table = plugin.getCurrentTable_();
   var selectedCell = fieldMock.getRange().getContainerElement();
   assertEquals('Table should have one cell', 1, getCellCount(table));
-  assertNull(
-      'Selected cell shouldn\'t have a next sibling', selectedCell.nextSibling);
+  assertNull('Selected cell shouldn\'t have a next sibling',
+             selectedCell.nextSibling);
   plugin.execCommandInternal(
       goog.editor.plugins.TableEditor.COMMAND.INSERT_COLUMN_AFTER);
   assertEquals('A cell should have been inserted', 2, getCellCount(table));
-  assertNotNull(
-      'Selected cell should have a next sibling', selectedCell.nextSibling);
+  assertNotNull('Selected cell should have a next sibling',
+                selectedCell.nextSibling);
   fieldMock.$verify();
 }
 
@@ -192,16 +183,15 @@ function testRemoveRows() {
   plugin.execCommandInternal(
       goog.editor.plugins.TableEditor.COMMAND.REMOVE_ROWS);
   assertEquals('A row should have been removed', 1, table.rows.length);
-  assertNull(
-      'The correct row should have been removed',
-      goog.dom.getElement('selected'));
+  assertNull('The correct row should have been removed',
+             goog.dom.getElement('selected'));
 
   // Verify that the table is removed if we don't have any rows.
   plugin.execCommandInternal(
       goog.editor.plugins.TableEditor.COMMAND.REMOVE_ROWS);
-  assertEquals(
-      'The table should have been removed', 0,
-      goog.dom.getElementsByTagName(goog.dom.TagName.TABLE, field).length);
+  assertEquals('The table should have been removed',
+               0,
+               field.getElementsByTagName('table').length);
   fieldMock.$verify();
 }
 
@@ -215,16 +205,15 @@ function testRemoveColumns() {
   plugin.execCommandInternal(
       goog.editor.plugins.TableEditor.COMMAND.REMOVE_COLUMNS);
   assertEquals('A cell should have been removed', 1, getCellCount(table));
-  assertNull(
-      'The correct cell should have been removed',
-      goog.dom.getElement('selected'));
+  assertNull('The correct cell should have been removed',
+             goog.dom.getElement('selected'));
 
   // Verify that the table is removed if we don't have any columns.
   plugin.execCommandInternal(
       goog.editor.plugins.TableEditor.COMMAND.REMOVE_COLUMNS);
-  assertEquals(
-      'The table should have been removed', 0,
-      goog.dom.getElementsByTagName(goog.dom.TagName.TABLE, field).length);
+  assertEquals('The table should have been removed',
+               0,
+               field.getElementsByTagName('table').length);
   fieldMock.$verify();
 }
 
@@ -236,16 +225,17 @@ function testSplitCell() {
   // Splitting is only supported if we set these attributes.
   selectedCell.rowSpan = '1';
   selectedCell.colSpan = '2';
-  goog.dom.setTextContent(selectedCell, 'foo');
+  selectedCell.innerHTML = 'foo';
   goog.dom.Range.createFromNodeContents(selectedCell).select();
   assertEquals('Table should have one cell', 1, getCellCount(table));
   plugin.execCommandInternal(
       goog.editor.plugins.TableEditor.COMMAND.SPLIT_CELL);
   assertEquals('The cell should have been split', 2, getCellCount(table));
-  assertEquals(
-      'The cell content should be intact', 'foo', selectedCell.innerHTML);
-  assertNotNull(
-      'The new cell should be inserted before', selectedCell.previousSibling);
+  assertEquals('The cell content should be intact',
+               'foo',
+               selectedCell.innerHTML);
+  assertNotNull('The new cell should be inserted before',
+      selectedCell.previousSibling);
   fieldMock.$verify();
 }
 
@@ -254,24 +244,27 @@ function testMergeCells() {
   createTableAndSelectCell({width: 2, height: 1});
   var table = plugin.getCurrentTable_();
   var selectedCell = fieldMock.getRange().getContainerElement();
-  goog.dom.setTextContent(selectedCell, 'foo');
-  goog.dom.setTextContent(selectedCell.nextSibling, 'bar');
+  selectedCell.innerHTML = 'foo';
+  selectedCell.nextSibling.innerHTML = 'bar';
   var range = goog.dom.Range.createFromNodeContents(
-      goog.dom.getElementsByTagName(goog.dom.TagName.TR, table)[0]);
+      table.getElementsByTagName('tr')[0]);
   range.select();
   plugin.execCommandInternal(
       goog.editor.plugins.TableEditor.COMMAND.MERGE_CELLS);
   expectedFailures.expectFailureFor(
-      goog.userAgent.IE && goog.userAgent.isVersionOrHigher('8'));
+      goog.userAgent.IE &&
+      goog.userAgent.isVersionOrHigher('8'));
   try {
     // In IE8, even after explicitly setting the range to span
     // multiple cells, the browser selection only contains the first TD
     // which causes the merge operation to fail.
     assertEquals('The cells should be merged', 1, getCellCount(table));
-    assertEquals(
-        'The cell should have expected colspan', 2, selectedCell.colSpan);
-    assertHTMLEquals(
-        'The content should be merged', 'foo bar', selectedCell.innerHTML);
+    assertEquals('The cell should have expected colspan',
+                 2,
+                 selectedCell.colSpan);
+    assertHTMLEquals('The content should be merged',
+                     'foo bar',
+                     selectedCell.innerHTML);
   } catch (e) {
     expectedFailures.handleException(e);
   }
@@ -287,7 +280,7 @@ function testMergeCells() {
  */
 function getCellCount(table) {
   return table.cells ? table.cells.length :
-                       table.rows[0].cells.length * table.rows.length;
+      table.rows[0].cells.length * table.rows.length;
 }
 
 
@@ -300,11 +293,11 @@ function getCellCount(table) {
  */
 function createTableAndSelectCell(opt_tableProps) {
   goog.dom.Range.createCaret(field, 1).select();
-  plugin.execCommandInternal(
-      goog.editor.plugins.TableEditor.COMMAND.TABLE, opt_tableProps);
+  plugin.execCommandInternal(goog.editor.plugins.TableEditor.COMMAND.TABLE,
+                             opt_tableProps);
   if (goog.userAgent.IE) {
     var range = goog.dom.Range.createFromNodeContents(
-        goog.dom.getElementsByTagName(goog.dom.TagName.TD, field)[0]);
+        field.getElementsByTagName('td')[0]);
     range.select();
   }
 }

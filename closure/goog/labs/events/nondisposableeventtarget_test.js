@@ -32,11 +32,15 @@ function setUp() {
   var unlistenFn = function(src, type, listener, opt_capt, opt_handler) {
     return src.unlisten(type, listener, opt_capt, opt_handler);
   };
-  var unlistenByKeyFn = function(src, key) { return src.unlistenByKey(key); };
+  var unlistenByKeyFn = function(src, key) {
+    return src.unlistenByKey(key);
+  };
   var listenOnceFn = function(src, type, listener, opt_capt, opt_handler) {
     return src.listenOnce(type, listener, opt_capt, opt_handler);
   };
-  var dispatchEventFn = function(src, e) { return src.dispatchEvent(e); };
+  var dispatchEventFn = function(src, e) {
+    return src.dispatchEvent(e);
+  };
   var removeAllFn = function(src, opt_type, opt_capture) {
     return src.removeAllListeners(opt_type, opt_capture);
   };
@@ -51,9 +55,10 @@ function setUp() {
   };
 
   goog.events.eventTargetTester.setUp(
-      newListenableFn, listenFn, unlistenFn, unlistenByKeyFn, listenOnceFn,
-      dispatchEventFn, removeAllFn, getListenersFn, getListenerFn,
-      hasListenerFn, goog.events.eventTargetTester.KeyType.NUMBER,
+      newListenableFn, listenFn, unlistenFn, unlistenByKeyFn,
+      listenOnceFn, dispatchEventFn,
+      removeAllFn, getListenersFn, getListenerFn, hasListenerFn,
+      goog.events.eventTargetTester.KeyType.NUMBER,
       goog.events.eventTargetTester.UnlistenReturnType.BOOLEAN, false);
 }
 

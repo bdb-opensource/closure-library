@@ -22,7 +22,6 @@ goog.provide('goog.spell.SpellCheck');
 goog.provide('goog.spell.SpellCheck.WordChangedEvent');
 
 goog.require('goog.Timer');
-goog.require('goog.events.Event');
 goog.require('goog.events.EventTarget');
 goog.require('goog.structs.Set');
 
@@ -32,8 +31,7 @@ goog.require('goog.structs.Set');
  * Support class for spell checker components. Provides basic functionality
  * such as word lookup and caching.
  *
- * @param {function(!Array<string>, !goog.spell.SpellCheck, !Function)=}
- *     opt_lookupFunction Function to use for word lookup. Must
+ * @param {Function=} opt_lookupFunction Function to use for word lookup. Must
  *     accept an array of words, an object reference and a callback function as
  *     parameters. It must also call the callback function (as a method on the
  *     object), once ready, with an array containing the original words, their
@@ -48,7 +46,8 @@ goog.spell.SpellCheck = function(opt_lookupFunction, opt_language) {
 
   /**
    * Function used to lookup spelling of words.
-   * @private {?function(!Array<string>, !goog.spell.SpellCheck, !Function)}
+   * @type {Function}
+   * @private
    */
   this.lookupFunction_ = opt_lookupFunction || null;
 
@@ -98,7 +97,7 @@ goog.spell.SpellCheck.EventType = {
 
 
 /**
- * Cache. Shared across all spell checker instances. Map with language as the
+ * Cache. Shared across all spell checker instances. Map with langauge as the
  * key and a cache for that language as the value.
  *
  * @type {Object}
@@ -153,7 +152,7 @@ goog.spell.SpellCheck.WordStatus = {
   VALID: 1,
   INVALID: 2,
   IGNORED: 3,
-  CORRECTED: 4  // Temporary status, not stored in cache
+  CORRECTED: 4 // Temporary status, not stored in cache
 };
 
 
@@ -174,7 +173,7 @@ goog.spell.SpellCheck.CacheIndex = {
  * @type {string}
  */
 goog.spell.SpellCheck.WORD_BOUNDARY_CHARS =
-    '\t\r\n\u00A0 !\"#$%&()*+,-./\\\\:;<=>?@\\[\\]^_`{|}~';
+    '\t\r\n\u00A0 !\"#$%&()*+,\-.\/:;<=>?@\[\\\]^_`{|}~';
 
 
 /**
@@ -182,8 +181,8 @@ goog.spell.SpellCheck.WORD_BOUNDARY_CHARS =
  *
  * @type {RegExp}
  */
-goog.spell.SpellCheck.WORD_BOUNDARY_REGEX =
-    new RegExp('[' + goog.spell.SpellCheck.WORD_BOUNDARY_CHARS + ']');
+goog.spell.SpellCheck.WORD_BOUNDARY_REGEX = new RegExp(
+    '[' + goog.spell.SpellCheck.WORD_BOUNDARY_CHARS + ']');
 
 
 /**
@@ -253,7 +252,8 @@ goog.spell.SpellCheck.prototype.checkBlock = function(text) {
   if (!this.queueTimer_ && !this.lookupInProgress_ &&
       this.unknownWords_.getCount()) {
     this.processPending_();
-  } else if (this.unknownWords_.getCount() == 0) {
+  }
+  else if (this.unknownWords_.getCount() == 0) {
     this.dispatchEvent(goog.spell.SpellCheck.EventType.READY);
   }
 };
@@ -271,10 +271,10 @@ goog.spell.SpellCheck.prototype.checkBlock = function(text) {
 goog.spell.SpellCheck.prototype.checkWord = function(word) {
   var status = this.checkWord_(word);
 
-  if (status == goog.spell.SpellCheck.WordStatus.UNKNOWN && !this.queueTimer_ &&
-      !this.lookupInProgress_) {
-    this.queueTimer_ = goog.Timer.callOnce(
-        this.processPending_, goog.spell.SpellCheck.LOOKUP_DELAY_, this);
+  if (status == goog.spell.SpellCheck.WordStatus.UNKNOWN &&
+      !this.queueTimer_ && !this.lookupInProgress_) {
+    this.queueTimer_ = goog.Timer.callOnce(this.processPending_,
+        goog.spell.SpellCheck.LOOKUP_DELAY_, this);
   }
 
   return status;
@@ -330,7 +330,7 @@ goog.spell.SpellCheck.prototype.processPending = function() {
  */
 goog.spell.SpellCheck.prototype.processPending_ = function() {
   if (!this.lookupFunction_) {
-    throw new Error('No lookup function provided for spell checker.');
+    throw Error('No lookup function provided for spell checker.');
   }
 
   if (this.unknownWords_.getCount()) {
@@ -348,7 +348,7 @@ goog.spell.SpellCheck.prototype.processPending_ = function() {
 /**
  * Callback for lookup function.
  *
- * @param {Array<Array<?>>} data Data array. Each word is represented by an
+ * @param {Array.<Array>} data Data array. Each word is represented by an
  *     array containing the word, the status and optionally an array of
  *     suggestions. Passing null indicates that the operation failed.
  * @private
@@ -382,10 +382,10 @@ goog.spell.SpellCheck.prototype.lookupCallback_ = function(data) {
   if (this.unknownWords_.getCount() == 0) {
     this.dispatchEvent(goog.spell.SpellCheck.EventType.READY);
 
-    // Process pending
+  // Process pending
   } else if (!this.queueTimer_) {
-    this.queueTimer_ = goog.Timer.callOnce(
-        this.processPending_, goog.spell.SpellCheck.LOOKUP_DELAY_, this);
+    this.queueTimer_ = goog.Timer.callOnce(this.processPending_,
+        goog.spell.SpellCheck.LOOKUP_DELAY_, this);
   }
 };
 
@@ -395,14 +395,14 @@ goog.spell.SpellCheck.prototype.lookupCallback_ = function(data) {
  *
  * @param {string} word Word to set status for.
  * @param {goog.spell.SpellCheck.WordStatus} status Status of word.
- * @param {Array<string>=} opt_suggestions Suggestions.
+ * @param {Array.<string>=} opt_suggestions Suggestions.
  *
  * Example:
  * obj.setWordStatus('word', VALID);
  * obj.setWordStatus('wrod', INVALID, ['word', 'wood', 'rod']);.
  */
-goog.spell.SpellCheck.prototype.setWordStatus = function(
-    word, status, opt_suggestions) {
+goog.spell.SpellCheck.prototype.setWordStatus =
+    function(word, status, opt_suggestions) {
   this.setWordStatus_(word, status, opt_suggestions);
 };
 
@@ -412,11 +412,11 @@ goog.spell.SpellCheck.prototype.setWordStatus = function(
  *
  * @param {string} word Word to set status for.
  * @param {goog.spell.SpellCheck.WordStatus} status Status of word.
- * @param {Array<string>=} opt_suggestions Suggestions.
+ * @param {Array.<string>=} opt_suggestions Suggestions.
  * @private
  */
-goog.spell.SpellCheck.prototype.setWordStatus_ = function(
-    word, status, opt_suggestions) {
+goog.spell.SpellCheck.prototype.setWordStatus_ =
+    function(word, status, opt_suggestions) {
   var suggestions = opt_suggestions || [];
   this.cache_[word] = [status, suggestions];
   this.unknownWords_.remove(word);
@@ -430,7 +430,7 @@ goog.spell.SpellCheck.prototype.setWordStatus_ = function(
  * Returns suggestions for the given word.
  *
  * @param {string} word Word to get suggestions for.
- * @return {Array<string>} An array of suggestions for the given word.
+ * @return {Array.<string>} An array of suggestions for the given word.
  */
 goog.spell.SpellCheck.prototype.getSuggestions = function(word) {
   var cacheEntry = this.cache_[word];
@@ -441,9 +441,8 @@ goog.spell.SpellCheck.prototype.getSuggestions = function(word) {
   }
 
   return cacheEntry[goog.spell.SpellCheck.CacheIndex.STATUS] ==
-          goog.spell.SpellCheck.WordStatus.INVALID ?
-      cacheEntry[goog.spell.SpellCheck.CacheIndex.SUGGESTIONS] :
-      [];
+      goog.spell.SpellCheck.WordStatus.INVALID ?
+      cacheEntry[goog.spell.SpellCheck.CacheIndex.SUGGESTIONS] : [];
 };
 
 
@@ -460,8 +459,8 @@ goog.spell.SpellCheck.prototype.getSuggestions = function(word) {
  * @final
  */
 goog.spell.SpellCheck.WordChangedEvent = function(target, word, status) {
-  goog.events.Event.call(
-      this, goog.spell.SpellCheck.EventType.WORD_CHANGED, target);
+  goog.events.Event.call(this, goog.spell.SpellCheck.EventType.WORD_CHANGED,
+      target);
 
   /**
    * Word the status has changed for.

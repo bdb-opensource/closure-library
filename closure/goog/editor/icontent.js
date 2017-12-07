@@ -19,14 +19,12 @@
  * strings and document.write instead of DOM manipulation, because
  * iframe-loading is a performance bottleneck.
  *
- * @author nicksantos@google.com (Nick Santos)
  */
 
 goog.provide('goog.editor.icontent');
 goog.provide('goog.editor.icontent.FieldFormatInfo');
 goog.provide('goog.editor.icontent.FieldStyleInfo');
 
-goog.require('goog.dom');
 goog.require('goog.editor.BrowserFeature');
 goog.require('goog.style');
 goog.require('goog.userAgent');
@@ -46,8 +44,8 @@ goog.require('goog.userAgent');
  * @constructor
  * @final
  */
-goog.editor.icontent.FieldFormatInfo = function(
-    fieldId, standards, blended, fixedHeight, opt_extraStyles) {
+goog.editor.icontent.FieldFormatInfo = function(fieldId, standards, blended,
+    fixedHeight, opt_extraStyles) {
   this.fieldId_ = fieldId;
   this.standards_ = standards;
   this.blended_ = blended;
@@ -97,8 +95,8 @@ goog.editor.icontent.forceStandardsModeIframes = function() {
  * @return {string} The initial IFRAME content HTML.
  * @private
  */
-goog.editor.icontent.getInitialIframeContent_ = function(
-    info, bodyHtml, style) {
+goog.editor.icontent.getInitialIframeContent_ =
+    function(info, bodyHtml, style) {
   var html = [];
 
   if (info.blended_ && info.standards_ ||
@@ -223,8 +221,8 @@ goog.editor.icontent.getInitialIframeContent_ = function(
  *     the field, if needed.
  * @param {HTMLIFrameElement} iframe The iframe.
  */
-goog.editor.icontent.writeNormalInitialBlendedIframe = function(
-    info, bodyHtml, style, iframe) {
+goog.editor.icontent.writeNormalInitialBlendedIframe =
+    function(info, bodyHtml, style, iframe) {
   // Firefox blended needs to inherit all the css from the original page.
   // Firefox standards mode needs to set extra style for images.
   if (info.blended_) {
@@ -236,15 +234,18 @@ goog.editor.icontent.writeNormalInitialBlendedIframe = function(
     //
     // To compensate, we set the iframe margins to offset the padding.
     var paddingBox = goog.style.getPaddingBox(field);
-    if (paddingBox.top || paddingBox.left || paddingBox.right ||
-        paddingBox.bottom) {
-      goog.style.setStyle(
-          iframe, 'margin', (-paddingBox.top) + 'px ' + (-paddingBox.right) +
-              'px ' + (-paddingBox.bottom) + 'px ' + (-paddingBox.left) + 'px');
+    if (paddingBox.top || paddingBox.left ||
+        paddingBox.right || paddingBox.bottom) {
+      goog.style.setStyle(iframe, 'margin',
+          (-paddingBox.top) + 'px ' +
+          (-paddingBox.right) + 'px ' +
+          (-paddingBox.bottom) + 'px ' +
+          (-paddingBox.left) + 'px');
     }
   }
 
-  goog.editor.icontent.writeNormalInitialIframe(info, bodyHtml, style, iframe);
+  goog.editor.icontent.writeNormalInitialIframe(
+      info, bodyHtml, style, iframe);
 };
 
 
@@ -257,11 +258,11 @@ goog.editor.icontent.writeNormalInitialBlendedIframe = function(
  *     the field, if needed.
  * @param {HTMLIFrameElement} iframe The iframe.
  */
-goog.editor.icontent.writeNormalInitialIframe = function(
-    info, bodyHtml, style, iframe) {
+goog.editor.icontent.writeNormalInitialIframe =
+    function(info, bodyHtml, style, iframe) {
 
-  var html =
-      goog.editor.icontent.getInitialIframeContent_(info, bodyHtml, style);
+  var html = goog.editor.icontent.getInitialIframeContent_(
+      info, bodyHtml, style);
 
   var doc = goog.dom.getFrameContentDocument(iframe);
   doc.open();
@@ -294,3 +295,4 @@ goog.editor.icontent.writeHttpsInitialIframe = function(info, doc, bodyHtml) {
   goog.style.setStyle(body, info.extraStyles_);
   body.innerHTML = bodyHtml;
 };
+

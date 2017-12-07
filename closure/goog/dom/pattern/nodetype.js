@@ -53,6 +53,7 @@ goog.inherits(goog.dom.pattern.NodeType, goog.dom.pattern.AbstractPattern);
  * @override
  */
 goog.dom.pattern.NodeType.prototype.matchToken = function(token, type) {
-  return token.nodeType == this.nodeType_ ? goog.dom.pattern.MatchType.MATCH :
-                                            goog.dom.pattern.MatchType.NO_MATCH;
+  return token.nodeType == this.nodeType_ ?
+      goog.dom.pattern.MatchType.MATCH :
+      goog.dom.pattern.MatchType.NO_MATCH;
 };

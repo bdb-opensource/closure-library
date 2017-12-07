@@ -36,8 +36,6 @@ goog.require('goog.a11y.aria');
 goog.require('goog.a11y.aria.Role');
 goog.require('goog.a11y.aria.State');
 goog.require('goog.asserts');
-goog.require('goog.dom');
-goog.require('goog.dom.TagName');
 goog.require('goog.dom.classlist');
 goog.require('goog.events.EventType');
 goog.require('goog.ui.Component');
@@ -46,7 +44,7 @@ goog.require('goog.ui.Component');
 
 /**
  * A UI Control used for rating things, i.e. videos on Google Video.
- * @param {Array<string>=} opt_ratings Ratings. Default: [1,2,3,4,5].
+ * @param {Array.<string>=} opt_ratings Ratings. Default: [1,2,3,4,5].
  * @param {goog.dom.DomHelper=} opt_domHelper Optional DOM helper.
  * @constructor
  * @extends {goog.ui.Component}
@@ -56,14 +54,14 @@ goog.ui.Ratings = function(opt_ratings, opt_domHelper) {
 
   /**
    * Ordered ratings that can be picked, Default: [1,2,3,4,5]
-   * @type {Array<string>}
+   * @type {Array.<string>}
    * @private
    */
   this.ratings_ = opt_ratings || ['1', '2', '3', '4', '5'];
 
   /**
    * Array containing references to the star elements
-   * @type {Array<Element>}
+   * @type {Array.<Element>}
    * @private
    */
   this.stars_ = [];
@@ -102,7 +100,6 @@ goog.ui.Ratings = function(opt_ratings, opt_domHelper) {
   this.attachedFormField_ = null;
 };
 goog.inherits(goog.ui.Ratings, goog.ui.Component);
-goog.tagUnsealableClass(goog.ui.Ratings);
 
 
 /**
@@ -143,12 +140,10 @@ goog.ui.Ratings.EventType = {
  * @override
  */
 goog.ui.Ratings.prototype.decorateInternal = function(el) {
-  var select = goog.dom.getElementsByTagName(
-      goog.dom.TagName.SELECT, goog.asserts.assert(el))[0];
+  var select = el.getElementsByTagName('select')[0];
   if (!select) {
-    throw new Error(
-        'Can not decorate ' + el + ', with Ratings. Must ' +
-        'contain select box');
+    throw Error('Can not decorate ' + el + ', with Ratings. Must ' +
+                'contain select box');
   }
   this.ratings_.length = 0;
   for (var i = 0, n = select.options.length; i < n; i++) {
@@ -157,7 +152,7 @@ goog.ui.Ratings.prototype.decorateInternal = function(el) {
   }
   this.setSelectedIndex(select.selectedIndex);
   select.style.display = 'none';
-  this.attachedFormField_ = /** @type {HTMLSelectElement} */ (select);
+  this.attachedFormField_ = select;
   this.createDom();
   el.insertBefore(this.getElement(), select);
 };
@@ -171,7 +166,6 @@ goog.ui.Ratings.prototype.decorateInternal = function(el) {
 goog.ui.Ratings.prototype.enterDocument = function() {
   var el = this.getElement();
   goog.asserts.assert(el, 'The DOM element for ratings cannot be null.');
-  goog.ui.Ratings.base(this, 'enterDocument');
   el.tabIndex = 0;
   goog.dom.classlist.add(el, this.getCssClass());
   goog.a11y.aria.setRole(el, goog.a11y.aria.Role.SLIDER);
@@ -183,11 +177,10 @@ goog.ui.Ratings.prototype.enterDocument = function() {
 
   // Create the elements for the stars
   for (var i = 0; i < this.ratings_.length; i++) {
-    var star = this.getDomHelper().createDom(goog.dom.TagName.SPAN, {
+    var star = this.getDomHelper().createDom('span', {
       'title': this.ratings_[i],
       'class': this.getClassName_(i, false),
-      'index': i
-    });
+      'index': i});
     this.stars_.push(star);
     el.appendChild(star);
   }
@@ -219,6 +212,7 @@ goog.ui.Ratings.prototype.exitDocument = function() {
 goog.ui.Ratings.prototype.disposeInternal = function() {
   goog.ui.Ratings.superClass_.disposeInternal.call(this);
   this.ratings_.length = 0;
+  this.rendered_ = false;
 };
 
 
@@ -242,17 +236,18 @@ goog.ui.Ratings.prototype.setSelectedIndex = function(index) {
     this.selectedIndex_ = index;
     this.highlightIndex_(this.selectedIndex_);
     if (this.attachedFormField_) {
-      if (this.attachedFormField_.tagName == goog.dom.TagName.SELECT) {
+      if (this.attachedFormField_.tagName == 'SELECT') {
         this.attachedFormField_.selectedIndex = index;
       } else {
         this.attachedFormField_.value =
             /** @type {string} */ (this.getValue());
       }
       var ratingsElement = this.getElement();
-      goog.asserts.assert(
-          ratingsElement, 'The DOM ratings element cannot be null.');
-      goog.a11y.aria.setState(
-          ratingsElement, goog.a11y.aria.State.VALUENOW, this.ratings_[index]);
+      goog.asserts.assert(ratingsElement,
+          'The DOM ratings element cannot be null.');
+      goog.a11y.aria.setState(ratingsElement,
+          goog.a11y.aria.State.VALUENOW,
+          this.ratings_[index]);
     }
     this.dispatchEvent(goog.ui.Ratings.EventType.CHANGE);
   }
@@ -293,13 +288,13 @@ goog.ui.Ratings.prototype.getHighlightedIndex = function() {
  */
 goog.ui.Ratings.prototype.getHighlightedValue = function() {
   return this.highlightedIndex_ == -1 ? null :
-                                        this.ratings_[this.highlightedIndex_];
+      this.ratings_[this.highlightedIndex_];
 };
 
 
 /**
  * Sets the array of ratings that the comonent
- * @param {Array<string>} ratings Array of value to use as ratings.
+ * @param {Array.<string>} ratings Array of value to use as ratings.
  */
 goog.ui.Ratings.prototype.setRatings = function(ratings) {
   this.ratings_ = ratings;
@@ -309,7 +304,7 @@ goog.ui.Ratings.prototype.setRatings = function(ratings) {
 
 /**
  * Gets the array of ratings that the component
- * @return {Array<string>} Array of ratings.
+ * @return {Array.<string>} Array of ratings.
  */
 goog.ui.Ratings.prototype.getRatings = function() {
   return this.ratings_;
@@ -417,19 +412,19 @@ goog.ui.Ratings.prototype.onKeyDown_ = function(e) {
     return;
   }
   switch (e.keyCode) {
-    case 27:  // esc
+    case 27: // esc
       this.setSelectedIndex(-1);
       break;
-    case 36:  // home
+    case 36: // home
       this.setSelectedIndex(0);
       break;
-    case 35:  // end
+    case 35: // end
       this.setSelectedIndex(this.ratings_.length);
       break;
-    case 37:  // left arrow
+    case 37: // left arrow
       this.setSelectedIndex(this.getSelectedIndex() - 1);
       break;
-    case 39:  // right arrow
+    case 39: // right arrow
       this.setSelectedIndex(this.getSelectedIndex() + 1);
       break;
     default:
@@ -508,6 +503,6 @@ goog.ui.Ratings.prototype.getClassName_ = function(i, on) {
     enabledClassName = goog.getCssName(baseClass, 'disabled');
   }
 
-  return goog.getCssName(baseClass, 'star') + ' ' + className + ' ' +
-      enabledClassName;
+  return goog.getCssName(baseClass, 'star') + ' ' + className +
+      ' ' + enabledClassName;
 };

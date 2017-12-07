@@ -15,8 +15,6 @@
 goog.provide('goog.testing.MockClockTest');
 goog.setTestOnly('goog.testing.MockClockTest');
 
-goog.require('goog.Promise');
-goog.require('goog.Timer');
 goog.require('goog.events');
 goog.require('goog.functions');
 goog.require('goog.testing.MockClock');
@@ -56,7 +54,6 @@ function testSetTimeoutAndTick() {
 
   assertEquals(4, clock.tick(4));
   assertEquals(4, clock.getCurrentTime());
-  assertEquals(0, clock.getCallbacksTriggered());
 
   assertFalse(m5);
   assertFalse(m10);
@@ -65,7 +62,6 @@ function testSetTimeoutAndTick() {
 
   assertEquals(5, clock.tick(1));
   assertEquals(5, clock.getCurrentTime());
-  assertEquals(1, clock.getCallbacksTriggered());
 
   assertTrue('m5 should now be true', m5);
   assertFalse(m10);
@@ -74,7 +70,6 @@ function testSetTimeoutAndTick() {
 
   assertEquals(10, clock.tick(5));
   assertEquals(10, clock.getCurrentTime());
-  assertEquals(2, clock.getCallbacksTriggered());
 
   assertTrue('m5 should be true', m5);
   assertTrue('m10 should now be true', m10);
@@ -83,7 +78,6 @@ function testSetTimeoutAndTick() {
 
   assertEquals(15, clock.tick(5));
   assertEquals(15, clock.getCurrentTime());
-  assertEquals(3, clock.getCallbacksTriggered());
 
   assertTrue('m5 should be true', m5);
   assertTrue('m10 should be true', m10);
@@ -92,7 +86,6 @@ function testSetTimeoutAndTick() {
 
   assertEquals(20, clock.tick(5));
   assertEquals(20, clock.getCurrentTime());
-  assertEquals(4, clock.getCallbacksTriggered());
 
   assertTrue('m5 should be true', m5);
   assertTrue('m10 should be true', m10);
@@ -110,10 +103,8 @@ function testSetImmediateAndTick() {
   setImmediate(function() { tick0 = true; });
   setImmediate(function() { tick1 = true; });
   assertEquals(2, clock.getTimeoutsMade());
-  assertEquals(0, clock.getCallbacksTriggered());
 
   clock.tick(0);
-  assertEquals(2, clock.getCallbacksTriggered());
   assertTrue(tick0);
   assertTrue(tick1);
 
@@ -127,19 +118,14 @@ function testSetInterval() {
   setInterval(function() { times++; }, 100);
 
   clock.tick(500);
-  assertEquals(5, clock.getCallbacksTriggered());
   assertEquals(5, times);
   clock.tick(100);
-  assertEquals(6, clock.getCallbacksTriggered());
   assertEquals(6, times);
   clock.tick(100);
-  assertEquals(7, clock.getCallbacksTriggered());
   assertEquals(7, times);
   clock.tick(50);
-  assertEquals(7, clock.getCallbacksTriggered());
   assertEquals(7, times);
   clock.tick(50);
-  assertEquals(8, clock.getCallbacksTriggered());
   assertEquals(8, times);
 
   clock.uninstall();
@@ -147,19 +133,20 @@ function testSetInterval() {
 
 
 function testRequestAnimationFrame() {
-  goog.global.requestAnimationFrame = function() {};
+  goog.global.requestAnimationFrame = function() {
+  };
   var clock = new goog.testing.MockClock(true);
   var times = [];
-  var recFunc = goog.testing.recordFunction(function(now) { times.push(now); });
+  var recFunc = goog.testing.recordFunction(function(now) {
+    times.push(now);
+  });
   goog.global.requestAnimationFrame(recFunc);
   clock.tick(50);
-  assertEquals(1, clock.getCallbacksTriggered());
   assertEquals(1, recFunc.getCallCount());
   assertEquals(20, times[0]);
 
   goog.global.requestAnimationFrame(recFunc);
   clock.tick(100);
-  assertEquals(2, clock.getCallbacksTriggered());
   assertEquals(2, recFunc.getCallCount());
   assertEquals(70, times[1]);
 
@@ -228,8 +215,10 @@ function testClearInterval2() {
 
 
 function testCancelRequestAnimationFrame() {
-  goog.global.requestAnimationFrame = function() {};
-  goog.global.cancelRequestAnimationFrame = function() {};
+  goog.global.requestAnimationFrame = function() {
+  };
+  goog.global.cancelRequestAnimationFrame = function() {
+  };
   var clock = new goog.testing.MockClock(true);
   var ran = false;
   var c = goog.global.requestAnimationFrame(function() { ran = true; });
@@ -302,16 +291,21 @@ function testTimerCallbackCanCreateIntermediateTimer() {
 
   setTimeout(function() {
     sequence.push('timer1 at T=' + goog.now());
-    setTimeout(function() { sequence.push('timer2 at T=' + goog.now()); }, 1);
+    setTimeout(function() {
+      sequence.push('timer2 at T=' + goog.now());
+    }, 1);
   }, 1);
 
-  setTimeout(function() { sequence.push('timer3 at T=' + goog.now()); }, 3);
+  setTimeout(function() {
+    sequence.push('timer3 at T=' + goog.now());
+  }, 3);
 
   clock.tick(4);
 
   assertEquals(
       'Each timer should fire in sequence at the correct time.',
-      'timer1 at T=1, timer2 at T=2, timer3 at T=3', sequence.join(', '));
+      'timer1 at T=1, timer2 at T=2, timer3 at T=3',
+      sequence.join(', '));
 
   clock.uninstall();
 }
@@ -323,9 +317,12 @@ function testCorrectArgumentsPassedToCallback() {
   var timeoutExecuted = false;
 
   timeoutId = setTimeout(function(arg) {
-    assertEquals('"this" must be goog.global', goog.global, this);
-    assertEquals('The timeout ID must be the first parameter', timeoutId, arg);
-    assertEquals('Exactly one argument must be passed', 1, arguments.length);
+    assertEquals('"this" must be goog.global',
+        goog.global, this);
+    assertEquals('The timeout ID must be the first parameter',
+        timeoutId, arg);
+    assertEquals('Exactly one argument must be passed',
+        1, arguments.length);
     timeoutExecuted = true;
   }, 1);
 
@@ -371,41 +368,12 @@ function testTickZero() {
 function testReset() {
   var clock = new goog.testing.MockClock(true);
 
-  var id = setTimeout(function() {
+  setTimeout(function() {
     fail('Timeouts should be cleared after a reset');
   }, 0);
 
   clock.reset();
   clock.tick(999999);
-
-  var calls = 0;
-  setTimeout(function() { calls++; }, 10);
-  clearTimeout(id);
-  clock.tick(100);
-  assertEquals(
-      'New timeout should still run after clearing from before reset', 1,
-      calls);
-
-  clock.uninstall();
-}
-
-
-function testNewClockWithOldTimeoutId() {
-  var clock = new goog.testing.MockClock(true);
-
-  var id = setTimeout(function() {
-    fail('Timeouts should be cleared after uninstall');
-  }, 0);
-
-  clock.uninstall();
-  clock = new goog.testing.MockClock(true);
-
-  var calls = 0;
-  setTimeout(function() { calls++; }, 10);
-  clearTimeout(id);
-  clock.tick(100);
-  assertEquals(
-      'Timeout should still run after cancelling from old clock', 1, calls);
   clock.uninstall();
 }
 
@@ -422,53 +390,52 @@ function testQueueInsertionHelper() {
   }
 
   goog.testing.MockClock.insert_({runAtMillis: 2}, queue);
-  assertEquals('Only item', '2', queueToString());
+  assertEquals('Only item',
+      '2', queueToString());
 
   goog.testing.MockClock.insert_({runAtMillis: 4}, queue);
-  assertEquals('Biggest item', '4,2', queueToString());
+  assertEquals('Biggest item',
+      '4,2', queueToString());
 
   goog.testing.MockClock.insert_({runAtMillis: 5}, queue);
-  assertEquals('An even bigger item', '5,4,2', queueToString());
+  assertEquals('An even bigger item',
+      '5,4,2', queueToString());
 
   goog.testing.MockClock.insert_({runAtMillis: 1}, queue);
-  assertEquals('Smallest item', '5,4,2,1', queueToString());
+  assertEquals('Smallest item',
+      '5,4,2,1', queueToString());
 
   goog.testing.MockClock.insert_({runAtMillis: 1, dup: true}, queue);
-  assertEquals('Duplicate smallest item', '5,4,2,1,1', queueToString());
+  assertEquals('Duplicate smallest item',
+      '5,4,2,1,1', queueToString());
   assertTrue('Duplicate item comes at a smaller index', queue[3].dup);
 
   goog.testing.MockClock.insert_({runAtMillis: 3}, queue);
   goog.testing.MockClock.insert_({runAtMillis: 3, dup: true}, queue);
-  assertEquals('Duplicate a middle item', '5,4,3,3,2,1,1', queueToString());
+  assertEquals('Duplicate a middle item',
+      '5,4,3,3,2,1,1', queueToString());
   assertTrue('Duplicate item comes at a smaller index', queue[2].dup);
 }
-
 
 function testIsTimeoutSet() {
   var clock = new goog.testing.MockClock(true);
   var timeoutKey = setTimeout(function() {}, 1);
-  assertTrue(
-      'Timeout ' + timeoutKey + ' should be set',
+  assertTrue('Timeout ' + timeoutKey + ' should be set',
       clock.isTimeoutSet(timeoutKey));
   var nextTimeoutKey = timeoutKey + 1;
-  assertFalse(
-      'Timeout ' + nextTimeoutKey + ' should not be set',
+  assertFalse('Timeout ' + nextTimeoutKey + ' should not be set',
       clock.isTimeoutSet(nextTimeoutKey));
   clearTimeout(timeoutKey);
-  assertFalse(
-      'Timeout ' + timeoutKey + ' should no longer be set',
+  assertFalse('Timeout ' + timeoutKey + ' should no longer be set',
       clock.isTimeoutSet(timeoutKey));
   var newTimeoutKey = setTimeout(function() {}, 1);
   clock.tick(5);
-  assertFalse(
-      'Timeout ' + timeoutKey + ' should not be set',
+  assertFalse('Timeout ' + timeoutKey + ' should not be set',
       clock.isTimeoutSet(timeoutKey));
-  assertTrue(
-      'Timeout ' + newTimeoutKey + ' should be set',
+  assertTrue('Timeout ' + newTimeoutKey + ' should be set',
       clock.isTimeoutSet(newTimeoutKey));
   clock.uninstall();
 }
-
 
 function testBalksOnTimeoutsGreaterThanMaxInt() {
   // Browsers have trouble with timeout greater than max int, so we
@@ -477,15 +444,16 @@ function testBalksOnTimeoutsGreaterThanMaxInt() {
   // Functions on window don't seem to be able to throw exceptions in
   // IE6.  Explicitly reading the property makes it work.
   var setTimeout = window.setTimeout;
-  assertThrows('Timeouts > MAX_INT should fail', function() {
-    setTimeout(goog.nullFunction, 2147483648);
-  });
-  assertThrows('Timeouts much greater than MAX_INT should fail', function() {
-    setTimeout(goog.nullFunction, 2147483648 * 10);
-  });
+  assertThrows('Timeouts > MAX_INT should fail',
+      function() {
+        setTimeout(goog.nullFunction, 2147483648);
+      });
+  assertThrows('Timeouts much greater than MAX_INT should fail',
+      function() {
+        setTimeout(goog.nullFunction, 2147483648 * 10);
+      });
   clock.uninstall();
 }
-
 
 function testCorrectSetTimeoutIsRestored() {
   var safe = goog.functions.error('should not have been called');
@@ -499,7 +467,6 @@ function testCorrectSetTimeoutIsRestored() {
   // goog.testing.TestCase#finalize.
   assertEquals('setTimeout is restored', safe, window.setTimeout);
 }
-
 
 function testMozRequestAnimationFrame() {
   // Setting this function will indirectly tell the mock clock to mock it out.
@@ -518,10 +485,9 @@ function testMozRequestAnimationFrame() {
   clock.dispose();
 }
 
-
 function testClearBeforeSet() {
   var clock = new goog.testing.MockClock(true);
-  var expectedId = goog.testing.MockClock.nextId;
+  var expectedId = 1;
   window.clearTimeout(expectedId);
 
   var fn = goog.testing.recordFunction();
@@ -531,101 +497,5 @@ function testClearBeforeSet() {
       expectedId, actualId);
   clock.tick(1);
   assertEquals(1, fn.getCallCount());
-  clock.dispose();
-}
-
-
-function testNonFunctionArguments() {
-  var clock = new goog.testing.MockClock(true);
-
-  // Unlike normal setTimeout and friends, we only accept functions (not
-  // strings, not undefined, etc). Make sure that if we get a non-function, we
-  // fail early rather than on the next .tick() operation.
-
-  assertThrows('setTimeout with a non-function value should fail', function() {
-    window.setTimeout(undefined, 0);
-  });
-  clock.tick(1);
-
-  assertThrows('setTimeout with a string should fail', function() {
-    window.setTimeout('throw new Error("setTimeout string eval!");', 0);
-  });
-  clock.tick(1);
-
-  clock.dispose();
-}
-
-
-function testUnspecifiedTimeout() {
-  var clock = new goog.testing.MockClock(true);
-  var m0a = false, m0b = false, m10 = false;
-  setTimeout(function() { m0a = true; });
-  setTimeout(function() { m10 = true; }, 10);
-  assertEquals(2, clock.getTimeoutsMade());
-
-  assertFalse(m0a);
-  assertFalse(m0b);
-  assertFalse(m10);
-
-  assertEquals(0, clock.tick(0));
-  assertEquals(0, clock.getCurrentTime());
-
-  assertTrue(m0a);
-  assertFalse(m0b);
-  assertFalse(m10);
-
-  setTimeout(function() { m0b = true; });
-  assertEquals(3, clock.getTimeoutsMade());
-
-  assertEquals(0, clock.tick(0));
-  assertEquals(0, clock.getCurrentTime());
-
-  assertTrue(m0a);
-  assertTrue(m0b);
-  assertFalse(m10);
-
-  assertEquals(10, clock.tick(10));
-  assertEquals(10, clock.getCurrentTime());
-
-  assertTrue(m0a);
-  assertTrue(m0b);
-  assertTrue(m10);
-
-  clock.uninstall();
-}
-
-
-function testUnspecifiedInterval() {
-  var clock = new goog.testing.MockClock(true);
-  var times = 0;
-  var handle = setInterval(function() {
-    if (++times >= 5) {
-      clearInterval(handle);
-    }
-  });
-
-  clock.tick(0);
-  assertEquals(5, times);
-
-  clock.uninstall();
-}
-
-
-function testTickPromise() {
-  var clock = new goog.testing.MockClock(true);
-
-  var p = goog.Promise.resolve('foo');
-  assertEquals('foo', clock.tickPromise(p));
-
-  var rejected = goog.Promise.reject(new Error('failed'));
-  var e = assertThrows(function() { clock.tickPromise(rejected); });
-  assertEquals('failed', e.message);
-
-  var delayed = goog.Timer.promise(500, 'delayed');
-  e = assertThrows(function() { clock.tickPromise(delayed); });
-  assertEquals(
-      'Promise was expected to be resolved after mock clock tick.', e.message);
-  assertEquals('delayed', clock.tickPromise(delayed, 500));
-
   clock.dispose();
 }

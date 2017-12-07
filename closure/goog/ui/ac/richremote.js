@@ -46,7 +46,6 @@ goog.require('goog.ui.ac.RichRemoteArrayMatcher');
  * inputbox or textarea from data provided via ajax.  The server returns a
  * complex data structure that is used with client-side javascript functions to
  * render the results.
- *
  * @param {string} url The Uri which generates the auto complete matches.
  * @param {Element} input Input element or text area.
  * @param {boolean=} opt_multi Whether to allow multiple entries; defaults
@@ -71,21 +70,24 @@ goog.ui.ac.RichRemote = function(url, input, opt_multi, opt_useSimilar) {
    * @private
    */
   var renderer = new goog.ui.ac.Renderer(null, customRenderer);
+  this.renderer_ = renderer;
 
   /**
    * A remote matcher that parses rich results returned by the server.
    * @type {goog.ui.ac.RichRemoteArrayMatcher}
    * @private
    */
-  var matcher = new goog.ui.ac.RichRemoteArrayMatcher(url, !opt_useSimilar);
+  var matcher = new goog.ui.ac.RichRemoteArrayMatcher(url,
+      !opt_useSimilar);
+  this.matcher_ = matcher;
 
   /**
    * An input handler that calls select on a row when it is selected.
    * @type {goog.ui.ac.RichInputHandler}
    * @private
    */
-  var inputhandler =
-      new goog.ui.ac.RichInputHandler(null, null, !!opt_multi, 300);
+  var inputhandler = new goog.ui.ac.RichInputHandler(null, null,
+      !!opt_multi, 300);
 
   // Create the widget and connect it to the input handler.
   goog.ui.ac.AutoComplete.call(this, matcher, renderer, inputhandler);
@@ -102,15 +104,4 @@ goog.inherits(goog.ui.ac.RichRemote, goog.ui.ac.Remote);
  */
 goog.ui.ac.RichRemote.prototype.setRowFilter = function(rowFilter) {
   this.matcher_.setRowFilter(rowFilter);
-};
-
-
-/**
- * Sets the function building the rows.
- * @param {goog.ui.ac.RichRemoteArrayMatcher.RowBuilder} rowBuilder
- *     A function(type, response) converting the type and the server response to
- *     an object with two methods: render(node, token) and select(target).
- */
-goog.ui.ac.RichRemote.prototype.setRowBuilder = function(rowBuilder) {
-  this.matcher_.setRowBuilder(rowBuilder);
 };

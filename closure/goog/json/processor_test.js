@@ -52,18 +52,16 @@ function testNativeParser() {
 }
 
 function testJsParser_withReplacer() {
-  runParsingTest(
-      new goog.json.EvalJsonProcessor(REPLACER), '{"a":"foo","b":"goo"}',
-      '{"a":"food","b":"good"}');
+  runParsingTest(new goog.json.EvalJsonProcessor(REPLACER),
+      '{"a":"foo","b":"goo"}', '{"a":"food","b":"good"}');
 }
 
 function testNativeParser_withReplacer() {
   if (!SUPPORTS_NATIVE_JSON) {
     return;
   }
-  runParsingTest(
-      new goog.json.NativeJsonProcessor(REPLACER), '{"a":"foo","b":"goo"}',
-      '{"a":"food","b":"good"}');
+  runParsingTest(new goog.json.NativeJsonProcessor(REPLACER),
+      '{"a":"foo","b":"goo"}', '{"a":"food","b":"good"}');
 }
 
 function testNativeParser_withReviver() {
@@ -71,8 +69,8 @@ function testNativeParser_withReviver() {
     return;
   }
   var json = '{"a":"fod","b":"god"}';
-  runParsingTest(
-      new goog.json.NativeJsonProcessor(REPLACER, REVIVER), json, json);
+  runParsingTest(new goog.json.NativeJsonProcessor(REPLACER, REVIVER),
+      json, json);
 }
 
 function testUnsafeJsParser() {
@@ -81,9 +79,8 @@ function testUnsafeJsParser() {
 }
 
 function testUnsafeJsParser_withReplacer() {
-  runParsingTest(
-      new goog.json.EvalJsonProcessor(REPLACER, true), '{"a":"foo","b":"goo"}',
-      '{"a":"food","b":"good"}');
+  runParsingTest(new goog.json.EvalJsonProcessor(REPLACER, true),
+      '{"a":"foo","b":"goo"}', '{"a":"food","b":"good"}');
 }
 
 function runParsingTest(parser, input, expected) {

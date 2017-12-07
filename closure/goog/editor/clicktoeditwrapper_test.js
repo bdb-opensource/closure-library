@@ -17,12 +17,13 @@ goog.setTestOnly('goog.editor.ClickToEditWrapperTest');
 
 goog.require('goog.dom');
 goog.require('goog.dom.Range');
-goog.require('goog.dom.TagName');
 goog.require('goog.editor.ClickToEditWrapper');
 goog.require('goog.editor.SeamlessField');
 goog.require('goog.testing.MockClock');
 goog.require('goog.testing.events');
 goog.require('goog.testing.jsunit');
+goog.require('goog.userAgent');
+goog.require('goog.userAgent.product');
 
 var FIELD;
 var CLOCK;
@@ -42,10 +43,9 @@ function setUp() {
   window.focus();
 }
 
-/** @param {boolean=} opt_isBlended */
 function setUpField(opt_isBlended) {
   FIELD = opt_isBlended ? new goog.editor.SeamlessField('testField') :
-                          new goog.editor.SeamlessField('testField');
+      new goog.editor.SeamlessField('testField');
 
   (new goog.editor.ClickToEditWrapper(FIELD));
 
@@ -70,8 +70,7 @@ function testClickToEdit(opt_isBlended) {
 
   goog.testing.events.fireClickSequence(text.parentNode);
 
-  assertFalse(
-      'Field should not be made editable immediately after clicking',
+  assertFalse('Field should not be made editable immediately after clicking',
       FIELD.isLoaded());
   CLOCK.tick(1);
   assertTrue('Field should be editable', FIELD.isLoaded());
@@ -94,6 +93,12 @@ function testBlendedClickToEdit() {
 
 
 function testClickToEditWithAnchor(opt_isBlended) {
+  // We bail out if we are running on chrome+winxp because of flaky selenium
+  // issues. TODO(user): Remove this assertion once we start running on the
+  // JsUnit farm.
+  if (goog.userAgent.product.CHROME && goog.userAgent.WINDOWS) {
+    return;
+  }
   setUpField(opt_isBlended);
 
   goog.dom.getElement('testAnchor').focus();
@@ -105,26 +110,20 @@ function testClickToEditWithAnchor(opt_isBlended) {
   var dom = FIELD.getEditableDomHelper();
   var selection = goog.dom.Range.createFromWindow(dom.getWindow());
 
-  // TODO(brndn): the location of the cursor is not yet specified by the W3C
-  // Editing APIs (https://dvcs.w3.org/hg/editing/raw-file/tip/editing.html).
-  // See b/15678403.  IE and some webkit (all Safari, and up to Chrome 57)
-  // return the end of the previous text node, while other browsers return
-  // the start of the next node.
+  // IE and Gecko and Safari are all dumb and put the cursor
+  // in different places.
   var body = FIELD.getElement();
   var text = body.firstChild;
-  var link = dom.getElementsByTagNameAndClass(goog.dom.TagName.A, null, body)[0]
-                 .firstChild;
-  if (selection.getStartNode() == text) {
-    assertEquals('Wrong start node', text, selection.getStartNode());
-    assertEquals('Wrong start offset', 17, selection.getStartOffset());
-    assertEquals('Wrong end node', text, selection.getEndNode());
-    assertEquals('Wrong end offset', 17, selection.getEndOffset());
-  } else {
-    assertEquals('Wrong start node', link, selection.getStartNode());
-    assertEquals('Wrong start offset', 0, selection.getStartOffset());
-    assertEquals('Wrong end node', link, selection.getEndNode());
-    assertEquals('Wrong end offset', 0, selection.getEndOffset());
-  }
+  var link = dom.getElementsByTagNameAndClass('A', null, body)[0].firstChild;
+  var isIEorWebkit = goog.userAgent.WEBKIT || goog.userAgent.IE;
+  assertEquals('Wrong start node',
+      isIEorWebkit ? text : link, selection.getStartNode());
+  assertEquals('Wrong start offset',
+      isIEorWebkit ? 17 : 0, selection.getStartOffset());
+  assertEquals('Wrong end node',
+      isIEorWebkit ? text : link, selection.getEndNode());
+  assertEquals('Wrong end offset',
+      isIEorWebkit ? 17 : 0, selection.getEndOffset());
 }
 
 function testBlendedClickToEditWithAnchor() {

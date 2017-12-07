@@ -48,6 +48,7 @@ function testClear() {
   assertUndefined(buff.add('first'));
   buff.clear();
   assertTrue('should be empty after clear', buff.isEmpty());
+
 }
 
 function testGetValues() {

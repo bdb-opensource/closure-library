@@ -44,7 +44,12 @@ goog.userAgent.getDocumentMode_ = function() {
 };
 
 
-var UserAgents = {GECKO: 'GECKO', IE: 'IE', OPERA: 'OPERA', WEBKIT: 'WEBKIT'};
+var UserAgents = {
+  GECKO: 'GECKO',
+  IE: 'IE',
+  OPERA: 'OPERA',
+  WEBKIT: 'WEBKIT'
+};
 
 
 /**
@@ -69,14 +74,17 @@ function getUserAgentDetected_(agent) {
 
 /**
  * Test browser detection for a user agent configuration.
- * @param {Array<number>} expectedAgents Array of expected userAgents.
+ * @param {Array.<number>} expectedAgents Array of expected userAgents.
  * @param {string} uaString User agent string.
  * @param {string=} opt_product Navigator product string.
  * @param {string=} opt_vendor Navigator vendor string.
  */
 function assertUserAgent(expectedAgents, uaString, opt_product, opt_vendor) {
-  var mockNavigator =
-      {'userAgent': uaString, 'product': opt_product, 'vendor': opt_vendor};
+  var mockNavigator = {
+    'userAgent': uaString,
+    'product': opt_product,
+    'vendor': opt_vendor
+  };
 
   mockUserAgent.setNavigator(mockNavigator);
   mockUserAgent.setUserAgentString(uaString);
@@ -177,8 +185,8 @@ function testVendorJsPrefixNone() {
  */
 function testPrefixedPropertyNameWebkit() {
   assertUserAgent([UserAgents.WEBKIT], 'WebKit');
-  assertEquals(
-      'webkitFoobar', goog.dom.vendor.getPrefixedPropertyName('foobar'));
+  assertEquals('webkitFoobar',
+      goog.dom.vendor.getPrefixedPropertyName('foobar'));
 }
 
 
@@ -192,8 +200,7 @@ function testPrefixedPropertyNameWebkitAndObject() {
     'webkitFoobar': 0
   };
   assertUserAgent([UserAgents.WEBKIT], 'WebKit');
-  assertEquals(
-      'webkitFoobar',
+  assertEquals('webkitFoobar',
       goog.dom.vendor.getPrefixedPropertyName('foobar', mockDocument));
 }
 
@@ -211,10 +218,11 @@ function testPrefixedPropertyName() {
  * Tests for the prefixed property name in an object.
  */
 function testPrefixedPropertyNameAndObject() {
-  var mockDocument = {'foobar': 0};
+  var mockDocument = {
+    'foobar': 0
+  };
   assertUserAgent([], '');
-  assertEquals(
-      'foobar',
+  assertEquals('foobar',
       goog.dom.vendor.getPrefixedPropertyName('foobar', mockDocument));
 }
 
@@ -249,17 +257,17 @@ function testPrefixedEventTypeForBrowser() {
 
 function assertIe(uaString, expectedVersion) {
   assertUserAgent([UserAgents.IE], uaString);
-  assertEquals(
-      'User agent ' + uaString + ' should have had version ' + expectedVersion +
-          ' but had ' + goog.userAgent.VERSION,
-      expectedVersion, goog.userAgent.VERSION);
+  assertEquals('User agent ' + uaString + ' should have had version ' +
+      expectedVersion + ' but had ' + goog.userAgent.VERSION,
+      expectedVersion,
+      goog.userAgent.VERSION);
 }
 
 
 function assertGecko(uaString, expectedVersion) {
   assertUserAgent([UserAgents.GECKO], uaString, 'Gecko');
-  assertEquals(
-      'User agent ' + uaString + ' should have had version ' + expectedVersion +
-          ' but had ' + goog.userAgent.VERSION,
-      expectedVersion, goog.userAgent.VERSION);
+  assertEquals('User agent ' + uaString + ' should have had version ' +
+      expectedVersion + ' but had ' + goog.userAgent.VERSION,
+      expectedVersion,
+      goog.userAgent.VERSION);
 }

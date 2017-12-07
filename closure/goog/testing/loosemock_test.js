@@ -21,7 +21,8 @@ goog.require('goog.testing.jsunit');
 goog.require('goog.testing.mockmatchers');
 
 // The object that we will be mocking
-var RealObject = function() {};
+var RealObject = function() {
+};
 
 RealObject.prototype.a = function() {
   fail('real object should never be called');
@@ -52,7 +53,8 @@ function tearDown() {
  */
 function silenceFailureLogging() {
   if (goog.global['G_testRunner']) {
-    stubs.set(goog.global['G_testRunner'], 'logTestFailure', goog.nullFunction);
+    stubs.set(goog.global['G_testRunner'],
+        'logTestFailure', goog.nullFunction);
   }
 }
 
@@ -69,7 +71,7 @@ function unsilenceFailureLogging() {
  */
 function assertThrowsQuiet(var_args) {
   silenceFailureLogging();
-  assertThrowsJsUnitException.apply(null, arguments);
+  assertThrows.apply(null, arguments);
   unsilenceFailureLogging();
 }
 
@@ -288,13 +290,13 @@ function testArgsAndReturns() {
 function testThrows() {
   mock.a().$throws('exception!');
   mock.$replay();
-  assertThrows(goog.bind(mock.a, mock));
+  assertThrowsQuiet(goog.bind(mock.a, mock));
   mock.$verify();
 }
 
 
 function testDoes() {
-  mock.a(1, 2).$does(function(a, b) { return a + b; });
+  mock.a(1, 2).$does(function(a, b) {return a + b;});
   mock.$replay();
   assertEquals('Mock should call the function', 3, mock.a(1, 2));
   mock.$verify();
@@ -305,7 +307,7 @@ function testIgnoresExtraCalls() {
   mock.a();
   mock.$replay();
   mock.a();
-  mock.b();  // doesn't throw
+  mock.b(); // doesn't throw
   mock.$verify();
 }
 

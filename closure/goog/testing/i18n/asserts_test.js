@@ -19,18 +19,14 @@
 goog.provide('goog.testing.i18n.assertsTest');
 goog.setTestOnly('goog.testing.i18n.assertsTest');
 
-goog.require('goog.testing.ExpectedFailures');
 goog.require('goog.testing.i18n.asserts');
+goog.require('goog.testing.ExpectedFailures');
 
 
 // Add this mapping for testing only
 goog.testing.i18n.asserts.EXPECTED_VALUE_MAP_['mappedValue'] = 'newValue';
 
-var expectedFailures;
-
-function setUpPage() {
-  expectedFailures = new goog.testing.ExpectedFailures();
-}
+var expectedFailures = new goog.testing.ExpectedFailures();
 
 function tearDown() {
   expectedFailures.handleTearDown();

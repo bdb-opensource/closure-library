@@ -24,14 +24,14 @@
  * }
  *
  * function testShuffle() {
- *   stubs.replace(Math, 'random', goog.testing.recordFunction(Math.random));
+ *   stubs.set(Math, 'random', goog.testing.recordFunction(Math.random));
  *   var arr = shuffle([1, 2, 3, 4, 5]);
  *   assertSameElements([1, 2, 3, 4, 5], arr);
  *   assertEquals(4, Math.random.getCallCount());
  * }
  *
  * function testOpenDialog() {
- *   stubs.replace(goog.ui, 'Dialog',
+ *   stubs.set(goog.ui, 'Dialog',
  *       goog.testing.recordConstructor(goog.ui.Dialog));
  *   openConfirmDialog();
  *   var lastDialogInstance = goog.ui.Dialog.getLastCall().getThis();
@@ -41,7 +41,6 @@
  *
  */
 
-goog.setTestOnly('goog.testing.FunctionCall');
 goog.provide('goog.testing.FunctionCall');
 goog.provide('goog.testing.recordConstructor');
 goog.provide('goog.testing.recordFunction');
@@ -69,8 +68,8 @@ goog.testing.recordFunction = function(opt_f) {
       calls.push(new goog.testing.FunctionCall(f, this, arguments, ret, null));
       return ret;
     } catch (err) {
-      calls.push(
-          new goog.testing.FunctionCall(f, this, arguments, undefined, err));
+      calls.push(new goog.testing.FunctionCall(f, this, arguments, undefined,
+          err));
       throw err;
     }
   }
@@ -78,28 +77,28 @@ goog.testing.recordFunction = function(opt_f) {
   /**
    * @return {number} Total number of calls.
    */
-  recordedFunction.getCallCount = function() { return calls.length; };
+  recordedFunction.getCallCount = function() {
+    return calls.length;
+  };
 
   /**
-   * Asserts that the function was called a certain number of times.
-   * @param {number|string} a The expected number of calls (1 arg) or debug
-   *     message (2 args).
-   * @param {number=} opt_b The expected number of calls (2 args only).
+   * Asserts that the function was called {@code expected} times.
+   * @param {number} expected The expected number of calls.
    */
-  recordedFunction.assertCallCount = function(a, opt_b) {
+  recordedFunction.assertCallCount = function(expected) {
     var actual = calls.length;
-    var expected = arguments.length == 1 ? a : opt_b;
-    var message = arguments.length == 1 ? '' : ' ' + a;
     assertEquals(
-        'Expected ' + expected + ' call(s), but was ' + actual + '.' + message,
+        'Expected ' + expected + ' call(s), but was ' + actual + '.',
         expected, actual);
   };
 
   /**
-   * @return {!Array<!goog.testing.FunctionCall>} All calls of the recorded
+   * @return {!Array.<!goog.testing.FunctionCall>} All calls of the recorded
    *     function.
    */
-  recordedFunction.getCalls = function() { return calls; };
+  recordedFunction.getCalls = function() {
+    return calls;
+  };
 
 
   /**
@@ -115,12 +114,16 @@ goog.testing.recordFunction = function(opt_f) {
    * @return {goog.testing.FunctionCall} Last call of the recorded function or
    *     null if it hasn't been called.
    */
-  recordedFunction.popLastCall = function() { return calls.pop() || null; };
+  recordedFunction.popLastCall = function() {
+    return calls.pop() || null;
+  };
 
   /**
    * Resets the recorded function and removes all calls.
    */
-  recordedFunction.reset = function() { calls.length = 0; };
+  recordedFunction.reset = function() {
+    calls.length = 0;
+  };
 
   return recordedFunction;
 };
@@ -179,7 +182,7 @@ goog.testing.FunctionCall.prototype.getThis = function() {
 
 
 /**
- * @return {!Array<?>} Arguments of the called function.
+ * @return {!Array} Arguments of the called function.
  */
 goog.testing.FunctionCall.prototype.getArguments = function() {
   return this.arguments_;

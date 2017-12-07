@@ -50,7 +50,6 @@ goog.ui.PopupColorPicker = function(opt_domHelper, opt_colorPicker) {
   }
 };
 goog.inherits(goog.ui.PopupColorPicker, goog.ui.Component);
-goog.tagUnsealableClass(goog.ui.PopupColorPicker);
 
 
 /**
@@ -101,10 +100,6 @@ goog.ui.PopupColorPicker.prototype.popupCorner_ =
  * @private
  */
 goog.ui.PopupColorPicker.prototype.lastTarget_ = null;
-
-
-/** @private {boolean} */
-goog.ui.PopupColorPicker.prototype.rememberSelection_;
 
 
 /**
@@ -266,11 +261,11 @@ goog.ui.PopupColorPicker.prototype.getLastTarget = function() {
  */
 goog.ui.PopupColorPicker.prototype.attach = function(element) {
   if (this.showOnHover_) {
-    this.getHandler().listen(
-        element, goog.events.EventType.MOUSEOVER, this.show_);
+    this.getHandler().listen(element, goog.events.EventType.MOUSEOVER,
+                             this.show_);
   } else {
-    this.getHandler().listen(
-        element, goog.events.EventType.MOUSEDOWN, this.show_);
+    this.getHandler().listen(element, goog.events.EventType.MOUSEDOWN,
+                             this.show_);
   }
 };
 
@@ -281,11 +276,11 @@ goog.ui.PopupColorPicker.prototype.attach = function(element) {
  */
 goog.ui.PopupColorPicker.prototype.detach = function(element) {
   if (this.showOnHover_) {
-    this.getHandler().unlisten(
-        element, goog.events.EventType.MOUSEOVER, this.show_);
+    this.getHandler().unlisten(element, goog.events.EventType.MOUSEOVER,
+                               this.show_);
   } else {
-    this.getHandler().unlisten(
-        element, goog.events.EventType.MOUSEOVER, this.show_);
+    this.getHandler().unlisten(element, goog.events.EventType.MOUSEOVER,
+                               this.show_);
   }
 };
 
@@ -373,7 +368,7 @@ goog.ui.PopupColorPicker.prototype.getRememberSelection = function() {
 /**
  * Add an array of colors to the colors displayed by the color picker.
  * Does not add duplicated colors.
- * @param {Array<string>} colors The array of colors to be added.
+ * @param {Array.<string>} colors The array of colors to be added.
  */
 goog.ui.PopupColorPicker.prototype.addColors = function(colors) {
 
@@ -431,9 +426,8 @@ goog.ui.PopupColorPicker.prototype.show_ = function(e) {
         goog.ui.ColorPicker.createSimpleColorGrid(this.getDomHelper());
     this.colorPicker_.setFocusable(this.focusable_);
     this.addChild(this.colorPicker_, true);
-    this.getHandler().listen(
-        this.colorPicker_, goog.ui.ColorPicker.EventType.CHANGE,
-        this.onColorPicked_);
+    this.getHandler().listen(this.colorPicker_,
+        goog.ui.ColorPicker.EventType.CHANGE, this.onColorPicked_);
     this.initialized_ = true;
   }
 
@@ -444,9 +438,8 @@ goog.ui.PopupColorPicker.prototype.show_ = function(e) {
   }
 
   this.lastTarget_ = /** @type {Element} */ (e.currentTarget);
-  this.popup_.setPosition(
-      new goog.positioning.AnchoredPosition(
-          this.lastTarget_, this.popupCorner_));
+  this.popup_.setPosition(new goog.positioning.AnchoredPosition(
+      this.lastTarget_, this.popupCorner_));
   if (!this.rememberSelection_) {
     this.colorPicker_.setSelectedIndex(-1);
   }

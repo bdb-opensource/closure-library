@@ -38,7 +38,7 @@ function tearDown() {
 }
 
 function MockMessagePort(index, port) {
-  MockMessagePort.base(this, 'constructor');
+  goog.base(this);
   this.index = index;
   this.port = port;
   this.started = false;

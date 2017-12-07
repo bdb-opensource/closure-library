@@ -20,10 +20,10 @@
 
 goog.provide('goog.ui.MenuItemRenderer');
 
+goog.require('goog.a11y.aria');
 goog.require('goog.a11y.aria.Role');
 goog.require('goog.asserts');
 goog.require('goog.dom');
-goog.require('goog.dom.TagName');
 goog.require('goog.dom.classlist');
 goog.require('goog.ui.Component');
 goog.require('goog.ui.ControlRenderer');
@@ -33,13 +33,13 @@ goog.require('goog.ui.ControlRenderer');
 /**
  * Default renderer for {@link goog.ui.MenuItem}s.  Each item has the following
  * structure:
- *
- *    <div class="goog-menuitem">
- *      <div class="goog-menuitem-content">
- *        ...(menu item contents)...
- *      </div>
- *    </div>
- *
+ * <pre>
+ *   <div class="goog-menuitem">
+ *     <div class="goog-menuitem-content">
+ *       ...(menu item contents)...
+ *     </div>
+ *   </div>
+ * </pre>
  * @constructor
  * @extends {goog.ui.ControlRenderer}
  */
@@ -49,7 +49,7 @@ goog.ui.MenuItemRenderer = function() {
   /**
    * Commonly used CSS class names, cached here for convenience (and to avoid
    * unnecessary string concatenation).
-   * @type {!Array<string>}
+   * @type {!Array.<string>}
    * @private
    */
   this.classNameCache_ = [];
@@ -121,11 +121,13 @@ goog.ui.MenuItemRenderer.prototype.getAriaRole = function() {
  */
 goog.ui.MenuItemRenderer.prototype.createDom = function(item) {
   var element = item.getDomHelper().createDom(
-      goog.dom.TagName.DIV, this.getClassNames(item).join(' '),
+      'div', this.getClassNames(item).join(' '),
       this.createContent(item.getContent(), item.getDomHelper()));
-  this.setEnableCheckBoxStructure(
-      item, element, item.isSupportedState(goog.ui.Component.State.SELECTED) ||
-          item.isSupportedState(goog.ui.Component.State.CHECKED));
+  this.setEnableCheckBoxStructure(item, element,
+      item.isSupportedState(goog.ui.Component.State.SELECTED) ||
+      item.isSupportedState(goog.ui.Component.State.CHECKED));
+  this.setAriaStates(item, element);
+  this.correctAriaRole(item, element);
   return element;
 };
 
@@ -155,8 +157,8 @@ goog.ui.MenuItemRenderer.prototype.decorate = function(item, element) {
     (/** @type {goog.ui.MenuItem} */ (item)).setCheckable(true);
     this.setCheckable(item, element, true);
   }
-  return goog.ui.MenuItemRenderer.superClass_.decorate.call(
-      this, item, element);
+  return goog.ui.MenuItemRenderer.superClass_.decorate.call(this, item,
+      element);
 };
 
 
@@ -173,13 +175,13 @@ goog.ui.MenuItemRenderer.prototype.decorate = function(item, element) {
 goog.ui.MenuItemRenderer.prototype.setContent = function(element, content) {
   // Save the checkbox element, if present.
   var contentElement = this.getContentElement(element);
-  var checkBoxElement =
-      this.hasCheckBoxStructure(element) ? contentElement.firstChild : null;
+  var checkBoxElement = this.hasCheckBoxStructure(element) ?
+      contentElement.firstChild : null;
   goog.ui.MenuItemRenderer.superClass_.setContent.call(this, element, content);
   if (checkBoxElement && !this.hasCheckBoxStructure(element)) {
     // The call to setContent() blew away the checkbox element; reattach it.
-    contentElement.insertBefore(
-        checkBoxElement, contentElement.firstChild || null);
+    contentElement.insertBefore(checkBoxElement,
+        contentElement.firstChild || null);
   }
 };
 
@@ -210,7 +212,7 @@ goog.ui.MenuItemRenderer.prototype.hasContentStructure = function(element) {
 goog.ui.MenuItemRenderer.prototype.createContent = function(content, dom) {
   var contentClassName = this.getCompositeCssClass_(
       goog.ui.MenuItemRenderer.CompositeCssClassIndex_.CONTENT);
-  return dom.createDom(goog.dom.TagName.DIV, contentClassName, content);
+  return dom.createDom('div', contentClassName, content);
 };
 
 
@@ -221,9 +223,13 @@ goog.ui.MenuItemRenderer.prototype.createContent = function(content, dom) {
  *     item hasn't been rendered yet).
  * @param {boolean} selectable Whether the item should be selectable.
  */
-goog.ui.MenuItemRenderer.prototype.setSelectable = function(
-    item, element, selectable) {
-  if (item && element) {
+goog.ui.MenuItemRenderer.prototype.setSelectable = function(item, element,
+    selectable) {
+  if (element) {
+    goog.a11y.aria.setRole(element,
+        selectable ?
+        goog.a11y.aria.Role.MENU_ITEM_RADIO :
+        /** @type {string} */ (this.getAriaRole()));
     this.setEnableCheckBoxStructure(item, element, selectable);
   }
 };
@@ -236,9 +242,13 @@ goog.ui.MenuItemRenderer.prototype.setSelectable = function(
  *     item hasn't been rendered yet).
  * @param {boolean} checkable Whether the item should be checkable.
  */
-goog.ui.MenuItemRenderer.prototype.setCheckable = function(
-    item, element, checkable) {
-  if (item && element) {
+goog.ui.MenuItemRenderer.prototype.setCheckable = function(item, element,
+    checkable) {
+  if (element) {
+    goog.a11y.aria.setRole(element,
+        checkable ?
+        goog.a11y.aria.Role.MENU_ITEM_CHECKBOX :
+        /** @type {string} */ (this.getAriaRole()));
     this.setEnableCheckBoxStructure(item, element, checkable);
   }
 };
@@ -257,8 +267,8 @@ goog.ui.MenuItemRenderer.prototype.hasCheckBoxStructure = function(element) {
     var checkboxClassName = this.getCompositeCssClass_(
         goog.ui.MenuItemRenderer.CompositeCssClassIndex_.CHECKBOX);
     return !!child && goog.dom.isElement(child) &&
-        goog.dom.classlist.contains(
-            /** @type {!Element} */ (child), checkboxClassName);
+        goog.dom.classlist.contains(/** @type {!Element} */ (child),
+            checkboxClassName);
   }
   return false;
 };
@@ -268,15 +278,14 @@ goog.ui.MenuItemRenderer.prototype.hasCheckBoxStructure = function(element) {
  * Adds or removes extra markup and CSS styling to the menu item to make it
  * selectable or non-selectable, depending on the value of the
  * {@code selectable} argument.
- * @param {!goog.ui.Control} item Menu item to update.
- * @param {!Element} element Menu item element to update.
+ * @param {goog.ui.Control} item Menu item to update.
+ * @param {Element} element Menu item element to update.
  * @param {boolean} enable Whether to add or remove the checkbox structure.
  * @protected
  */
-goog.ui.MenuItemRenderer.prototype.setEnableCheckBoxStructure = function(
-    item, element, enable) {
-  this.setAriaRole(element, item.getPreferredAriaRole());
-  this.setAriaStates(item, element);
+goog.ui.MenuItemRenderer.prototype.setEnableCheckBoxStructure = function(item,
+    element, enable) {
+  goog.asserts.assert(element);
   if (enable != this.hasCheckBoxStructure(element)) {
     goog.dom.classlist.enable(element, goog.getCssName('goog-option'), enable);
     var contentElement = this.getContentElement(element);
@@ -285,8 +294,7 @@ goog.ui.MenuItemRenderer.prototype.setEnableCheckBoxStructure = function(
       var checkboxClassName = this.getCompositeCssClass_(
           goog.ui.MenuItemRenderer.CompositeCssClassIndex_.CHECKBOX);
       contentElement.insertBefore(
-          item.getDomHelper().createDom(
-              goog.dom.TagName.DIV, checkboxClassName),
+          item.getDomHelper().createDom('div', checkboxClassName),
           contentElement.firstChild || null);
     } else {
       // Remove checkbox structure.
@@ -318,8 +326,8 @@ goog.ui.MenuItemRenderer.prototype.getClassForState = function(state) {
       // compatibility.
       return goog.getCssName('goog-option-selected');
     default:
-      return goog.ui.MenuItemRenderer.superClass_.getClassForState.call(
-          this, state);
+      return goog.ui.MenuItemRenderer.superClass_.getClassForState.call(this,
+          state);
   }
 };
 
@@ -344,8 +352,8 @@ goog.ui.MenuItemRenderer.prototype.getStateFromClass = function(className) {
     case hoverClassName:
       return goog.ui.Component.State.HOVER;
     default:
-      return goog.ui.MenuItemRenderer.superClass_.getStateFromClass.call(
-          this, className);
+      return goog.ui.MenuItemRenderer.superClass_.getStateFromClass.call(this,
+          className);
   }
 };
 
@@ -353,4 +361,20 @@ goog.ui.MenuItemRenderer.prototype.getStateFromClass = function(className) {
 /** @override */
 goog.ui.MenuItemRenderer.prototype.getCssClass = function() {
   return goog.ui.MenuItemRenderer.CSS_CLASS;
+};
+
+
+/**
+ * Corrects the ARIA role based on checkable and selectable.
+ * @param {goog.ui.Control} item The owner menu item.
+ * @param {Element} element The element.
+ */
+goog.ui.MenuItemRenderer.prototype.correctAriaRole = function(item, element) {
+  if (item.isSupportedState(goog.ui.Component.State.SELECTED) ||
+      item.isSupportedState(goog.ui.Component.State.CHECKED)) {
+    this.setAriaRole(element,
+        item.isSupportedState(goog.ui.Component.State.CHECKED) ?
+        goog.a11y.aria.Role.MENU_ITEM_CHECKBOX :
+        goog.a11y.aria.Role.MENU_ITEM_RADIO);
+  }
 };

@@ -22,6 +22,7 @@ goog.provide('goog.fx.TransitionBase.State');
 
 goog.require('goog.events.EventTarget');
 goog.require('goog.fx.Transition');  // Unreferenced: interface
+goog.require('goog.fx.Transition.EventType');
 
 
 
@@ -29,7 +30,6 @@ goog.require('goog.fx.Transition');  // Unreferenced: interface
  * Constructor for a transition object.
  *
  * @constructor
- * @struct
  * @implements {goog.fx.Transition}
  * @extends {goog.events.EventTarget}
  */

@@ -38,22 +38,21 @@ goog.require('goog.ui.registry');
  * @param {goog.ui.ButtonRenderer=} opt_renderer Optional renderer used to
  *    render or decorate the button; defaults to
  *    {@link goog.ui.CustomButtonRenderer}.
- * @param {goog.dom.DomHelper=} opt_domHelper Optional DOM helper, used for
+ * @param {goog.dom.DomHelper=} opt_domHelper Optional DOM hepler, used for
  *    document interaction.
  * @constructor
  * @extends {goog.ui.Button}
  */
 goog.ui.CustomButton = function(content, opt_renderer, opt_domHelper) {
-  goog.ui.Button.call(
-      this, content, opt_renderer || goog.ui.CustomButtonRenderer.getInstance(),
-      opt_domHelper);
+  goog.ui.Button.call(this, content, opt_renderer ||
+      goog.ui.CustomButtonRenderer.getInstance(), opt_domHelper);
 };
 goog.inherits(goog.ui.CustomButton, goog.ui.Button);
 
 
 // Register a decorator factory function for goog.ui.CustomButtons.
-goog.ui.registry.setDecoratorByClassName(
-    goog.ui.CustomButtonRenderer.CSS_CLASS, function() {
+goog.ui.registry.setDecoratorByClassName(goog.ui.CustomButtonRenderer.CSS_CLASS,
+    function() {
       // CustomButton defaults to using CustomButtonRenderer.
       return new goog.ui.CustomButton(null);
     });

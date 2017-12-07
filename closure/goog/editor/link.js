@@ -27,7 +27,6 @@ goog.require('goog.dom.Range');
 goog.require('goog.dom.TagName');
 goog.require('goog.editor.BrowserFeature');
 goog.require('goog.editor.Command');
-goog.require('goog.editor.Field');
 goog.require('goog.editor.node');
 goog.require('goog.editor.range');
 goog.require('goog.string');
@@ -63,7 +62,7 @@ goog.editor.Link = function(anchor, isNew) {
   /**
    * Any extra anchors created by the browser from a selection in the same
    * operation that created the primary link
-   * @type {!Array<HTMLAnchorElement>}
+   * @type {!Array.<HTMLAnchorElement>}
    * @private
    */
   this.extraAnchors_ = [];
@@ -79,7 +78,7 @@ goog.editor.Link.prototype.getAnchor = function() {
 
 
 /**
- * @return {!Array<HTMLAnchorElement>} The extra anchor elements, if any,
+ * @return {!Array.<HTMLAnchorElement>} The extra anchor elements, if any,
  *     created by the browser from a selection.
  */
 goog.editor.Link.prototype.getExtraAnchors = function() {
@@ -130,7 +129,7 @@ goog.editor.Link.prototype.removeLink = function() {
   goog.dom.flattenElement(this.anchor_);
   this.anchor_ = null;
   while (this.extraAnchors_.length) {
-    goog.dom.flattenElement(/** @type {Element} */ (this.extraAnchors_.pop()));
+    goog.dom.flattenElement(/** @type {Element} */(this.extraAnchors_.pop()));
   }
 };
 
@@ -193,7 +192,8 @@ goog.editor.Link.prototype.placeCursorRightOf = function() {
 
     // Check if there is already a space after the link.  Only handle the
     // simple case - the next node is a text node that starts with a space.
-    if (nextSibling && nextSibling.nodeType == goog.dom.NodeType.TEXT &&
+    if (nextSibling &&
+        nextSibling.nodeType == goog.dom.NodeType.TEXT &&
         (goog.string.startsWith(nextSibling.data, goog.string.Unicode.NBSP) ||
          goog.string.startsWith(nextSibling.data, ' '))) {
       spaceNode = nextSibling;
@@ -232,7 +232,7 @@ goog.editor.Link.prototype.updateLinkDisplay_ = function(field, url) {
  *     a valid link address.
  */
 goog.editor.Link.prototype.getValidLinkFromText = function() {
-  var text = goog.string.trim(this.getCurrentText());
+  var text = this.getCurrentText();
   if (goog.editor.Link.isLikelyUrl(text)) {
     if (text.search(/:/) < 0) {
       return 'http://' + goog.string.trimLeft(text);
@@ -265,12 +265,12 @@ goog.editor.Link.prototype.finishLinkCreation = function(field) {
  * @param {HTMLAnchorElement} anchor The anchor element.
  * @param {string} url The initial URL.
  * @param {string=} opt_target The target.
- * @param {Array<HTMLAnchorElement>=} opt_extraAnchors Extra anchors created
+ * @param {Array.<HTMLAnchorElement>=} opt_extraAnchors Extra anchors created
  *     by the browser when parsing a selection.
  * @return {!goog.editor.Link} The link.
  */
-goog.editor.Link.createNewLink = function(
-    anchor, url, opt_target, opt_extraAnchors) {
+goog.editor.Link.createNewLink = function(anchor, url, opt_target,
+    opt_extraAnchors) {
   var link = new goog.editor.Link(anchor, true);
   link.initializeUrl(url);
 
@@ -281,24 +281,6 @@ goog.editor.Link.createNewLink = function(
     link.extraAnchors_ = opt_extraAnchors;
   }
 
-  return link;
-};
-
-
-/**
- * Initialize a new link using text in anchor, or empty string if there is no
- * likely url in the anchor.
- * @param {HTMLAnchorElement} anchor The anchor element with likely url content.
- * @param {string=} opt_target The target.
- * @return {!goog.editor.Link} The link.
- */
-goog.editor.Link.createNewLinkFromText = function(anchor, opt_target) {
-  var link = new goog.editor.Link(anchor, true);
-  var text = link.getValidLinkFromText();
-  link.initializeUrl(text ? text : '');
-  if (opt_target) {
-    anchor.target = opt_target;
-  }
   return link;
 };
 
@@ -358,12 +340,11 @@ goog.editor.Link.isLikelyUrl = function(str) {
  * @private
  */
 goog.editor.Link.LIKELY_EMAIL_ADDRESS_ = new RegExp(
-    '^' +                         // Test from start of string
-        '[\\w-]+(\\.[\\w-]+)*' +  // Dot-delimited alphanumerics and dashes
-                                  // (name)
-        '\\@' +                   // @
-        '([\\w-]+\\.)+' +         // Alphanumerics, dashes and dots (domain)
-        '(\\d+|\\w\\w+)$',  // Domain ends in at least one number or 2 letters
+    '^' +                     // Test from start of string
+    '[\\w-]+(\\.[\\w-]+)*' +  // Dot-delimited alphanumerics and dashes (name)
+    '\\@' +                   // @
+    '([\\w-]+\\.)+' +         // Alphanumerics, dashes and dots (domain)
+    '(\\d+|\\w\\w+)$',        // Domain ends in at least one number or 2 letters
     'i');
 
 

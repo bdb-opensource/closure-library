@@ -39,9 +39,8 @@ function testConstructor() {
 }
 
 function testNoVisibilitySupport() {
-  stubs.set(
-      goog.labs.dom.PageVisibilityMonitor.prototype, 'getBrowserEventType_',
-      goog.functions.NULL);
+  stubs.set(goog.labs.dom.PageVisibilityMonitor.prototype,
+      'getBrowserEventType_', goog.functions.NULL);
 
   var listener = goog.testing.recordFunction();
   vh = new goog.labs.dom.PageVisibilityMonitor();
@@ -55,9 +54,8 @@ function testNoVisibilitySupport() {
 }
 
 function testListener() {
-  stubs.set(
-      goog.labs.dom.PageVisibilityMonitor.prototype, 'getBrowserEventType_',
-      goog.functions.constant('visibilitychange'));
+  stubs.set(goog.labs.dom.PageVisibilityMonitor.prototype,
+      'getBrowserEventType_', goog.functions.constant('visibilitychange'));
 
   var listener = goog.testing.recordFunction();
   vh = new goog.labs.dom.PageVisibilityMonitor();
@@ -72,8 +70,8 @@ function testListener() {
 }
 
 function testListenerForWebKit() {
-  stubs.set(
-      goog.labs.dom.PageVisibilityMonitor.prototype, 'getBrowserEventType_',
+  stubs.set(goog.labs.dom.PageVisibilityMonitor.prototype,
+      'getBrowserEventType_',
       goog.functions.constant('webkitvisibilitychange'));
 
   var listener = goog.testing.recordFunction();

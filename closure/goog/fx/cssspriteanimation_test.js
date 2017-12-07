@@ -38,6 +38,11 @@ function tearDownPage() {
   clock.dispose();
 }
 
+function setUp() {
+  anim = new goog.fx.CssSpriteAnimation(el, size, box, time);
+  anim.play();
+}
+
 function tearDown() {
   anim.clearSpritePosition();
   anim.dispose();
@@ -52,23 +57,22 @@ function assertBackgroundPosition(x, y) {
     var message = 'Expected <' + x + 'px ' + y + 'px>, found <' + bgPos + '>';
     if (x == y) {
       // when x and y are the same the browser sometimes collapse the prop
-      assertTrue(
-          message,
-          bgPos == x ||  // in case of 0 without a unit
-              bgPos == x + 'px' || bgPos == x + ' ' + y ||
-              bgPos == x + 'px ' + y + 'px');
+      assertTrue(message,
+                 bgPos == x || // in case of 0 without a unit
+                 bgPos == x + 'px' ||
+                 bgPos == x + ' ' + y ||
+                 bgPos == x + 'px ' + y + 'px');
     } else {
-      assertTrue(
-          message, bgPos == x + ' ' + y || bgPos == x + 'px ' + y ||
-              bgPos == x + ' ' + y + 'px' || bgPos == x + 'px ' + y + 'px');
+      assertTrue(message,
+                 bgPos == x + ' ' + y ||
+                 bgPos == x + 'px ' + y ||
+                 bgPos == x + ' ' + y + 'px' ||
+                 bgPos == x + 'px ' + y + 'px');
     }
   }
 }
 
 function testAnimation() {
-  anim = new goog.fx.CssSpriteAnimation(el, size, box, time);
-  anim.play();
-
   assertBackgroundPosition(0, 0);
 
   clock.tick(5);
@@ -86,56 +90,12 @@ function testAnimation() {
   clock.tick(400);
   assertBackgroundPosition(0, -90);
 
-  // loop around to starting position
+  // loop around
   clock.tick(100);
   assertBackgroundPosition(0, 0);
-
-  assertTrue(anim.isPlaying());
-  assertFalse(anim.isStopped());
-
-  clock.tick(100);
-  assertBackgroundPosition(0, -10);
 }
-
-
-function testAnimation_disableLoop() {
-  anim = new goog.fx.CssSpriteAnimation(
-      el, size, box, time, undefined, true /* opt_disableLoop */);
-  anim.play();
-
-  assertBackgroundPosition(0, 0);
-
-  clock.tick(5);
-  assertBackgroundPosition(0, 0);
-
-  clock.tick(95);
-  assertBackgroundPosition(0, -10);
-
-  clock.tick(100);
-  assertBackgroundPosition(0, -20);
-
-  clock.tick(300);
-  assertBackgroundPosition(0, -50);
-
-  clock.tick(400);
-  assertBackgroundPosition(0, -90);
-
-  // loop around to starting position
-  clock.tick(100);
-  assertBackgroundPosition(0, -90);
-
-  assertTrue(anim.isStopped());
-  assertFalse(anim.isPlaying());
-
-  clock.tick(100);
-  assertBackgroundPosition(0, -90);
-}
-
 
 function testClearSpritePosition() {
-  anim = new goog.fx.CssSpriteAnimation(el, size, box, time);
-  anim.play();
-
   assertBackgroundPosition(0, 0);
 
   clock.tick(100);

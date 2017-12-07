@@ -27,7 +27,8 @@ goog.provide('goog.i18n.uChar.NameFetcher');
  *
  * @interface
  */
-goog.i18n.uChar.NameFetcher = function() {};
+goog.i18n.uChar.NameFetcher = function() {
+};
 
 
 /**
@@ -39,7 +40,8 @@ goog.i18n.uChar.NameFetcher = function() {};
  *     lists are stored by category and subcategory in the
  *     goog.i18n.charpickerdata class.
  */
-goog.i18n.uChar.NameFetcher.prototype.prefetch = function(characters) {};
+goog.i18n.uChar.NameFetcher.prototype.prefetch = function(characters) {
+};
 
 
 /**
@@ -63,4 +65,6 @@ goog.i18n.uChar.NameFetcher.prototype.getName = function(character, callback) {
  * @return {boolean} True if the fetcher can retrieve or has a name available
  *     for the given character.
  */
-goog.i18n.uChar.NameFetcher.prototype.isNameAvailable = function(character) {};
+goog.i18n.uChar.NameFetcher.prototype.isNameAvailable = function(character) {
+};
+

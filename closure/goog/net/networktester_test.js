@@ -107,12 +107,10 @@ function testRetries() {
   var handler = new Handler();
   var tester = new goog.net.NetworkTester(handler.callback, handler);
   tester.setNumRetries(1);
-  assertEquals(tester.getAttemptCount(), 0);
   assertFalse(tester.isRunning());
   tester.start();
   assertTrue(handler.isEmpty());
   assertTrue(tester.isRunning());
-  assertEquals(tester.getAttemptCount(), 1);
 
   // try number 1 fails
   var image = tester.image_;
@@ -121,7 +119,6 @@ function testRetries() {
   image.onerror.call(null);
   assertTrue(handler.isEmpty());
   assertTrue(tester.isRunning());
-  assertEquals(tester.getAttemptCount(), 2);
 
   // try number 2 succeeds
   image = tester.image_;
@@ -130,7 +127,6 @@ function testRetries() {
   image.onload.call(null);
   assertTrue(handler.dequeue());
   assertFalse(tester.isRunning());
-  assertEquals(tester.getAttemptCount(), 2);
 }
 
 function testPauseBetweenRetries() {
@@ -174,11 +170,14 @@ function testNonDefaultUri() {
 }
 
 function testOffline() {
+
   // set up the tester
   var handler = new Handler();
   var tester = new goog.net.NetworkTester(handler.callback, handler);
   var orgGetNavigatorOffline = goog.net.NetworkTester.getNavigatorOffline_;
-  goog.net.NetworkTester.getNavigatorOffline_ = function() { return true; };
+  goog.net.NetworkTester.getNavigatorOffline_ = function() {
+    return true;
+  };
   try {
     assertFalse(tester.isRunning());
     tester.start();
@@ -201,18 +200,6 @@ function Handler() {
   this.events_ = [];
 }
 
-function testGetAttemptCount() {
-  // set up the tester
-  var handler = new Handler();
-  var tester = new goog.net.NetworkTester(handler.callback, handler);
-  assertEquals(tester.getAttemptCount(), 0);
-  assertTrue(tester.attempt_ === tester.getAttemptCount());
-  assertFalse(tester.isRunning());
-  tester.start();
-  assertTrue(tester.isRunning());
-  assertTrue(tester.attempt_ === tester.getAttemptCount());
-}
-
 Handler.prototype.callback = function(result) {
   this.events_.push(result);
 };
@@ -223,11 +210,12 @@ Handler.prototype.isEmpty = function() {
 
 Handler.prototype.dequeue = function() {
   if (this.isEmpty()) {
-    throw new Error('Handler is empty');
+    throw Error('Handler is empty');
   }
   return this.events_.shift();
 };
 
 // override image constructor for test - can't use a real image due to
 // async load of images - have to simulate it
-function Image() {}
+function Image() {
+}

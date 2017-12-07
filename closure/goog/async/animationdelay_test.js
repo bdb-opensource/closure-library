@@ -11,79 +11,71 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-
-goog.module('goog.async.AnimationDelayTest');
+goog.provide('goog.async.AnimationDelayTest');
 goog.setTestOnly('goog.async.AnimationDelayTest');
 
-var AnimationDelay = goog.require('goog.async.AnimationDelay');
-var Promise = goog.require('goog.Promise');
-var PropertyReplacer = goog.require('goog.testing.PropertyReplacer');
-var Timer = goog.require('goog.Timer');
-var jsunit = goog.require('goog.testing.jsunit');
-var testSuite = goog.require('goog.testing.testSuite');
+goog.require('goog.async.AnimationDelay');
+goog.require('goog.testing.AsyncTestCase');
+goog.require('goog.testing.PropertyReplacer');
+goog.require('goog.testing.jsunit');
+goog.require('goog.testing.recordFunction');
 
-var TEST_DELAY = 50;
-var stubs = new PropertyReplacer();
+var testCase = goog.testing.AsyncTestCase.createAndInstall();
+var stubs = new goog.testing.PropertyReplacer();
 
-testSuite({
-  tearDown: function() { stubs.reset(); },
+function tearDown() {
+  stubs.reset();
+}
 
-  testStart: function() {
-    var resolver = Promise.withResolver();
-    var start = goog.now();
-    var delay = new AnimationDelay(function(end) {
-      assertNotNull(resolver);  // fail if called multiple times
-      resolver.resolve();
-      resolver = null;
-    });
+function testStart() {
+  var callCount = 0;
+  var start = goog.now();
+  var delay = new goog.async.AnimationDelay(function(end) {
+    callCount++;
+  });
 
-    delay.start();
+  delay.start();
+  testCase.waitForAsync('waiting for delay');
 
-    return resolver.promise;
-  },
+  window.setTimeout(function() {
+    testCase.continueTesting();
+    assertEquals(1, callCount);
+  }, 500);
+}
 
-  testStop: function() {
-    var resolver = Promise.withResolver();
-    var start = goog.now();
-    var delay = new AnimationDelay(function(end) { resolver.reject(); });
+function testStop() {
+  var callCount = 0;
+  var start = goog.now();
+  var delay = new goog.async.AnimationDelay(function(end) {
+    callCount++;
+  });
 
-    delay.start();
-    delay.stop();
+  delay.start();
+  testCase.waitForAsync('waiting for delay');
+  delay.stop();
 
-    return Timer.promise(TEST_DELAY).then(function() {
-      resolver.resolve();
-      return resolver.promise;
-    });
-  },
+  window.setTimeout(function() {
+    testCase.continueTesting();
+    assertEquals(0, callCount);
+  }, 500);
+}
 
-  testAlwaysUseGoogNowForHandlerTimestamp: function() {
-    var resolver = Promise.withResolver();
-    var expectedValue = 12345.1;
-    stubs.set(goog, 'now', function() { return expectedValue; });
+function testAlwaysUseGoogNowForHandlerTimestamp() {
+  var expectedValue = 12345.1;
+  stubs.set(goog, 'now', function() {
+    return expectedValue;
+  });
 
-    var delay = new AnimationDelay(function(timestamp) {
-      assertEquals(expectedValue, timestamp);
-      resolver.resolve();
-    });
+  var handler = goog.testing.recordFunction(function(timestamp) {
+    assertEquals(expectedValue, timestamp);
+  });
+  var delay = new goog.async.AnimationDelay(handler);
 
-    delay.start();
+  delay.start();
+  testCase.waitForAsync('waiting for delay');
 
-    return resolver.promise;
-  },
-
-  testStartIfActive: function() {
-    var delay = new AnimationDelay(goog.nullFunction);
-    delay.start();
-
-    var startWasCalled = false;
-    stubs.set(AnimationDelay.prototype, 'start', function() {
-      startWasCalled = true;
-    });
-
-    delay.startIfNotActive();
-    assertEquals(startWasCalled, false);
-    delay.stop();
-    delay.startIfNotActive();
-    assertEquals(startWasCalled, true);
-  }
-});
+  window.setTimeout(function() {
+    testCase.continueTesting();
+    assertEquals(1, handler.getCallCount());
+  }, 500);
+}

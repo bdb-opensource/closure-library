@@ -15,7 +15,7 @@
 /**
  * @fileoverview goog.dom.animationFrame permits work to be done in-sync with
  * the render refresh rate of the browser and to divide work up globally based
- * on whether the intent is to measure or to mutate the DOM. The latter avoids
+ * on whether the intent is not measure or to mutate the DOM. The latter avoids
  * repeated style recalculation which can be really slow.
  *
  * Goals of the API:
@@ -25,23 +25,22 @@
  *       events fire that trigger the same work.
  *   <li>Make it easy to do all work in two phases to avoid repeated style
  *       recalculation caused by interleaved reads and writes.
- *   <li>Avoid creating closures per schedule operation.
+ *   <li> Avoid creating closures per schedule operation.
  * </ul>
  *
  *
  * Programmatic:
  * <pre>
- * let animationTask = goog.dom.animationFrame.createTask(
- *     {
- *       measure: function(state) {
- *         state.width = goog.style.getSize(elem).width;
- *         this.animationTask();
- *       },
- *       mutate: function(state) {
- *         goog.style.setWidth(elem, Math.floor(state.width / 2));
- *       },
+ * var animationTask = goog.dom.animationFrame.createTask({
+ *     measure: function(state) {
+ *       state.width = goog.style.getSize(elem).width;
+ *       this.animationTask();
  *     },
- *     this);
+ *     mutate: function(state) {
+ *       goog.style.setWidth(elem, Math.floor(state.width / 2));
+ *     }
+ *   }, this);
+ * });
  * </pre>
  *
  * See also
@@ -105,7 +104,7 @@ goog.dom.animationFrame.State = function() {};
  * This list is initialized once before any event firing occurs. It is not
  * affected by the fired events or the requestAnimationFrame processing (unless
  * a new event is created during the processing).
- * @private {!Array<!Array<goog.dom.animationFrame.TaskSet_>>}
+ * @private {!Array.<!Array.<goog.dom.animationFrame.TaskSet_>>}
  */
 goog.dom.animationFrame.tasks_ = [[], []];
 
@@ -134,13 +133,6 @@ goog.dom.animationFrame.taskId_ = 0;
 
 
 /**
- * Whether the animationframe runTasks_ loop is currently running.
- * @private {boolean}
- */
-goog.dom.animationFrame.running_ = false;
-
-
-/**
  * Returns a function that schedules the two passed-in functions to be run upon
  * the next animation frame. Calling the function again during the same
  * animation frame does nothing.
@@ -149,18 +141,27 @@ goog.dom.animationFrame.running_ = false;
  * other functions scheduled under this key and the function under "mutate" will
  * run after that.
  *
- * @param {{
+ * @param {!{
  *   measure: (function(this:THIS, !goog.dom.animationFrame.State)|undefined),
  *   mutate: (function(this:THIS, !goog.dom.animationFrame.State)|undefined)
  * }} spec
  * @param {THIS=} opt_context Context in which to run the function.
- * @return {function(...?)}
+ * @return {function(...[?])}
  * @template THIS
  */
 goog.dom.animationFrame.createTask = function(spec, opt_context) {
+  var genericSpec = /** @type {!goog.dom.animationFrame.Spec} */ (spec);
   var id = goog.dom.animationFrame.taskId_++;
-  var measureTask = {id: id, fn: spec.measure, context: opt_context};
-  var mutateTask = {id: id, fn: spec.mutate, context: opt_context};
+  var measureTask = {
+    id: id,
+    fn: spec.measure,
+    context: opt_context
+  };
+  var mutateTask = {
+    id: id,
+    fn: spec.mutate,
+    context: opt_context
+  };
 
   var taskSet = {
     measureTask: measureTask,
@@ -171,6 +172,13 @@ goog.dom.animationFrame.createTask = function(spec, opt_context) {
   };
 
   return function() {
+    // Default the context to the one that was used to call the tasks scheduler
+    // (this function).
+    if (!opt_context) {
+      measureTask.context = this;
+      mutateTask.context = this;
+    }
+
     // Save args and state.
     if (arguments.length > 0) {
       // The state argument goes last. That is kinda horrible but compatible
@@ -191,10 +199,9 @@ goog.dom.animationFrame.createTask = function(spec, opt_context) {
     }
     if (!taskSet.isScheduled) {
       taskSet.isScheduled = true;
-      var tasksArray = goog.dom.animationFrame
-                           .tasks_[goog.dom.animationFrame.doubleBufferIndex_];
-      tasksArray.push(
-          /** @type {goog.dom.animationFrame.TaskSet_} */ (taskSet));
+      var tasksArray = goog.dom.animationFrame.tasks_[
+          goog.dom.animationFrame.doubleBufferIndex_];
+      tasksArray.push(taskSet);
     }
     goog.dom.animationFrame.requestAnimationFrame_();
   };
@@ -206,7 +213,6 @@ goog.dom.animationFrame.createTask = function(spec, opt_context) {
  * @private
  */
 goog.dom.animationFrame.runTasks_ = function() {
-  goog.dom.animationFrame.running_ = true;
   goog.dom.animationFrame.requestedFrame_ = false;
   var tasksArray = goog.dom.animationFrame
                        .tasks_[goog.dom.animationFrame.doubleBufferIndex_];
@@ -246,17 +252,6 @@ goog.dom.animationFrame.runTasks_ = function() {
 
   // Clear the tasks array as we have finished processing all the tasks.
   tasksArray.length = 0;
-  goog.dom.animationFrame.running_ = false;
-};
-
-
-/**
- * @return {boolean} Whether the animationframe is currently running. For use
- *     by callers who need not to delay tasks scheduled during runTasks_ for an
- *     additional frame.
- */
-goog.dom.animationFrame.isRunning = function() {
-  return goog.dom.animationFrame.running_;
 };
 
 

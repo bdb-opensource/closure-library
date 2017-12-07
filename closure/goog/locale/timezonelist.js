@@ -19,9 +19,6 @@
 
 /** @suppress {extraProvide} */
 goog.provide('goog.locale.TimeZoneList');
-goog.provide('goog.locale.getTimeZoneAllLongNames');
-goog.provide('goog.locale.getTimeZoneSelectedLongNames');
-goog.provide('goog.locale.getTimeZoneSelectedShortNames');
 
 goog.require('goog.locale');
 
@@ -30,7 +27,7 @@ goog.require('goog.locale');
  * Returns the displayable list of short timezone names paired with its id for
  * the current locale, selected based on the region or language provided.
  *
- * This method depends on `goog.locale.TimeZone*__<locale>` available
+ * This method depends on goog.locale.TimeZone*__<locale> available
  * from http://go/js_locale_data. Users of this method must add a dependency on
  * this.
  *
@@ -40,12 +37,12 @@ goog.require('goog.locale');
  *    this parameter is not speficied, current locale is used to
  *    extract this information.
  *
- * @return {!Array<Object>} Localized and relevant list of timezone names
+ * @return {!Array.<Object>} Localized and relevant list of timezone names
  *    and ids.
  */
 goog.locale.getTimeZoneSelectedShortNames = function(opt_regionOrLang) {
-  return goog.locale.getTimeZoneNameList_(
-      'TimeZoneSelectedShortNames', opt_regionOrLang);
+  return goog.locale.getTimeZoneNameList_('TimeZoneSelectedShortNames',
+      opt_regionOrLang);
 };
 
 
@@ -53,7 +50,7 @@ goog.locale.getTimeZoneSelectedShortNames = function(opt_regionOrLang) {
  * Returns the displayable list of long timezone names paired with its id for
  * the current locale, selected based on the region or language provided.
  *
- * This method depends on `goog.locale.TimeZone*__<locale>` available
+ * This method depends on goog.locale.TimeZone*__<locale> available
  * from http://go/js_locale_data. Users of this method must add a dependency on
  * this.
  *
@@ -63,12 +60,12 @@ goog.locale.getTimeZoneSelectedShortNames = function(opt_regionOrLang) {
  *    this parameter is not speficied, current locale is used to
  *    extract this information.
  *
- * @return {!Array<Object>} Localized and relevant list of timezone names
+ * @return {!Array.<Object>} Localized and relevant list of timezone names
  *    and ids.
  */
 goog.locale.getTimeZoneSelectedLongNames = function(opt_regionOrLang) {
-  return goog.locale.getTimeZoneNameList_(
-      'TimeZoneSelectedLongNames', opt_regionOrLang);
+  return goog.locale.getTimeZoneNameList_('TimeZoneSelectedLongNames',
+      opt_regionOrLang);
 };
 
 
@@ -76,16 +73,16 @@ goog.locale.getTimeZoneSelectedLongNames = function(opt_regionOrLang) {
  * Returns the displayable list of long timezone names paired with its id for
  * the current locale.
  *
- * This method depends on `goog.locale.TimeZoneAllLongNames__<locale>` available
+ * This method depends on goog.locale.TimeZoneAllLongNames__<locale> available
  * from http://go/js_locale_data. Users of this method must add a dependency on
  * this.
  *
- * @return {Array<Object>} localized and relevant list of timezone names
+ * @return {Array.<Object>} localized and relevant list of timezone names
  *    and ids.
  */
 goog.locale.getTimeZoneAllLongNames = function() {
   var locale = goog.locale.getLocale();
-  return /** @type {Array<Object>} */ (
+  return /** @type {Array} */ (
       goog.locale.getResource('TimeZoneAllLongNames', locale));
 };
 
@@ -94,7 +91,7 @@ goog.locale.getTimeZoneAllLongNames = function() {
  * Returns the displayable list of timezone names paired with its id for
  * the current locale, selected based on the region or language provided.
  *
- * This method depends on `goog.locale.TimeZone*__<locale>` available
+ * This method depends on goog.locale.TimeZone*__<locale> available
  * from http://go/js_locale_data. Users of this method must add a dependency on
  * this.
  *
@@ -105,7 +102,7 @@ goog.locale.getTimeZoneAllLongNames = function() {
  *    for which this language is defacto official is considered. If it is
  *    undefined, current locale is used to extract this information.
  *
- * @return {!Array<Object>} Localized and relevant list of timezone names
+ * @return {!Array.<Object>} Localized and relevant list of timezone names
  *    and ids.
  * @private
  */
@@ -131,3 +128,4 @@ goog.locale.getTimeZoneNameList_ = function(nameType, opt_resource) {
   }
   return result;
 };
+

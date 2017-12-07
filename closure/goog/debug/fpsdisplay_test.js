@@ -15,22 +15,14 @@
 goog.provide('goog.debug.FpsDisplayTest');
 goog.setTestOnly('goog.debug.FpsDisplayTest');
 
-goog.require('goog.Timer');
 goog.require('goog.debug.FpsDisplay');
-goog.require('goog.testing.TestCase');
+goog.require('goog.testing.AsyncTestCase');
 goog.require('goog.testing.jsunit');
 
+var asyncTestCase = goog.testing.AsyncTestCase.createAndInstall();
 var fpsDisplay;
-
-function shouldRunTests() {
-  // Disable tests when being run as a part of open-source repo as the test
-  // mysteriously times out way before 5s. See http://b/26132213.
-  return !(/closure\/goog\/ui/.test(location.pathname));
-}
-
-function setUpPage() {
-  goog.testing.TestCase.getActiveTestCase().promiseTimeout = 5000;  // 5s
-}
+var timer;
+asyncTestCase.stepTimeout = 10 * 1000;
 
 function setUp() {
   fpsDisplay = new goog.debug.FpsDisplay();
@@ -38,6 +30,7 @@ function setUp() {
 
 function tearDown() {
   goog.dispose(fpsDisplay);
+  window.clearTimeout(timer);
 }
 
 function testRendering() {
@@ -46,9 +39,11 @@ function testRendering() {
   var elem = fpsDisplay.getElement();
   assertHTMLEquals('', elem.innerHTML);
 
-  return goog.Timer.promise(2000).then(function() {
+  asyncTestCase.waitForAsync('Waiting for some frames to pass');
+  timer = window.setTimeout(function() {
     var fps = parseInt(elem.innerHTML, 10);
     assertTrue('FPS of ' + fps + ' should be non-negative', fps >= 0);
     assertTrue('FPS of ' + fps + ' too big', fps < 1000);
-  });
+    asyncTestCase.continueTesting();
+  }, 2000);
 }

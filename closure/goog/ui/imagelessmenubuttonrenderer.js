@@ -22,6 +22,7 @@
  * http://go/custombuttons
  *
  * @author eae@google.com (Emil A Eklund)
+ * @author dalewis@google.com (Darren Lewis)
  * @see ../demos/imagelessmenubutton.html
  */
 
@@ -52,6 +53,14 @@ goog.ui.ImagelessMenuButtonRenderer = function() {
   goog.ui.MenuButtonRenderer.call(this);
 };
 goog.inherits(goog.ui.ImagelessMenuButtonRenderer, goog.ui.MenuButtonRenderer);
+
+
+/**
+ * The singleton instance of this renderer class.
+ * @type {goog.ui.ImagelessMenuButtonRenderer?}
+ * @private
+ */
+goog.ui.ImagelessMenuButtonRenderer.instance_ = null;
 goog.addSingletonGetter(goog.ui.ImagelessMenuButtonRenderer);
 
 
@@ -92,21 +101,20 @@ goog.ui.ImagelessMenuButtonRenderer.prototype.canDecorate = function(element) {
 /**
  * Takes a text caption or existing DOM structure, and returns the content
  * wrapped in a pseudo-rounded-corner box.  Creates the following DOM structure:
- *
- *    <div class="goog-inline-block goog-imageless-button">
- *      <div class="goog-inline-block goog-imageless-button-outer-box">
- *        <div class="goog-imageless-button-inner-box">
- *          <div class="goog-imageless-button-pos-box">
- *            <div class="goog-imageless-button-top-shadow">&nbsp;</div>
- *            <div class="goog-imageless-button-content
- *                        goog-imageless-menubutton-caption">Contents...
- *            </div>
- *            <div class="goog-imageless-menubutton-dropdown"></div>
+ *  <div class="goog-inline-block goog-imageless-button">
+ *    <div class="goog-inline-block goog-imageless-button-outer-box">
+ *      <div class="goog-imageless-button-inner-box">
+ *        <div class="goog-imageless-button-pos-box">
+ *          <div class="goog-imageless-button-top-shadow">&nbsp;</div>
+ *          <div class="goog-imageless-button-content
+ *                      goog-imageless-menubutton-caption">Contents...
  *          </div>
+ *          <div class="goog-imageless-menubutton-dropdown"></div>
  *        </div>
  *      </div>
  *    </div>
- *
+ *  </div>
+
  * Used by both {@link #createDom} and {@link #decorate}.  To be overridden
  * by subclasses.
  * @param {goog.ui.ControlContent} content Text caption or DOM structure to wrap
@@ -115,33 +123,23 @@ goog.ui.ImagelessMenuButtonRenderer.prototype.canDecorate = function(element) {
  * @return {!Element} Pseudo-rounded-corner box containing the content.
  * @override
  */
-goog.ui.ImagelessMenuButtonRenderer.prototype.createButton = function(
-    content, dom) {
+goog.ui.ImagelessMenuButtonRenderer.prototype.createButton = function(content,
+                                                                      dom) {
   var baseClass = this.getCssClass();
   var inlineBlock = goog.ui.INLINE_BLOCK_CLASSNAME + ' ';
-  return dom.createDom(
-      goog.dom.TagName.DIV,
+  return dom.createDom('div',
       inlineBlock + goog.getCssName(baseClass, 'outer-box'),
-      dom.createDom(
-          goog.dom.TagName.DIV,
+      dom.createDom('div',
           inlineBlock + goog.getCssName(baseClass, 'inner-box'),
-          dom.createDom(
-              goog.dom.TagName.DIV, goog.getCssName(baseClass, 'pos'),
-              dom.createDom(
-                  goog.dom.TagName.DIV,
-                  goog.getCssName(baseClass, 'top-shadow'), '\u00A0'),
-              dom.createDom(
-                  goog.dom.TagName.DIV,
-                  [
-                    goog.getCssName(baseClass, 'content'),
-                    goog.getCssName(baseClass, 'caption'),
-                    goog.getCssName('goog-inline-block')
-                  ],
-                  content),
-              dom.createDom(goog.dom.TagName.DIV, [
-                goog.getCssName(baseClass, 'dropdown'),
-                goog.getCssName('goog-inline-block')
-              ]))));
+          dom.createDom('div', goog.getCssName(baseClass, 'pos'),
+              dom.createDom('div', goog.getCssName(baseClass, 'top-shadow'),
+                  '\u00A0'),
+              dom.createDom('div', [goog.getCssName(baseClass, 'content'),
+                                    goog.getCssName(baseClass, 'caption'),
+                                    goog.getCssName('goog-inline-block')],
+                            content),
+              dom.createDom('div', [goog.getCssName(baseClass, 'dropdown'),
+                                    goog.getCssName('goog-inline-block')]))));
 };
 
 
@@ -159,17 +157,23 @@ goog.ui.ImagelessMenuButtonRenderer.prototype.hasBoxStructure = function(
   var outer = button.getDomHelper().getFirstElementChild(element);
   var outerClassName = goog.getCssName(this.getCssClass(), 'outer-box');
   if (outer && goog.dom.classlist.contains(outer, outerClassName)) {
+
     var inner = button.getDomHelper().getFirstElementChild(outer);
     var innerClassName = goog.getCssName(this.getCssClass(), 'inner-box');
     if (inner && goog.dom.classlist.contains(inner, innerClassName)) {
+
       var pos = button.getDomHelper().getFirstElementChild(inner);
       var posClassName = goog.getCssName(this.getCssClass(), 'pos');
       if (pos && goog.dom.classlist.contains(pos, posClassName)) {
+
         var shadow = button.getDomHelper().getFirstElementChild(pos);
-        var shadowClassName = goog.getCssName(this.getCssClass(), 'top-shadow');
+        var shadowClassName = goog.getCssName(
+            this.getCssClass(), 'top-shadow');
         if (shadow && goog.dom.classlist.contains(shadow, shadowClassName)) {
+
           var content = button.getDomHelper().getNextElementSibling(shadow);
-          var contentClassName = goog.getCssName(this.getCssClass(), 'content');
+          var contentClassName = goog.getCssName(
+              this.getCssClass(), 'content');
           if (content &&
               goog.dom.classlist.contains(content, contentClassName)) {
             // We have a proper box structure.
@@ -200,7 +204,8 @@ goog.ui.ImagelessMenuButtonRenderer.prototype.getCssClass = function() {
 // goog.ui.ImagelessButtonRenderer, we need to be explicit about giving
 // goog-imageless-menu-button here.
 goog.ui.registry.setDecoratorByClassName(
-    goog.getCssName('goog-imageless-menu-button'), function() {
-      return new goog.ui.MenuButton(
-          null, null, goog.ui.ImagelessMenuButtonRenderer.getInstance());
+    goog.getCssName('goog-imageless-menu-button'),
+    function() {
+      return new goog.ui.MenuButton(null, null,
+          goog.ui.ImagelessMenuButtonRenderer.getInstance());
     });

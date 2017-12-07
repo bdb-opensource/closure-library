@@ -17,13 +17,14 @@
  * to preload multiple images, for example so they can be sized.
  *
  * @author attila@google.com (Attila Bodis)
+ * @author zachlloyd@google.com (Zachary Lloyd)
+ * @author jonemerson@google.com (Jon Emerson)
  */
 
 goog.provide('goog.net.ImageLoader');
 
 goog.require('goog.array');
 goog.require('goog.dom');
-goog.require('goog.dom.TagName');
 goog.require('goog.events.EventHandler');
 goog.require('goog.events.EventTarget');
 goog.require('goog.events.EventType');
@@ -68,7 +69,7 @@ goog.net.ImageLoader = function(opt_parent) {
    * Map of image IDs to their request including their image src, used to keep
    * track of the images to load.  Once images have started loading, they're
    * removed from this map.
-   * @type {!Object<!goog.net.ImageLoader.ImageRequest_>}
+   * @type {!Object.<!goog.net.ImageLoader.ImageRequest_>}
    * @private
    */
   this.imageIdToRequestMap_ = {};
@@ -77,7 +78,7 @@ goog.net.ImageLoader = function(opt_parent) {
    * Map of image IDs to their image element, used only for images that are in
    * the process of loading.  Used to clean-up event listeners and to know
    * when we've completed loading images.
-   * @type {!Object<string, !Element>}
+   * @type {!Object.<string, !Element>}
    * @private
    */
   this.imageIdToImageMap_ = {};
@@ -85,7 +86,7 @@ goog.net.ImageLoader = function(opt_parent) {
   /**
    * Event handler object, used to keep track of onload and onreadystatechange
    * listeners.
-   * @type {!goog.events.EventHandler<!goog.net.ImageLoader>}
+   * @type {!goog.events.EventHandler.<!goog.net.ImageLoader>}
    * @private
    */
   this.handler_ = new goog.events.EventHandler(this);
@@ -143,14 +144,15 @@ goog.net.ImageLoader.ImageRequest_;
  * http://msdn.microsoft.com/en-us/library/ie/ms536957(v=vs.85).aspx
  * http://msdn.microsoft.com/en-us/library/ie/bg182625(v=vs.85).aspx
  *
- * @type {!Array<string>}
+ * @type {!Array.<string>}
  * @private
  */
 goog.net.ImageLoader.IMAGE_LOAD_EVENTS_ = [
   goog.userAgent.IE && !goog.userAgent.isVersionOrHigher('11') ?
       goog.net.EventType.READY_STATE_CHANGE :
       goog.events.EventType.LOAD,
-  goog.net.EventType.ABORT, goog.net.EventType.ERROR
+  goog.net.EventType.ABORT,
+  goog.net.EventType.ERROR
 ];
 
 
@@ -173,8 +175,8 @@ goog.net.ImageLoader.prototype.addImage = function(
     // For now, we just store the source URL for the image.
     this.imageIdToRequestMap_[id] = {
       src: src,
-      corsRequestType: goog.isDef(opt_corsRequestType) ? opt_corsRequestType :
-                                                         null
+      corsRequestType: goog.isDef(opt_corsRequestType) ?
+          opt_corsRequestType : null
     };
   }
 };
@@ -194,8 +196,8 @@ goog.net.ImageLoader.prototype.removeImage = function(id) {
     delete this.imageIdToImageMap_[id];
 
     // Stop listening for events on the image.
-    this.handler_.unlisten(
-        image, goog.net.ImageLoader.IMAGE_LOAD_EVENTS_, this.onNetworkEvent_);
+    this.handler_.unlisten(image, goog.net.ImageLoader.IMAGE_LOAD_EVENTS_,
+        this.onNetworkEvent_);
 
     // If this was the last image, raise a COMPLETE event.
     if (goog.object.isEmpty(this.imageIdToImageMap_) &&
@@ -216,13 +218,14 @@ goog.net.ImageLoader.prototype.start = function() {
   // the initial queued images in case any event handlers decide to add more
   // images before this loop has finished executing.
   var imageIdToRequestMap = this.imageIdToRequestMap_;
-  goog.array.forEach(goog.object.getKeys(imageIdToRequestMap), function(id) {
-    var imageRequest = imageIdToRequestMap[id];
-    if (imageRequest) {
-      delete imageIdToRequestMap[id];
-      this.loadImage_(imageRequest, id);
-    }
-  }, this);
+  goog.array.forEach(goog.object.getKeys(imageIdToRequestMap),
+      function(id) {
+        var imageRequest = imageIdToRequestMap[id];
+        if (imageRequest) {
+          delete imageIdToRequestMap[id];
+          this.loadImage_(imageRequest, id);
+        }
+      }, this);
 };
 
 
@@ -241,11 +244,10 @@ goog.net.ImageLoader.prototype.loadImage_ = function(imageRequest, id) {
     return;
   }
 
-  /** @type {!HTMLImageElement} */
   var image;
   if (this.parent_) {
     var dom = goog.dom.getDomHelper(this.parent_);
-    image = dom.createDom(goog.dom.TagName.IMG);
+    image = dom.createDom('img');
   } else {
     image = new Image();
   }
@@ -254,8 +256,8 @@ goog.net.ImageLoader.prototype.loadImage_ = function(imageRequest, id) {
     image.crossOrigin = imageRequest.corsRequestType;
   }
 
-  this.handler_.listen(
-      image, goog.net.ImageLoader.IMAGE_LOAD_EVENTS_, this.onNetworkEvent_);
+  this.handler_.listen(image, goog.net.ImageLoader.IMAGE_LOAD_EVENTS_,
+      this.onNetworkEvent_);
   this.imageIdToImageMap_[id] = image;
 
   image.id = id;

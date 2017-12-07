@@ -19,7 +19,6 @@
  */
 
 
-goog.setTestOnly('goog.testing.messaging.MockMessageChannel');
 goog.provide('goog.testing.messaging.MockMessageChannel');
 
 goog.require('goog.messaging.AbstractChannel');
@@ -46,8 +45,8 @@ goog.testing.messaging.MockMessageChannel = function(mockControl) {
 
   mockControl.createMethodMock(this, 'send');
 };
-goog.inherits(
-    goog.testing.messaging.MockMessageChannel, goog.messaging.AbstractChannel);
+goog.inherits(goog.testing.messaging.MockMessageChannel,
+              goog.messaging.AbstractChannel);
 
 
 /**

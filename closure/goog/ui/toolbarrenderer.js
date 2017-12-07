@@ -21,7 +21,6 @@
 goog.provide('goog.ui.ToolbarRenderer');
 
 goog.require('goog.a11y.aria.Role');
-goog.require('goog.dom.TagName');
 goog.require('goog.ui.Container');
 goog.require('goog.ui.ContainerRenderer');
 goog.require('goog.ui.Separator');
@@ -60,10 +59,10 @@ goog.ui.ToolbarRenderer.CSS_CLASS = goog.getCssName('goog-toolbar');
  * @override
  */
 goog.ui.ToolbarRenderer.prototype.getDecoratorForChild = function(element) {
-  return element.tagName == goog.dom.TagName.HR ?
+  return element.tagName == 'HR' ?
       new goog.ui.Separator(goog.ui.ToolbarSeparatorRenderer.getInstance()) :
-      goog.ui.ToolbarRenderer.superClass_.getDecoratorForChild.call(
-          this, element);
+      goog.ui.ToolbarRenderer.superClass_.getDecoratorForChild.call(this,
+          element);
 };
 
 

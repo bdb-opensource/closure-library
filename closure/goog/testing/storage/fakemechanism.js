@@ -14,7 +14,6 @@
 
 /**
  * @fileoverview Provides a fake storage mechanism for testing.
- * @author chrishenry@google.com (Chris Henry)
  */
 
 goog.provide('goog.testing.storage.FakeMechanism');
@@ -39,8 +38,7 @@ goog.testing.storage.FakeMechanism = function() {
    */
   this.storage_ = new goog.structs.Map();
 };
-goog.inherits(
-    goog.testing.storage.FakeMechanism,
+goog.inherits(goog.testing.storage.FakeMechanism,
     goog.storage.mechanism.IterableMechanism);
 
 

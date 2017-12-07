@@ -98,9 +98,8 @@ goog.format.numericValueToString = function(val, opt_decimals) {
 
 /**
  * Converts number of bytes to string representation. Binary conversion.
- * Default is to return the additional 'B' suffix only for scales greater than
- * 1K, e.g. '10.5KB' to minimize confusion with counts that are scaled by powers
- * of 1000. Otherwise, suffix is empty string.
+ * Default is to return the additional 'B' suffix, e.g. '10.5KB' to minimize
+ * confusion with counts that are scaled by powers of 1000.
  * @param {number} val Value to be converted.
  * @param {number=} opt_decimals The number of decimals to use.  Defaults to 2.
  * @param {boolean=} opt_suffix If true, include trailing 'B' in returned
@@ -109,8 +108,8 @@ goog.format.numericValueToString = function(val, opt_decimals) {
  *     separated by a no break space. Default is false.
  * @return {string} String representation of number of bytes.
  */
-goog.format.numBytesToString = function(
-    val, opt_decimals, opt_suffix, opt_useSeparator) {
+goog.format.numBytesToString = function(val, opt_decimals, opt_suffix,
+    opt_useSeparator) {
   var suffix = '';
   if (!goog.isDef(opt_suffix) || opt_suffix) {
     suffix = 'B';
@@ -134,7 +133,7 @@ goog.format.stringToNumericValue_ = function(stringValue, conversion) {
   if (!match) {
     return NaN;
   }
-  var val = Number(match[1]) * conversion[match[2]];
+  var val = match[1] * conversion[match[2]];
   return val;
 };
 
@@ -151,8 +150,8 @@ goog.format.stringToNumericValue_ = function(stringValue, conversion) {
  * @return {string} The human readable form of the byte size.
  * @private
  */
-goog.format.numericValueToString_ = function(
-    val, conversion, opt_decimals, opt_suffix, opt_useSeparator) {
+goog.format.numericValueToString_ = function(val, conversion,
+    opt_decimals, opt_suffix, opt_useSeparator) {
   var prefixes = goog.format.NUMERIC_SCALE_PREFIXES_;
   var orig_val = val;
   var symbol = '';
@@ -199,16 +198,17 @@ goog.format.numericValueToString_ = function(
  * @type {RegExp}
  * @private
  */
-goog.format.SCALED_NUMERIC_RE_ =
-    /^([-]?\d+\.?\d*)([K,M,G,T,P,E,Z,Y,k,m,u,n]?)[B]?$/;
+goog.format.SCALED_NUMERIC_RE_ = /^([-]?\d+\.?\d*)([K,M,G,T,P,k,m,u,n]?)[B]?$/;
 
 
 /**
  * Ordered list of scaling prefixes in decreasing order.
- * @private {Array<string>}
+ * @type {Array}
+ * @private
  */
-goog.format.NUMERIC_SCALE_PREFIXES_ =
-    ['Y', 'Z', 'E', 'P', 'T', 'G', 'M', 'K', '', 'm', 'u', 'n'];
+goog.format.NUMERIC_SCALE_PREFIXES_ = [
+  'P', 'T', 'G', 'M', 'K', '', 'm', 'u', 'n'
+];
 
 
 /**
@@ -226,10 +226,7 @@ goog.format.NUMERIC_SCALES_SI_ = {
   'M': 1e6,
   'G': 1e9,
   'T': 1e12,
-  'P': 1e15,
-  'E': 1e18,
-  'Z': 1e21,
-  'Y': 1e24
+  'P': 1e15
 };
 
 
@@ -249,10 +246,7 @@ goog.format.NUMERIC_SCALES_BINARY_ = {
   'M': Math.pow(1024, 2),
   'G': Math.pow(1024, 3),
   'T': Math.pow(1024, 4),
-  'P': Math.pow(1024, 5),
-  'E': Math.pow(1024, 6),
-  'Z': Math.pow(1024, 7),
-  'Y': Math.pow(1024, 8)
+  'P': Math.pow(1024, 5)
 };
 
 
@@ -275,11 +269,15 @@ goog.format.FIRST_GRAPHEME_EXTEND_ = 0x300;
  */
 goog.format.isTreatedAsBreakingSpace_ = function(charCode) {
   return (charCode <= goog.format.WbrToken_.SPACE) ||
-      (charCode >= 0x1000 &&
-       ((charCode >= 0x2000 && charCode <= 0x2006) ||
-        (charCode >= 0x2008 && charCode <= 0x200B) || charCode == 0x1680 ||
-        charCode == 0x180E || charCode == 0x2028 || charCode == 0x2029 ||
-        charCode == 0x205f || charCode == 0x3000));
+         (charCode >= 0x1000 &&
+          ((charCode >= 0x2000 && charCode <= 0x2006) ||
+           (charCode >= 0x2008 && charCode <= 0x200B) ||
+           charCode == 0x1680 ||
+           charCode == 0x180E ||
+           charCode == 0x2028 ||
+           charCode == 0x2029 ||
+           charCode == 0x205f ||
+           charCode == 0x3000));
 };
 
 
@@ -293,7 +291,7 @@ goog.format.isTreatedAsBreakingSpace_ = function(charCode) {
 goog.format.isInvisibleFormattingCharacter_ = function(charCode) {
   // See: http://unicode.org/charts/PDF/U2000.pdf
   return (charCode >= 0x200C && charCode <= 0x200F) ||
-      (charCode >= 0x202A && charCode <= 0x202E);
+         (charCode >= 0x202A && charCode <= 0x202E);
 };
 
 
@@ -317,13 +315,13 @@ goog.format.isInvisibleFormattingCharacter_ = function(charCode) {
  * @return {string} The string including word breaks.
  * @private
  */
-goog.format.insertWordBreaksGeneric_ = function(
-    str, hasGraphemeBreak, opt_maxlen) {
+goog.format.insertWordBreaksGeneric_ = function(str, hasGraphemeBreak,
+    opt_maxlen) {
   var maxlen = opt_maxlen || 10;
   if (maxlen > str.length) return str;
 
   var rv = [];
-  var n = 0;  // The length of the current token
+  var n = 0; // The length of the current token
 
   // This will contain the ampersand or less-than character if one of the
   // two has been seen; otherwise, the value is zero.
@@ -346,7 +344,8 @@ goog.format.insertWordBreaksGeneric_ = function(
     // Don't add a WBR at the end of a word. For the purposes of determining
     // work breaks, all ASCII control characters and some commonly encountered
     // Unicode spacing characters are treated as breaking spaces.
-    if (n >= maxlen && !goog.format.isTreatedAsBreakingSpace_(charCode) &&
+    if (n >= maxlen &&
+        !goog.format.isTreatedAsBreakingSpace_(charCode) &&
         !isPotentiallyGraphemeExtending) {
       // Flush everything seen so far, and append a word break.
       rv.push(str.substring(lastDumpPosition, i), goog.format.WORD_BREAK_HTML);
@@ -359,12 +358,15 @@ goog.format.insertWordBreaksGeneric_ = function(
 
       if (charCode == goog.format.WbrToken_.LT ||
           charCode == goog.format.WbrToken_.AMP) {
+
         // Entering an HTML Entity '&' or open tag '<'
         nestingCharCode = charCode;
       } else if (goog.format.isTreatedAsBreakingSpace_(charCode)) {
+
         // A space or control character -- reset the token length
         n = 0;
       } else if (!goog.format.isInvisibleFormattingCharacter_(charCode)) {
+
         // A normal flow character - increment.  For grapheme extending
         // characters, this is not *technically* a new character.  However,
         // since the grapheme break detector might be overly conservative,
@@ -374,14 +376,14 @@ goog.format.insertWordBreaksGeneric_ = function(
         // we occasionally break slightly early.
         n++;
       }
-    } else if (
-        charCode == goog.format.WbrToken_.GT &&
+    } else if (charCode == goog.format.WbrToken_.GT &&
         nestingCharCode == goog.format.WbrToken_.LT) {
+
       // Leaving an HTML tag, treat the tag as zero-length
       nestingCharCode = 0;
-    } else if (
-        charCode == goog.format.WbrToken_.SEMI_COLON &&
+    } else if (charCode == goog.format.WbrToken_.SEMI_COLON &&
         nestingCharCode == goog.format.WbrToken_.AMP) {
+
       // Leaving an HTML entity, treat it as length one
       nestingCharCode = 0;
       n++;
@@ -407,11 +409,10 @@ goog.format.insertWordBreaksGeneric_ = function(
  * @param {number=} opt_maxlen Maximum length after which to ensure there is a
  *     break.  Default is 10 characters.
  * @return {string} The string including word breaks.
- * @deprecated Prefer wrapping with CSS word-wrap: break-word.
  */
 goog.format.insertWordBreaks = function(str, opt_maxlen) {
-  return goog.format.insertWordBreaksGeneric_(
-      str, goog.i18n.GraphemeBreak.hasGraphemeBreak, opt_maxlen);
+  return goog.format.insertWordBreaksGeneric_(str,
+      goog.i18n.GraphemeBreak.hasGraphemeBreak, opt_maxlen);
 };
 
 
@@ -458,11 +459,10 @@ goog.format.conservativelyHasGraphemeBreak_ = function(
  * @param {number=} opt_maxlen Maximum length after which to ensure there is a
  *     break.  Default is 10 characters.
  * @return {string} The string including word breaks.
- * @deprecated Prefer wrapping with CSS word-wrap: break-word.
  */
 goog.format.insertWordBreaksBasic = function(str, opt_maxlen) {
-  return goog.format.insertWordBreaksGeneric_(
-      str, goog.format.conservativelyHasGraphemeBreak_, opt_maxlen);
+  return goog.format.insertWordBreaksGeneric_(str,
+      goog.format.conservativelyHasGraphemeBreak_, opt_maxlen);
 };
 
 
@@ -471,8 +471,8 @@ goog.format.insertWordBreaksBasic = function(str, opt_maxlen) {
  * @type {boolean}
  * @private
  */
-goog.format.IS_IE8_OR_ABOVE_ =
-    goog.userAgent.IE && goog.userAgent.isVersionOrHigher(8);
+goog.format.IS_IE8_OR_ABOVE_ = goog.userAgent.IE &&
+    goog.userAgent.isVersionOrHigher(8);
 
 
 /**
@@ -483,9 +483,10 @@ goog.format.IS_IE8_OR_ABOVE_ =
  * @type {string}
  */
 goog.format.WORD_BREAK_HTML =
-    goog.userAgent.WEBKIT ? '<wbr></wbr>' : goog.userAgent.OPERA ?
-                            '&shy;' :
-                            goog.format.IS_IE8_OR_ABOVE_ ? '&#8203;' : '<wbr>';
+    goog.userAgent.WEBKIT ?
+        '<wbr></wbr>' : goog.userAgent.OPERA ?
+            '&shy;' : goog.format.IS_IE8_OR_ABOVE_ ?
+                '&#8203;' : '<wbr>';
 
 
 /**
@@ -494,9 +495,9 @@ goog.format.WORD_BREAK_HTML =
  * @enum {number}
  */
 goog.format.WbrToken_ = {
-  LT: 60,          // '<'.charCodeAt(0)
-  GT: 62,          // '>'.charCodeAt(0)
-  AMP: 38,         // '&'.charCodeAt(0)
-  SEMI_COLON: 59,  // ';'.charCodeAt(0)
-  SPACE: 32        // ' '.charCodeAt(0)
+  LT: 60, // '<'.charCodeAt(0)
+  GT: 62, // '>'.charCodeAt(0)
+  AMP: 38, // '&'.charCodeAt(0)
+  SEMI_COLON: 59, // ';'.charCodeAt(0)
+  SPACE: 32 // ' '.charCodeAt(0)
 };

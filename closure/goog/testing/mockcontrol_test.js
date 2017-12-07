@@ -101,8 +101,12 @@ function testTearDownAll() {
   var mockMockExcluded = new MockMock();
 
   // $tearDown is optional.
-  mockMock2.$tearDown = function() { this.tearDownCalled = true; };
-  mockMockExcluded.$tearDown = function() { this.tearDownCalled = true; };
+  mockMock2.$tearDown = function() {
+    this.tearDownCalled = true;
+  };
+  mockMockExcluded.$tearDown = function() {
+    this.tearDownCalled = true;
+  };
 
   var control = new goog.testing.MockControl();
   control.addMock(mockMock1);

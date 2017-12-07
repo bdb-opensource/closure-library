@@ -73,7 +73,7 @@ goog.net.xpc.DirectTransport = function(channel, opt_domHelper) {
    */
   this.channel_ = channel;
 
-  /** @private {!EventHandler<!goog.net.xpc.DirectTransport>} */
+  /** @private {!EventHandler.<!goog.net.xpc.DirectTransport>} */
   this.eventHandler_ = new EventHandler(this);
   this.registerDisposable(this.eventHandler_);
 
@@ -82,7 +82,8 @@ goog.net.xpc.DirectTransport = function(channel, opt_domHelper) {
    * @private {!Timer}
    */
   this.maybeAttemptToConnectTimer_ = new Timer(
-      DirectTransport.CONNECTION_ATTEMPT_INTERVAL_MS_, this.getWindow());
+      DirectTransport.CONNECTION_ATTEMPT_INTERVAL_MS_,
+      this.getWindow());
   this.registerDisposable(this.maybeAttemptToConnectTimer_);
 
   /**
@@ -133,8 +134,8 @@ goog.net.xpc.DirectTransport = function(channel, opt_domHelper) {
   // communicate in the same window between the different roles on the
   // same channel.
   this.channel_.updateChannelNameAndCatalog(
-      DirectTransport.getRoledChannelName_(
-          this.channel_.name, this.channel_.getRole()));
+      DirectTransport.getRoledChannelName_(this.channel_.name,
+                                           this.channel_.getRole()));
 
   /**
    * Flag indicating if this instance of the transport has been initialized.
@@ -155,9 +156,9 @@ goog.net.xpc.DirectTransport = function(channel, opt_domHelper) {
   this.connected_.addCallback(this.notifyConnected_, this);
   this.connected_.callback(true);
 
-  this.eventHandler_.listen(
-      this.maybeAttemptToConnectTimer_, Timer.TICK,
-      this.maybeAttemptToConnect_);
+  this.eventHandler_.
+      listen(this.maybeAttemptToConnectTimer_, Timer.TICK,
+          this.maybeAttemptToConnect_);
 
   goog.log.info(
       goog.net.xpc.logger,
@@ -190,7 +191,7 @@ DirectTransport.CONNECTION_DELAY_INTERVAL_MS_ = 0;
  * @return {boolean} Whether this transport is supported.
  */
 DirectTransport.isSupported = function(peerWindow) {
-
+  /** @preserveTry */
   try {
     return window.document.domain == peerWindow.document.domain;
   } catch (e) {
@@ -204,7 +205,7 @@ DirectTransport.isSupported = function(peerWindow) {
  * initialized but not disposed yet in a map keyed by the UID of the window
  * object.  This allows for multiple windows to be initiallized and listening
  * for messages.
- * @private {!Object<number>}
+ * @private {!Object.<number>}
  */
 DirectTransport.activeCount_ = {};
 
@@ -238,11 +239,13 @@ DirectTransport.initialize_ = function(listenWindow) {
   if (value == 0) {
     // Set up a handler on the window to proxy messages to class.
     var globalProxy = goog.getObjectByName(
-        DirectTransport.GLOBAL_TRANPORT_PATH_, listenWindow);
+        DirectTransport.GLOBAL_TRANPORT_PATH_,
+        listenWindow);
     if (globalProxy == null) {
       goog.exportSymbol(
           DirectTransport.GLOBAL_TRANPORT_PATH_,
-          DirectTransport.messageReceivedHandler_, listenWindow);
+          DirectTransport.messageReceivedHandler_,
+          listenWindow);
     }
   }
   DirectTransport.activeCount_[uid]++;
@@ -273,9 +276,9 @@ DirectTransport.messageReceivedHandler_ = function(literal) {
   var service = msg.service;
   var payload = msg.payload;
 
-  goog.log.fine(
-      goog.net.xpc.logger, 'messageReceived: channel=' + channelName +
-          ', service=' + service + ', payload=' + payload);
+  goog.log.fine(goog.net.xpc.logger,
+      'messageReceived: channel=' + channelName +
+      ', service=' + service + ', payload=' + payload);
 
   // Attempt to deliver message to the channel. Keep in mind that it may not
   // exist for several reasons, including but not limited to:
@@ -344,8 +347,7 @@ DirectTransport.prototype.transportServiceHandler = function(payload) {
       if ((this.peerEndpointId_ != null) &&
           (this.peerEndpointId_ != peerEndpointId)) {
         // Send a new SETUP message since the peer has been replaced.
-        goog.log.info(
-            goog.net.xpc.logger,
+        goog.log.info(goog.net.xpc.logger,
             'Sending SETUP and changing peer ID to: ' + peerEndpointId);
         this.sendSetupMessage_();
       }
@@ -404,6 +406,7 @@ DirectTransport.prototype.connect = function() {
  * @private
  */
 DirectTransport.prototype.maybeAttemptToConnect_ = function() {
+  var outerRole = this.channel_.getRole() == CrossPageChannelRole.OUTER;
   if (this.channel_.isConnected()) {
     this.maybeAttemptToConnectTimer_.stop();
     return;
@@ -426,9 +429,13 @@ DirectTransport.prototype.send = function(service, payload) {
     return;
   }
   var channelName = DirectTransport.getRoledChannelName_(
-      this.originalChannelName_, this.getPeerRole_());
+      this.originalChannelName_,
+      this.getPeerRole_());
 
-  var message = new DirectTransport.Message_(channelName, service, payload);
+  var message = new DirectTransport.Message_(
+      channelName,
+      service,
+      payload);
 
   if (this.channel_.getConfig()[CfgFields.DIRECT_TRANSPORT_SYNC_MODE]) {
     this.executeScheduledSend_(message);
@@ -452,32 +459,39 @@ DirectTransport.prototype.executeScheduledSend_ = function(message) {
     delete this.asyncSendsMap_[messageId];
   }
 
-
+  /** @preserveTry */
   try {
     var peerProxy = goog.getObjectByName(
         DirectTransport.GLOBAL_TRANPORT_PATH_,
         this.channel_.getPeerWindowObject());
   } catch (error) {
     goog.log.warning(
-        goog.net.xpc.logger, 'Can\'t access other window, ignoring.', error);
+        goog.net.xpc.logger,
+        'Can\'t access other window, ignoring.',
+        error);
     return;
   }
 
   if (goog.isNull(peerProxy)) {
     goog.log.warning(
-        goog.net.xpc.logger, 'Peer window had no global function.');
+        goog.net.xpc.logger,
+        'Peer window had no global function.');
     return;
   }
 
-
+  /** @preserveTry */
   try {
     peerProxy(message.toLiteral());
     goog.log.info(
-        goog.net.xpc.logger, 'send(): channelName=' + message.channelName +
-            ' service=' + message.service + ' payload=' + message.payload);
+        goog.net.xpc.logger,
+        'send(): channelName=' + message.channelName +
+        ' service=' + message.service +
+        ' payload=' + message.payload);
   } catch (error) {
     goog.log.warning(
-        goog.net.xpc.logger, 'Error performing call, ignoring.', error);
+        goog.net.xpc.logger,
+        'Error performing call, ignoring.',
+        error);
   }
 };
 
@@ -504,8 +518,7 @@ DirectTransport.prototype.notifyConnected_ = function() {
   // synchronous and the callback invokes send() immediately.
   this.channel_.notifyConnected(
       this.channel_.getConfig()[CfgFields.DIRECT_TRANSPORT_SYNC_MODE] ?
-          DirectTransport.CONNECTION_DELAY_INTERVAL_MS_ :
-          0);
+      DirectTransport.CONNECTION_DELAY_INTERVAL_MS_ : 0);
 };
 
 
@@ -517,13 +530,16 @@ DirectTransport.prototype.disposeInternal = function() {
     var value = --DirectTransport.activeCount_[uid];
     if (value == 1) {
       goog.exportSymbol(
-          DirectTransport.GLOBAL_TRANPORT_PATH_, null, listenWindow);
+          DirectTransport.GLOBAL_TRANPORT_PATH_,
+          null,
+          listenWindow);
     }
   }
 
   if (this.asyncSendsMap_) {
-    goog.object.forEach(
-        this.asyncSendsMap_, function(timerId) { Timer.clear(timerId); });
+    goog.object.forEach(this.asyncSendsMap_, function(timerId) {
+      Timer.clear(timerId);
+    });
     this.asyncSendsMap_ = null;
   }
 
@@ -548,14 +564,14 @@ DirectTransport.prototype.disposeInternal = function() {
 /**
  * Parses a transport service payload message.
  * @param {string} payload The payload.
- * @return {!Array<?string>} An array with the message type as the first member
+ * @return {!Array.<?string>} An array with the message type as the first member
  *     and the endpoint id as the second, if one was sent, or null otherwise.
  * @private
  */
 DirectTransport.parseTransportPayload_ = function(payload) {
-  var transportParts = /** @type {!Array<?string>} */ (
-      payload.split(DirectTransport.MESSAGE_DELIMITER_));
-  transportParts[1] = transportParts[1] || null;  // Usually endpointId.
+  var transportParts = /** @type {!Array.<?string>} */ (payload.split(
+      DirectTransport.MESSAGE_DELIMITER_));
+  transportParts[1] = transportParts[1] || null; // Usually endpointId.
   return transportParts;
 };
 
@@ -611,7 +627,9 @@ DirectTransport.Message_.prototype.toLiteral = function() {
  */
 DirectTransport.Message_.fromLiteral = function(literal) {
   return new DirectTransport.Message_(
-      literal['channelName'], literal['service'], literal['payload']);
+      literal['channelName'],
+      literal['service'],
+      literal['payload']);
 };
 
 });  // goog.scope

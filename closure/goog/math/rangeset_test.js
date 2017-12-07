@@ -27,9 +27,9 @@ goog.require('goog.testing.jsunit');
  * two ranges are not equal, the error message will be in the format:
  * "Expected <[1, 2]> (Object) but was <[3, 4]> (Object)"
  *
- * @param {!goog.math.Range|!Array<number>|string} a A descriptive string or
+ * @param {!goog.math.Range|!Array.<number>|string} a A descriptive string or
  *     the expected range.
- * @param {!goog.math.Range|!Array<number>} b The expected range when a
+ * @param {!goog.math.Range|!Array.<number>} b The expected range when a
  *     descriptive string is present, or the range to compare.
  * @param {goog.math.Range=} opt_c The range to compare when a descriptive
  *     string is present.
@@ -40,18 +40,16 @@ function assertRangesEqual(a, b, opt_c) {
   var actual = opt_c ? opt_c : b;
 
   if (goog.isArray(expected)) {
-    assertEquals(
-        message + '\n' +
-            'Expected ranges must be specified as goog.math.Range ' +
-            'objects or as 2-element number arrays. Found [' +
-            expected.join(', ') + ']',
-        2, expected.length);
+    assertEquals(message + '\n' +
+                 'Expected ranges must be specified as goog.math.Range ' +
+                 'objects or as 2-element number arrays. Found [' +
+                 expected.join(', ') + ']',
+                 2, expected.length);
     expected = new goog.math.Range(expected[0], expected[1]);
   }
 
-  if (!goog.math.Range.equals(
-          /** @type {!goog.math.Range} */ (expected),
-          /** @type {!goog.math.Range} */ (actual))) {
+  if (!goog.math.Range.equals(/** @type {!goog.math.Range} */ (expected),
+                              /** @type {!goog.math.Range} */ (actual))) {
     if (message) {
       assertEquals(message, expected, actual);
     } else {
@@ -66,12 +64,12 @@ function assertRangesEqual(a, b, opt_c) {
  * lists may be specified as a list of goog.math.Ranges, or as a list of
  * two-element arrays of numbers.
  *
- * @param {Array<goog.math.Range|Array<number>>|string} a A help
+ * @param {Array.<goog.math.Range|Array.<number>>|string} a A help
  *     string or the list of expected ranges.
- * @param {Array<goog.math.Range|Array<number>>} b The list of
+ * @param {Array.<goog.math.Range|Array.<number>>} b The list of
  *     expected ranges when a descriptive string is present, or the list of
  *     ranges to compare.
- * @param {Array<goog.math.Range>=} opt_c The list of ranges to compare when a
+ * @param {Array.<goog.math.Range>=} opt_c The list of ranges to compare when a
  *     descriptive string is present.
  */
 function assertRangeListsEqual(a, b, opt_c) {
@@ -79,12 +77,12 @@ function assertRangeListsEqual(a, b, opt_c) {
   var expected = opt_c ? b : a;
   var actual = opt_c ? opt_c : b;
 
-  assertEquals(
-      message + 'Array lengths unequal.', expected.length, actual.length);
+  assertEquals(message + 'Array lengths unequal.',
+               expected.length, actual.length);
 
   for (var i = 0; i < expected.length; i++) {
-    assertRangesEqual(
-        message + 'Range ' + i + ' mismatch.', expected[i], actual[i]);
+    assertRangesEqual(message + 'Range ' + i + ' mismatch.',
+                      expected[i], actual[i]);
   }
 }
 
@@ -105,14 +103,12 @@ function testClone() {
   var test2 = r.clone();
   assertRangeListsEqual(test.ranges_, test2.ranges_);
 
-  assertNotEquals(
-      'The clones should not share the same list reference.', test.ranges_,
-      test2.ranges_);
+  assertNotEquals('The clones should not share the same list reference.',
+                  test.ranges_, test2.ranges_);
 
   for (var i = 0; i < test.ranges_.length; i++) {
-    assertNotEquals(
-        'The clones should not share references to ranges.', test.ranges_[i],
-        test2.ranges_[i]);
+    assertNotEquals('The clones should not share references to ranges.',
+                    test.ranges_[i], test2.ranges_[i]);
   }
 }
 
@@ -123,14 +119,13 @@ function testAddNoCorruption() {
   var range = new goog.math.Range(1, 2);
   r.add(range);
 
-  assertNotEquals(
-      'Only a copy of the input range should be stored.', range, r.ranges_[0]);
+  assertNotEquals('Only a copy of the input range should be stored.',
+                  range, r.ranges_[0]);
 
   range.end = 5;
-  assertRangeListsEqual(
-      'Modifying an input range after use should not ' +
-          'affect the set.',
-      [[1, 2]], r.ranges_);
+  assertRangeListsEqual('Modifying an input range after use should not ' +
+                        'affect the set.',
+                        [[1, 2]], r.ranges_);
 }
 
 
@@ -147,26 +142,23 @@ function testAdd() {
   assertRangeListsEqual([[1, 3], [7, 12], [13, 18]], r.ranges_);
 
   r.add(new goog.math.Range(5, 5));
-  assertRangeListsEqual(
-      'Zero length ranges should be ignored.', [[1, 3], [7, 12], [13, 18]],
-      r.ranges_);
+  assertRangeListsEqual('Zero length ranges should be ignored.',
+                        [[1, 3], [7, 12], [13, 18]], r.ranges_);
 
   var badRange = new goog.math.Range(5, 5);
   badRange.end = 4;
   r.add(badRange);
-  assertRangeListsEqual(
-      'Negative length ranges should be ignored.', [[1, 3], [7, 12], [13, 18]],
-      r.ranges_);
+  assertRangeListsEqual('Negative length ranges should be ignored.',
+                        [[1, 3], [7, 12], [13, 18]], r.ranges_);
 
   r.add(new goog.math.Range(-22, -15));
-  assertRangeListsEqual(
-      'Negative ranges should work fine.',
-      [[-22, -15], [1, 3], [7, 12], [13, 18]], r.ranges_);
+  assertRangeListsEqual('Negative ranges should work fine.',
+                        [[-22, -15], [1, 3], [7, 12], [13, 18]], r.ranges_);
 
   r.add(new goog.math.Range(3.1, 6.9));
-  assertRangeListsEqual(
-      'Non-integer ranges should work fine.',
-      [[-22, -15], [1, 3], [3.1, 6.9], [7, 12], [13, 18]], r.ranges_);
+  assertRangeListsEqual('Non-integer ranges should work fine.',
+                        [[-22, -15], [1, 3], [3.1, 6.9], [7, 12], [13, 18]],
+                        r.ranges_);
 }
 
 
@@ -238,7 +230,8 @@ function testAddWithSubsets() {
     r.add(new goog.math.Range(i, i + 1));
   }
   assertRangeListsEqual(
-      [[7, 12], [20, 21], [22, 23], [24, 25], [26, 27], [28, 29]], r.ranges_);
+      [[7, 12], [20, 21], [22, 23], [24, 25], [26, 27], [28, 29]],
+      r.ranges_);
 
   r.add(new goog.math.Range(1, 30));
   assertRangeListsEqual([[1, 30]], r.ranges_);
@@ -274,8 +267,8 @@ function testRemove() {
   assertRangeListsEqual([[16, 18]], r.ranges_);
 
   r.remove(new goog.math.Range(16, 16));
-  assertRangeListsEqual(
-      'Empty ranges should be ignored.', [[16, 18]], r.ranges_);
+  assertRangeListsEqual('Empty ranges should be ignored.',
+                        [[16, 18]], r.ranges_);
 
   r.remove(new goog.math.Range(16, 17));
   assertRangeListsEqual([[17, 18]], r.ranges_);
@@ -291,16 +284,16 @@ function testRemoveWithNonOverlappingRanges() {
   r.add(new goog.math.Range(10, 20));
 
   r.remove(new goog.math.Range(5, 8));
-  assertRangeListsEqual(
-      'Non-overlapping ranges should be ignored.', [[10, 20]], r.ranges_);
+  assertRangeListsEqual('Non-overlapping ranges should be ignored.',
+                        [[10, 20]], r.ranges_);
 
   r.remove(new goog.math.Range(20, 30));
-  assertRangeListsEqual(
-      'Non-overlapping ranges should be ignored.', [[10, 20]], r.ranges_);
+  assertRangeListsEqual('Non-overlapping ranges should be ignored.',
+                        [[10, 20]], r.ranges_);
 
   r.remove(new goog.math.Range(15, 15));
-  assertRangeListsEqual(
-      'Zero-length ranges should be ignored.', [[10, 20]], r.ranges_);
+  assertRangeListsEqual('Zero-length ranges should be ignored.',
+                        [[10, 20]], r.ranges_);
 }
 
 
@@ -353,7 +346,8 @@ function testRemoveMultiple() {
       r.ranges_);
 
   r.remove(new goog.math.Range(15, 32));
-  assertRangeListsEqual([[5, 8], [10, 15], [32, 35]], r.ranges_);
+  assertRangeListsEqual([[5, 8], [10, 15], [32, 35]],
+                        r.ranges_);
 }
 
 
@@ -414,14 +408,13 @@ function testContains() {
 
   assertTrue(r.contains(new goog.math.Range(5.9, 5.999)));
 
-  assertFalse(
-      'An empty input range should always return false.',
-      r.contains(new goog.math.Range(15, 15)));
+  assertFalse('An empty input range should always return false.',
+              r.contains(new goog.math.Range(15, 15)));
 
   var badRange = new goog.math.Range(15, 15);
   badRange.end = 14;
-  assertFalse(
-      'An invalid range should always return false.', r.contains(badRange));
+  assertFalse('An invalid range should always return false.',
+              r.contains(badRange));
 }
 
 
@@ -541,14 +534,14 @@ function testSlice() {
   assertRangeListsEqual([[2, 4], [5, 6], [9, 15]], test.ranges_);
 
   test = r.slice(new goog.math.Range(10, 10));
-  assertRangeListsEqual(
-      'An empty range should produce an empty set.', [], test.ranges_);
+  assertRangeListsEqual('An empty range should produce an empty set.',
+                        [], test.ranges_);
 
   var badRange = new goog.math.Range(10, 10);
   badRange.end = 9;
   test = r.slice(badRange);
-  assertRangeListsEqual(
-      'An invalid range should produce an empty set.', [], test.ranges_);
+  assertRangeListsEqual('An invalid range should produce an empty set.',
+                        [], test.ranges_);
 }
 
 
@@ -578,14 +571,14 @@ function testInverse() {
   assertRangeListsEqual([[4, 5], [6, 8]], test.ranges_);
 
   test = r.inverse(new goog.math.Range(9, 9));
-  assertRangeListsEqual(
-      'An empty range should produce an empty set.', [], test.ranges_);
+  assertRangeListsEqual('An empty range should produce an empty set.',
+                        [], test.ranges_);
 
   var badRange = new goog.math.Range(9, 9);
   badRange.end = 8;
   test = r.inverse(badRange);
-  assertRangeListsEqual(
-      'An invalid range should produce an empty set.', [], test.ranges_);
+  assertRangeListsEqual('An invalid range should produce an empty set.',
+                        [], test.ranges_);
 }
 
 
@@ -658,12 +651,10 @@ function testIter() {
 
   var i = 0;
   goog.iter.forEach(r, function(testRange) {
-    assertRangesEqual(
-        'Iterated set values should match the originals.', r.ranges_[i],
-        testRange);
-    assertNotEquals(
-        'Iterated range should not be a reference to the original.',
-        r.ranges_[i], testRange);
+    assertRangesEqual('Iterated set values should match the originals.',
+                      r.ranges_[i], testRange);
+    assertNotEquals('Iterated range should not be a reference to the original.',
+                    r.ranges_[i], testRange);
     i++;
   });
 }

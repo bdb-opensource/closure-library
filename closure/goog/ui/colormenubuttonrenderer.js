@@ -23,7 +23,6 @@ goog.provide('goog.ui.ColorMenuButtonRenderer');
 
 goog.require('goog.asserts');
 goog.require('goog.color');
-goog.require('goog.dom.TagName');
 goog.require('goog.dom.classlist');
 goog.require('goog.ui.MenuButtonRenderer');
 goog.require('goog.userAgent');
@@ -54,13 +53,11 @@ goog.ui.ColorMenuButtonRenderer.CSS_CLASS =
 /**
  * Overrides the superclass implementation by wrapping the caption text or DOM
  * structure in a color indicator element.  Creates the following DOM structure:
- *
- *    <div class="goog-inline-block goog-menu-button-caption">
- *      <div class="goog-color-menu-button-indicator">
- *        Contents...
- *      </div>
- *    </div>
- *
+ *   <div class="goog-inline-block goog-menu-button-caption">
+ *     <div class="goog-color-menu-button-indicator">
+ *       Contents...
+ *     </div>
+ *   </div>
  * The 'goog-color-menu-button-indicator' style should be defined to have a
  * bottom border of nonzero width and a default color that blends into its
  * background.
@@ -69,10 +66,10 @@ goog.ui.ColorMenuButtonRenderer.CSS_CLASS =
  * @return {Element} Caption element.
  * @override
  */
-goog.ui.ColorMenuButtonRenderer.prototype.createCaption = function(
-    content, dom) {
-  return goog.ui.ColorMenuButtonRenderer.superClass_.createCaption.call(
-      this, goog.ui.ColorMenuButtonRenderer.wrapCaption(content, dom), dom);
+goog.ui.ColorMenuButtonRenderer.prototype.createCaption = function(content,
+    dom) {
+  return goog.ui.ColorMenuButtonRenderer.superClass_.createCaption.call(this,
+      goog.ui.ColorMenuButtonRenderer.wrapCaption(content, dom), dom);
 };
 
 
@@ -80,11 +77,10 @@ goog.ui.ColorMenuButtonRenderer.prototype.createCaption = function(
  * Wrap a caption in a div with the color-menu-button-indicator CSS class.
  * @param {goog.ui.ControlContent} content Text caption or DOM structure.
  * @param {goog.dom.DomHelper} dom DOM helper, used for document interaction.
- * @return {!Element} Caption element.
+ * @return {Element} Caption element.
  */
 goog.ui.ColorMenuButtonRenderer.wrapCaption = function(content, dom) {
-  return dom.createDom(
-      goog.dom.TagName.DIV,
+  return dom.createDom('div',
       goog.getCssName(goog.ui.ColorMenuButtonRenderer.CSS_CLASS, 'indicator'),
       content);
 };
@@ -126,8 +122,8 @@ goog.ui.ColorMenuButtonRenderer.setCaptionValue = function(caption, value) {
 
     // Stupid IE6/7 doesn't do transparent borders.
     // TODO(attila): Add user-agent version check when IE8 comes out...
-    caption.firstChild.style.borderBottomColor =
-        hexColor || (goog.userAgent.IE ? '' : 'transparent');
+    caption.firstChild.style.borderBottomColor = hexColor ||
+        (goog.userAgent.IE ? '' : 'transparent');
   }
 };
 
@@ -144,7 +140,8 @@ goog.ui.ColorMenuButtonRenderer.prototype.initializeDom = function(button) {
   var buttonElement = button.getElement();
   goog.asserts.assert(buttonElement);
   this.setValue(buttonElement, button.getValue());
-  goog.dom.classlist.add(
-      buttonElement, goog.ui.ColorMenuButtonRenderer.CSS_CLASS);
-  goog.ui.ColorMenuButtonRenderer.superClass_.initializeDom.call(this, button);
+  goog.dom.classlist.add(buttonElement,
+      goog.ui.ColorMenuButtonRenderer.CSS_CLASS);
+  goog.ui.ColorMenuButtonRenderer.superClass_.initializeDom.call(this,
+      button);
 };

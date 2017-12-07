@@ -63,17 +63,22 @@ function tearDownPage() {
   // Create interactive demo.
   mouseWheelHandler = new goog.events.MouseWheelHandler(document.body);
 
-  goog.events.listen(
-      mouseWheelHandler, goog.events.MouseWheelHandler.EventType.MOUSEWHEEL,
+  goog.events.listen(mouseWheelHandler,
+      goog.events.MouseWheelHandler.EventType.MOUSEWHEEL,
       function(e) {
-        log.innerHTML += goog.string.subs(
-            '<br />(deltaX, deltaY): (%s, %s)', e.deltaX, e.deltaY);
+        log.innerHTML += goog.string.subs('<br />(deltaX, deltaY): (%s, %s)',
+            e.deltaX, e.deltaY);
       });
 }
 
 function testIeStyleMouseWheel() {
-  goog.userAgent =
-      {OPERA: false, EDGE_OR_IE: true, GECKO: false, WEBKIT: false};
+  goog.userAgent = {
+    OPERA: false,
+    IE: true,
+    GECKO: false,
+    CAMINO: false,
+    WEBKIT: false
+  };
 
   createHandlerAndListen();
 
@@ -89,15 +94,27 @@ function testIeStyleMouseWheel() {
 }
 
 function testNullBody() {
-  goog.userAgent = {OPERA: false, IE: true, GECKO: false, WEBKIT: false};
-  var documentObjectWithNoBody = {};
+  goog.userAgent = {
+    OPERA: false,
+    IE: true,
+    GECKO: false,
+    CAMINO: false,
+    WEBKIT: false
+  };
+  var documentObjectWithNoBody = { };
   goog.testing.events.mixinListenable(documentObjectWithNoBody);
   mouseWheelHandler =
       new goog.events.MouseWheelHandler(documentObjectWithNoBody);
 }
 
 function testGeckoStyleMouseWheel() {
-  goog.userAgent = {OPERA: false, IE: false, GECKO: true, WEBKIT: false};
+  goog.userAgent = {
+    OPERA: false,
+    IE: false,
+    GECKO: true,
+    CAMINO: false,
+    WEBKIT: false
+  };
 
   createHandlerAndListen();
 
@@ -126,8 +143,14 @@ function testGeckoStyleMouseWheel() {
 }
 
 function testWebkitStyleMouseWheel_ieStyle() {
-  goog.userAgent =
-      {OPERA: false, IE: false, GECKO: false, WEBKIT: true, WINDOWS: true};
+  goog.userAgent = {
+    OPERA: false,
+    IE: false,
+    GECKO: false,
+    CAMINO: false,
+    WEBKIT: true,
+    WINDOWS: true
+  };
 
   createHandlerAndListen();
 
@@ -153,11 +176,12 @@ function testWebkitStyleMouseWheel_ieStyleOnLinux() {
     OPERA: false,
     IE: false,
     GECKO: false,
+    CAMINO: false,
     WEBKIT: true,
     WINDOWS: false,
     LINUX: true
   };
-  runWebKitContinuousAndDiscreteEventsTest();
+  runWebKitContinousAndDiscreteEventsTest();
 }
 
 function testWebkitStyleMouseWheel_ieStyleOnMac() {
@@ -165,14 +189,15 @@ function testWebkitStyleMouseWheel_ieStyleOnMac() {
     OPERA: false,
     IE: false,
     GECKO: false,
+    CAMINO: false,
     WEBKIT: true,
     WINDOWS: false,
     MAC: true
   };
-  runWebKitContinuousAndDiscreteEventsTest();
+  runWebKitContinousAndDiscreteEventsTest();
 }
 
-function runWebKitContinuousAndDiscreteEventsTest() {
+function runWebKitContinousAndDiscreteEventsTest() {
   goog.userAgent.isVersionOrHigher = goog.functions.TRUE;
 
   createHandlerAndListen();
@@ -195,33 +220,45 @@ function runWebKitContinuousAndDiscreteEventsTest() {
 }
 
 function testWebkitStyleMouseWheel_nonIeStyle() {
-  goog.userAgent =
-      {OPERA: false, IE: false, GECKO: false, WEBKIT: true, WINDOWS: false};
+  goog.userAgent = {
+    OPERA: false,
+    IE: false,
+    GECKO: false,
+    CAMINO: false,
+    WEBKIT: true,
+    WINDOWS: false
+  };
 
   goog.userAgent.isVersionOrHigher = goog.functions.FALSE;
 
   createHandlerAndListen();
 
   // non-IE-style Webkit events do not get wheelDelta scaled
-  handleEvent(createFakeWebkitMouseWheelEvent(-40, 0));
+  handleEvent(createFakeWebkitMouseWheelEvent(-1, 0));
   assertMouseWheelEvent(1, 1, 0);
 
-  handleEvent(createFakeWebkitMouseWheelEvent(120, 0));
+  handleEvent(createFakeWebkitMouseWheelEvent(3, 0));
   assertMouseWheelEvent(-3, -3, 0);
 
-  handleEvent(createFakeWebkitMouseWheelEvent(0, 120));
+  handleEvent(createFakeWebkitMouseWheelEvent(0, 3));
   assertMouseWheelEvent(-3, 0, -3);
 
-  handleEvent(createFakeWebkitMouseWheelEvent(0, -40));
+  handleEvent(createFakeWebkitMouseWheelEvent(0, -1));
   assertMouseWheelEvent(1, 0, 1);
 
-  handleEvent(createFakeWebkitMouseWheelEvent(80, -40));
+  handleEvent(createFakeWebkitMouseWheelEvent(2, -1));
   assertMouseWheelEvent(-2, -2, 1);
 }
 
 function testMaxDeltaX() {
-  goog.userAgent =
-      {OPERA: false, IE: false, GECKO: false, WEBKIT: true, WINDOWS: true};
+  goog.userAgent = {
+    OPERA: false,
+    IE: false,
+    GECKO: false,
+    CAMINO: false,
+    WEBKIT: true,
+    WINDOWS: true
+  };
 
   createHandlerAndListen();
 
@@ -244,8 +281,14 @@ function testMaxDeltaX() {
 }
 
 function testMaxDeltaY() {
-  goog.userAgent =
-      {OPERA: false, IE: false, GECKO: false, WEBKIT: true, WINDOWS: true};
+  goog.userAgent = {
+    OPERA: false,
+    IE: false,
+    GECKO: false,
+    CAMINO: false,
+    WEBKIT: true,
+    WINDOWS: true
+  };
 
   createHandlerAndListen();
 
@@ -269,18 +312,18 @@ function testMaxDeltaY() {
 
 // Be sure to call this after setting up goog.userAgent mock and not before.
 function createHandlerAndListen() {
-  mouseWheelHandler =
-      new goog.events.MouseWheelHandler(goog.dom.getElement('foo'));
+  mouseWheelHandler = new goog.events.MouseWheelHandler(
+      goog.dom.getElement('foo'));
 
-  goog.events.listen(
-      mouseWheelHandler, goog.events.MouseWheelHandler.EventType.MOUSEWHEEL,
+  goog.events.listen(mouseWheelHandler,
+      goog.events.MouseWheelHandler.EventType.MOUSEWHEEL,
       function(e) { mouseWheelEvent = e; });
 
-  mouseWheelHandlerRtl =
-      new goog.events.MouseWheelHandler(goog.dom.getElement('fooRtl'));
+  mouseWheelHandlerRtl = new goog.events.MouseWheelHandler(
+      goog.dom.getElement('fooRtl'));
 
-  goog.events.listen(
-      mouseWheelHandlerRtl, goog.events.MouseWheelHandler.EventType.MOUSEWHEEL,
+  goog.events.listen(mouseWheelHandlerRtl,
+      goog.events.MouseWheelHandler.EventType.MOUSEWHEEL,
       function(e) { mouseWheelEventRtl = e; });
 }
 
@@ -289,40 +332,33 @@ function handleEvent(event) {
   mouseWheelHandlerRtl.handleEvent(event);
 }
 
-function assertMouseWheelEvent(expectedDetail, expectedDeltaX, expectedDeltaY) {
+function assertMouseWheelEvent(expectedDetail, expectedDeltaX,
+    expectedDeltaY) {
   assertTrue('event should be non-null', !!mouseWheelEvent);
-  assertTrue(
-      'event should have correct JS type',
+  assertTrue('event should have correct JS type',
       mouseWheelEvent instanceof goog.events.MouseWheelEvent);
-  assertEquals(
-      'event should have correct detail property', expectedDetail,
-      mouseWheelEvent.detail);
-  assertEquals(
-      'event should have correct deltaX property', expectedDeltaX,
-      mouseWheelEvent.deltaX);
-  assertEquals(
-      'event should have correct deltaY property', expectedDeltaY,
-      mouseWheelEvent.deltaY);
+  assertEquals('event should have correct detail property',
+      expectedDetail, mouseWheelEvent.detail);
+  assertEquals('event should have correct deltaX property',
+      expectedDeltaX, mouseWheelEvent.deltaX);
+  assertEquals('event should have correct deltaY property',
+      expectedDeltaY, mouseWheelEvent.deltaY);
 
   // RTL
   assertTrue('event should be non-null', !!mouseWheelEventRtl);
-  assertTrue(
-      'event should have correct JS type',
+  assertTrue('event should have correct JS type',
       mouseWheelEventRtl instanceof goog.events.MouseWheelEvent);
-  assertEquals(
-      'event should have correct detail property', expectedDetail,
-      mouseWheelEventRtl.detail);
-  assertEquals(
-      'event should have correct deltaX property', -expectedDeltaX,
-      mouseWheelEventRtl.deltaX);
-  assertEquals(
-      'event should have correct deltaY property', expectedDeltaY,
-      mouseWheelEventRtl.deltaY);
+  assertEquals('event should have correct detail property',
+      expectedDetail, mouseWheelEventRtl.detail);
+  assertEquals('event should have correct deltaX property',
+      -expectedDeltaX, mouseWheelEventRtl.deltaX);
+  assertEquals('event should have correct deltaY property',
+      expectedDeltaY, mouseWheelEventRtl.deltaY);
+
 }
 
-function createFakeMouseWheelEvent(
-    type, opt_wheelDelta, opt_detail, opt_axis, opt_wheelDeltaX,
-    opt_wheelDeltaY) {
+function createFakeMouseWheelEvent(type, opt_wheelDelta, opt_detail,
+    opt_axis, opt_wheelDeltaX, opt_wheelDeltaY) {
   var event = {
     type: type,
     wheelDelta: goog.isDef(opt_wheelDelta) ? opt_wheelDelta : undefined,
@@ -341,8 +377,8 @@ function createFakeMouseWheelEvent(
 }
 
 function createFakeWebkitMouseWheelEvent(wheelDeltaX, wheelDeltaY) {
-  return createFakeMouseWheelEvent(
-      DEFAULT_TYPE,
-      Math.abs(wheelDeltaX) > Math.abs(wheelDeltaY) ? wheelDeltaX : wheelDeltaY,
+  return createFakeMouseWheelEvent(DEFAULT_TYPE,
+      Math.abs(wheelDeltaX) > Math.abs(wheelDeltaY) ?
+          wheelDeltaX : wheelDeltaY,
       undefined, undefined, wheelDeltaX, wheelDeltaY);
 }

@@ -17,7 +17,6 @@
  * coordinate math, useful for animation systems and point manipulation.
  *
  * Based heavily on code originally by:
- * @author brenneman@google.com (Shawn Brenneman)
  */
 
 
@@ -38,7 +37,6 @@ goog.require('goog.math.Coordinate3');
  * @param {number} x The x value for the vector.
  * @param {number} y The y value for the vector.
  * @param {number} z The z value for the vector.
- * @struct
  * @constructor
  * @extends {goog.math.Coordinate3}
  */
@@ -288,8 +286,9 @@ goog.math.Vec3.dot = function(a, b) {
  * @return {!goog.math.Vec3} The cross-product of the two vectors.
  */
 goog.math.Vec3.cross = function(a, b) {
-  return new goog.math.Vec3(
-      a.y * b.z - a.z * b.y, a.z * b.x - a.x * b.z, a.x * b.y - a.y * b.x);
+  return new goog.math.Vec3(a.y * b.z - a.z * b.y,
+                            a.z * b.x - a.x * b.z,
+                            a.x * b.y - a.y * b.x);
 };
 
 
@@ -303,19 +302,7 @@ goog.math.Vec3.cross = function(a, b) {
  * @return {!goog.math.Vec3} The interpolated vector.
  */
 goog.math.Vec3.lerp = function(a, b, x) {
-  return new goog.math.Vec3(
-      goog.math.lerp(a.x, b.x, x), goog.math.lerp(a.y, b.y, x),
-      goog.math.lerp(a.z, b.z, x));
-};
-
-
-/**
- * Returns a new Vec3 that is a copy of the vector a, but rescaled by a factor s
- * in all dimensions.
- * @param {!goog.math.Vec3} a Vector a.
- * @param {number} s Scale factor.
- * @return {!goog.math.Vec3} A new rescaled vector.
- */
-goog.math.Vec3.rescaled = function(a, s) {
-  return new goog.math.Vec3(a.x * s, a.y * s, a.z * s);
+  return new goog.math.Vec3(goog.math.lerp(a.x, b.x, x),
+                            goog.math.lerp(a.y, b.y, x),
+                            goog.math.lerp(a.z, b.z, x));
 };

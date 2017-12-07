@@ -20,7 +20,6 @@ goog.provide('goog.dom.classes_test');
 goog.setTestOnly('goog.dom.classes_test');
 
 goog.require('goog.dom');
-goog.require('goog.dom.TagName');
 goog.require('goog.dom.classes');
 goog.require('goog.testing.jsunit');
 
@@ -28,7 +27,7 @@ goog.require('goog.testing.jsunit');
 var classes = goog.dom.classes;
 
 function testGet() {
-  var el = goog.dom.createElement(goog.dom.TagName.DIV);
+  var el = document.createElement('div');
   assertArrayEquals([], goog.dom.classes.get(el));
   el.className = 'C';
   assertArrayEquals(['C'], goog.dom.classes.get(el));

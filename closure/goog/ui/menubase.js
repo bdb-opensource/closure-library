@@ -40,7 +40,7 @@ goog.ui.MenuBase = function(opt_element) {
 
   /**
    * Event handler for simplifiying adding/removing listeners.
-   * @type {goog.events.EventHandler<!goog.ui.MenuBase>}
+   * @type {goog.events.EventHandler.<!goog.ui.MenuBase>}
    * @private
    */
   this.eventHandler_ = new goog.events.EventHandler(this);
@@ -57,7 +57,6 @@ goog.inherits(goog.ui.MenuBase, goog.ui.Popup);
 
 /**
  * Events fired by the Menu
- * @const
  */
 goog.ui.MenuBase.Events = {};
 
@@ -81,10 +80,11 @@ goog.ui.MenuBase.prototype.disposeInternal = function() {
  * event but should make sure to call the parent class method.
  *
  * @protected
+ * @suppress {underscore|visibility}
  * @override
  */
-goog.ui.MenuBase.prototype.onShow = function() {
-  goog.ui.MenuBase.superClass_.onShow.call(this);
+goog.ui.MenuBase.prototype.onShow_ = function() {
+  goog.ui.MenuBase.superClass_.onShow_.call(this);
 
   // register common event handlers for derived classes
   var el = this.getElement();
@@ -94,22 +94,26 @@ goog.ui.MenuBase.prototype.onShow = function() {
       el, goog.events.EventType.MOUSEOUT, this.onMouseOut);
   this.eventHandler_.listen(
       el, goog.events.EventType.MOUSEDOWN, this.onMouseDown);
-  this.eventHandler_.listen(el, goog.events.EventType.MOUSEUP, this.onMouseUp);
+  this.eventHandler_.listen(
+      el, goog.events.EventType.MOUSEUP, this.onMouseUp);
 
   this.eventHandler_.listen(
-      this.keyHandler_, goog.events.KeyHandler.EventType.KEY, this.onKeyDown);
+      this.keyHandler_,
+      goog.events.KeyHandler.EventType.KEY,
+      this.onKeyDown);
 };
 
 
 /**
  * Called after the menu is hidden. Derived classes can override to hook this
  * event but should make sure to call the parent class method.
- * @param {?Node=} opt_target Target of the event causing the hide.
+ * @param {Object=} opt_target Target of the event causing the hide.
  * @protected
+ * @suppress {underscore|visibility}
  * @override
  */
-goog.ui.MenuBase.prototype.onHide = function(opt_target) {
-  goog.ui.MenuBase.superClass_.onHide.call(this, opt_target);
+goog.ui.MenuBase.prototype.onHide_ = function(opt_target) {
+  goog.ui.MenuBase.superClass_.onHide_.call(this, opt_target);
 
   // remove listeners when hidden
   this.eventHandler_.removeAll();
@@ -132,7 +136,8 @@ goog.ui.MenuBase.prototype.getSelectedItem = function() {
  * @param {Object} item The item to select. The type of this item is specific
  *     to the menu class.
  */
-goog.ui.MenuBase.prototype.setSelectedItem = function(item) {};
+goog.ui.MenuBase.prototype.setSelectedItem = function(item) {
+};
 
 
 /**
@@ -141,7 +146,8 @@ goog.ui.MenuBase.prototype.setSelectedItem = function(item) {};
  * @param {goog.events.Event} e The event object.
  * @protected
  */
-goog.ui.MenuBase.prototype.onMouseOver = function(e) {};
+goog.ui.MenuBase.prototype.onMouseOver = function(e) {
+};
 
 
 /**
@@ -150,7 +156,8 @@ goog.ui.MenuBase.prototype.onMouseOver = function(e) {};
  * @param {goog.events.Event} e The event object.
  * @protected
  */
-goog.ui.MenuBase.prototype.onMouseOut = function(e) {};
+goog.ui.MenuBase.prototype.onMouseOut = function(e) {
+};
 
 
 /**
@@ -159,7 +166,8 @@ goog.ui.MenuBase.prototype.onMouseOut = function(e) {};
  * @param {!goog.events.Event} e The event object.
  * @protected
  */
-goog.ui.MenuBase.prototype.onMouseDown = function(e) {};
+goog.ui.MenuBase.prototype.onMouseDown = function(e) {
+};
 
 
 /**
@@ -168,7 +176,8 @@ goog.ui.MenuBase.prototype.onMouseDown = function(e) {};
  * @param {goog.events.Event} e The event object.
  * @protected
  */
-goog.ui.MenuBase.prototype.onMouseUp = function(e) {};
+goog.ui.MenuBase.prototype.onMouseUp = function(e) {
+};
 
 
 /**
@@ -177,4 +186,5 @@ goog.ui.MenuBase.prototype.onMouseUp = function(e) {};
  * @param {goog.events.KeyEvent} e The event object.
  * @protected
  */
-goog.ui.MenuBase.prototype.onKeyDown = function(e) {};
+goog.ui.MenuBase.prototype.onKeyDown = function(e) {
+};

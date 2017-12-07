@@ -44,16 +44,14 @@ goog.ui.registry.getDefaultRenderer = function(componentCtor) {
       break;
     }
     componentCtor = componentCtor.superClass_ ?
-        componentCtor.superClass_.constructor :
-        null;
+        componentCtor.superClass_.constructor : null;
   }
 
   // If the renderer has a static getInstance method, return the singleton
   // instance; otherwise create and return a new instance.
   if (rendererCtor) {
     return goog.isFunction(rendererCtor.getInstance) ?
-        rendererCtor.getInstance() :
-        new rendererCtor();
+        rendererCtor.getInstance() : new rendererCtor();
   }
 
   return null;
@@ -73,10 +71,10 @@ goog.ui.registry.setDefaultRenderer = function(componentCtor, rendererCtor) {
   // In this case, explicit validation has negligible overhead (since each
   // renderer is only registered once), and helps catch subtle bugs.
   if (!goog.isFunction(componentCtor)) {
-    throw new Error('Invalid component class ' + componentCtor);
+    throw Error('Invalid component class ' + componentCtor);
   }
   if (!goog.isFunction(rendererCtor)) {
-    throw new Error('Invalid renderer class ' + rendererCtor);
+    throw Error('Invalid renderer class ' + rendererCtor);
   }
 
   // Map the component constructor's unique ID to the renderer constructor.
@@ -94,8 +92,7 @@ goog.ui.registry.setDefaultRenderer = function(componentCtor, rendererCtor) {
  */
 goog.ui.registry.getDecoratorByClassName = function(className) {
   return className in goog.ui.registry.decoratorFunctions_ ?
-      goog.ui.registry.decoratorFunctions_[className]() :
-      null;
+      goog.ui.registry.decoratorFunctions_[className]() : null;
 };
 
 
@@ -112,10 +109,10 @@ goog.ui.registry.setDecoratorByClassName = function(className, decoratorFn) {
   // In this case, explicit validation has negligible overhead (since each
   // decorator  is only registered once), and helps catch subtle bugs.
   if (!className) {
-    throw new Error('Invalid class name ' + className);
+    throw Error('Invalid class name ' + className);
   }
   if (!goog.isFunction(decoratorFn)) {
-    throw new Error('Invalid decorator function ' + decoratorFn);
+    throw Error('Invalid decorator function ' + decoratorFn);
   }
 
   goog.ui.registry.decoratorFunctions_[className] = decoratorFn;

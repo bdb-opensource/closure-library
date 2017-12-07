@@ -40,7 +40,9 @@ function setUp() {
   recordedFunction = goog.testing.recordFunction();
 
   goog.events.listen(
-      monitor, goog.ui.ActivityMonitor.Event.ACTIVITY, recordedFunction);
+      monitor,
+      goog.ui.ActivityMonitor.Event.ACTIVITY,
+      recordedFunction);
 }
 
 function tearDown() {
@@ -76,12 +78,17 @@ function testDispatchEventReturnValue() {
 function testDispatchEventPreventDefault() {
   // Undo the listen call in setUp.
   goog.events.unlisten(
-      monitor, goog.ui.ActivityMonitor.Event.ACTIVITY, recordedFunction);
+      monitor,
+      goog.ui.ActivityMonitor.Event.ACTIVITY,
+      recordedFunction);
 
   // Listen with a function that cancels the event.
   goog.events.listen(
-      monitor, goog.ui.ActivityMonitor.Event.ACTIVITY,
-      function(e) { e.preventDefault(); });
+      monitor,
+      goog.ui.ActivityMonitor.Event.ACTIVITY,
+      function(e) {
+        e.preventDefault();
+      });
 
   assertFalse(monitor.dispatchEvent(goog.ui.ActivityMonitor.Event.ACTIVITY));
 }

@@ -61,7 +61,7 @@ function setUp() {
  *   <li> The send function of the XhrManager used by the bulkloader
  *        calls the onSuccess function after a specified time interval.
  * </ul>
- * @param {Array<string>} uris The URIs.
+ * @param {Array.<string>} uris The URIs.
  */
 function getSuccessfulBulkLoader(uris) {
   var bulkLoader = new goog.net.BulkLoader(uris);
@@ -73,25 +73,28 @@ function getSuccessfulBulkLoader(uris) {
       // This timeout determines how many ticks after the send request
       // all the URIs will complete loading. This delays the load of
       // the first uri and every subsequent uri by 15 ticks.
-      setTimeout(
-          goog.bind(this.onSuccess, this, i, uris[i]),
+      setTimeout(goog.bind(this.onSuccess, this, i, uris[i]),
           DELAY_INTERVAL_FOR_URI_LOAD);
     }
   };
 
   bulkLoader.onSuccess = function(id, uri) {
     var xhrIo = {
-      getResponseText: function() { return uri; },
-      isSuccess: function() { return true; },
+      getResponseText: function() {return uri;},
+      isSuccess: function() {return true;},
       dispose: function() {}
     };
-    this.handleEvent_(
-        id, new goog.events.Event(goog.net.EventType.COMPLETE, xhrIo));
+    this.handleEvent_(id, new goog.events.Event(
+        goog.net.EventType.COMPLETE, xhrIo));
   };
 
   var eventHandler = new goog.events.EventHandler();
-  eventHandler.listen(bulkLoader, goog.net.EventType.SUCCESS, handleSuccess);
-  eventHandler.listen(bulkLoader, goog.net.EventType.ERROR, handleError);
+  eventHandler.listen(bulkLoader,
+      goog.net.EventType.SUCCESS,
+      handleSuccess);
+  eventHandler.listen(bulkLoader,
+      goog.net.EventType.ERROR,
+      handleError);
 
   return bulkLoader;
 }
@@ -107,7 +110,7 @@ function getSuccessfulBulkLoader(uris) {
  *        calls the onSuccess or onError function after a specified time
  *        interval.
  * </ul>
- * @param {Array<string>} uris The URIs.
+ * @param {Array.<string>} uris The URIs.
  */
 function getNonSuccessfulBulkLoader(uris) {
   var bulkLoader = new goog.net.BulkLoader(uris);
@@ -122,12 +125,10 @@ function getNonSuccessfulBulkLoader(uris) {
       // of the first uri and every subsequent uri by 15 ticks. The URI
       // with id == 2 is in error.
       if (i != 2) {
-        setTimeout(
-            goog.bind(this.onSuccess, this, i, uris[i]),
+        setTimeout(goog.bind(this.onSuccess, this, i, uris[i]),
             DELAY_INTERVAL_FOR_URI_LOAD);
       } else {
-        setTimeout(
-            goog.bind(this.onError, this, i, uris[i]),
+        setTimeout(goog.bind(this.onError, this, i, uris[i]),
             DELAY_INTERVAL_FOR_URI_LOAD);
       }
     }
@@ -135,27 +136,31 @@ function getNonSuccessfulBulkLoader(uris) {
 
   bulkLoader.onSuccess = function(id, uri) {
     var xhrIo = {
-      getResponseText: function() { return uri; },
-      isSuccess: function() { return true; },
+      getResponseText: function() {return uri;},
+      isSuccess: function() {return true;},
       dispose: function() {}
     };
-    this.handleEvent_(
-        id, new goog.events.Event(goog.net.EventType.COMPLETE, xhrIo));
+    this.handleEvent_(id, new goog.events.Event(
+        goog.net.EventType.COMPLETE, xhrIo));
   };
 
   bulkLoader.onError = function(id) {
     var xhrIo = {
-      getResponseText: function() { return null; },
-      isSuccess: function() { return false; },
+      getResponseText: function() {return null;},
+      isSuccess: function() {return false;},
       dispose: function() {}
     };
-    this.handleEvent_(
-        id, new goog.events.Event(goog.net.EventType.ERROR, xhrIo));
+    this.handleEvent_(id, new goog.events.Event(
+        goog.net.EventType.ERROR, xhrIo));
   };
 
   var eventHandler = new goog.events.EventHandler();
-  eventHandler.listen(bulkLoader, goog.net.EventType.SUCCESS, handleSuccess);
-  eventHandler.listen(bulkLoader, goog.net.EventType.ERROR, handleError);
+  eventHandler.listen(bulkLoader,
+      goog.net.EventType.SUCCESS,
+      handleSuccess);
+  eventHandler.listen(bulkLoader,
+      goog.net.EventType.ERROR,
+      handleError);
 
   return bulkLoader;
 }
@@ -181,10 +186,12 @@ function testBulkLoaderLoadSuccess() {
   bulkLoader.load();
 
   clock.tick(2);
-  assertFalse('The bulk loader is not yet loaded (after 2 ticks)', loadSuccess);
+  assertFalse(
+      'The bulk loader is not yet loaded (after 2 ticks)', loadSuccess);
 
   clock.tick(3);
-  assertFalse('The bulk loader is not yet loaded (after 5 ticks)', loadSuccess);
+  assertFalse(
+      'The bulk loader is not yet loaded (after 5 ticks)', loadSuccess);
 
   clock.tick(5);
   assertFalse(
@@ -193,8 +200,8 @@ function testBulkLoaderLoadSuccess() {
   clock.tick(5);
   assertTrue('The bulk loader is loaded (after 15 ticks)', loadSuccess);
 
-  assertArrayEquals(
-      'Ensure that the response texts are present', successResponseTexts, uris);
+  assertArrayEquals('Ensure that the response texts are present',
+      successResponseTexts, uris);
 }
 
 
@@ -208,17 +215,21 @@ function testBulkLoaderLoadError() {
   bulkLoader.load();
 
   clock.tick(2);
-  assertFalse('The bulk loader is not yet loaded (after 2 ticks)', loadError);
+  assertFalse(
+      'The bulk loader is not yet loaded (after 2 ticks)', loadError);
 
   clock.tick(3);
-  assertFalse('The bulk loader is not yet loaded (after 5 ticks)', loadError);
+  assertFalse(
+      'The bulk loader is not yet loaded (after 5 ticks)', loadError);
 
   clock.tick(5);
-  assertFalse('The bulk loader is not yet loaded (after 10 ticks)', loadError);
+  assertFalse(
+      'The bulk loader is not yet loaded (after 10 ticks)', loadError);
 
   clock.tick(5);
   assertFalse(
       'The bulk loader is not loaded successfully (after 15 ticks)',
       loadSuccess);
-  assertTrue('The bulk loader is loaded in error (after 15 ticks)', loadError);
+  assertTrue(
+      'The bulk loader is loaded in error (after 15 ticks)', loadError);
 }

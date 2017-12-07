@@ -27,7 +27,8 @@ goog.require('goog.testing.PerformanceTable');
 goog.setTestOnly('goog.crypt.byteArrayToStringPerf');
 
 
-var table = new goog.testing.PerformanceTable(goog.dom.getElement('perfTable'));
+var table = new goog.testing.PerformanceTable(
+    goog.dom.getElement('perfTable'));
 
 
 var BYTES_LENGTH = Math.pow(2, 20);
@@ -42,6 +43,7 @@ function getBytes() {
 }
 
 function copyAndSpliceByteArray(bytes) {
+
   // Copy the passed byte array since we're going to destroy it.
   var remainingBytes = goog.array.clone(bytes);
   var strings = [];
@@ -49,7 +51,8 @@ function copyAndSpliceByteArray(bytes) {
   // Convert each chunk to a string.
   while (remainingBytes.length) {
     var chunk = goog.array.splice(remainingBytes, 0, CHUNK_SIZE);
-    strings.push(String.fromCharCode.apply(null, chunk));
+    return String.fromCharCode.apply(null, chunk);
+    strings.push(str);
   }
   return strings.join('');
 }
@@ -97,29 +100,26 @@ function forLoopByteArrayJoin(bytes) {
 
 function run() {
   var bytes = getBytes();
-  table.run(
-      goog.partial(copyAndSpliceByteArray, getBytes()),
-      'Copy array and splice out chunks.');
+  table.run(goog.partial(copyAndSpliceByteArray, getBytes()),
+            'Copy array and splice out chunks.');
 
-  table.run(
-      goog.partial(sliceByteArrayConcat, getBytes()),
-      'Slice out copies of the byte array, concatenating results');
+  table.run(goog.partial(sliceByteArrayConcat, getBytes()),
+            'Slice out copies of the byte array, concatenating results');
 
-  table.run(
-      goog.partial(sliceByteArrayJoin, getBytes()),
-      'Slice out copies of the byte array, joining results');
+  table.run(goog.partial(sliceByteArrayJoin, getBytes()),
+            'Slice out copies of the byte array, joining results');
 
-  table.run(
-      goog.partial(forLoopByteArrayConcat, getBytes()),
-      'Use for loop with concat.');
+  table.run(goog.partial(forLoopByteArrayConcat, getBytes()),
+            'Use for loop with concat.');
 
-  table.run(
-      goog.partial(forLoopByteArrayJoin, getBytes()),
-      'Use for loop with join.');
+  table.run(goog.partial(forLoopByteArrayJoin, getBytes()),
+            'Use for loop with join.');
 
   // Purposefully commented out. This ends up being tremendously expensive.
   // table.run(goog.partial(mapByteArray, getBytes()),
   //           'Use goog.array.map and fromCharCode.');
+
 }
 
 run();
+

@@ -20,16 +20,17 @@
 goog.provide('goog.storage.ExpiringStorage');
 
 goog.require('goog.storage.RichStorage');
+goog.require('goog.storage.RichStorage.Wrapper');
+goog.require('goog.storage.mechanism.Mechanism');
 
 
 
 /**
- * Provides a storage with expiring keys.
+ * Provides a storage with expirning keys.
  *
  * @param {!goog.storage.mechanism.Mechanism} mechanism The underlying
  *     storage mechanism.
  * @constructor
- * @struct
  * @extends {goog.storage.RichStorage}
  */
 goog.storage.ExpiringStorage = function(mechanism) {
@@ -88,7 +89,7 @@ goog.storage.ExpiringStorage.isExpired = function(wrapper) {
   var creation = goog.storage.ExpiringStorage.getCreationTime(wrapper);
   var expiration = goog.storage.ExpiringStorage.getExpirationTime(wrapper);
   return !!expiration && expiration < goog.now() ||
-      !!creation && creation > goog.now();
+         !!creation && creation > goog.now();
 };
 
 

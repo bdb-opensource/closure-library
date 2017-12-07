@@ -36,15 +36,14 @@ goog.require('goog.ui.registry');
  *     display as the tab's caption (if any).
  * @param {goog.ui.TabRenderer=} opt_renderer Optional renderer used to render
  *     or decorate the tab.
- * @param {goog.dom.DomHelper=} opt_domHelper Optional DOM helper, used for
+ * @param {goog.dom.DomHelper=} opt_domHelper Optional DOM hepler, used for
  *     document interaction.
  * @constructor
  * @extends {goog.ui.Control}
  */
 goog.ui.Tab = function(content, opt_renderer, opt_domHelper) {
-  goog.ui.Control.call(
-      this, content, opt_renderer || goog.ui.TabRenderer.getInstance(),
-      opt_domHelper);
+  goog.ui.Control.call(this, content,
+      opt_renderer || goog.ui.TabRenderer.getInstance(), opt_domHelper);
 
   // Tabs support the SELECTED state.
   this.setSupportedState(goog.ui.Component.State.SELECTED, true);
@@ -56,7 +55,6 @@ goog.ui.Tab = function(content, opt_renderer, opt_domHelper) {
       true);
 };
 goog.inherits(goog.ui.Tab, goog.ui.Control);
-goog.tagUnsealableClass(goog.ui.Tab);
 
 
 /**
@@ -98,6 +96,7 @@ goog.ui.Tab.prototype.setTooltipInternal = function(tooltip) {
 
 
 // Register a decorator factory function for goog.ui.Tabs.
-goog.ui.registry.setDecoratorByClassName(
-    goog.ui.TabRenderer.CSS_CLASS,
-    function() { return new goog.ui.Tab(null); });
+goog.ui.registry.setDecoratorByClassName(goog.ui.TabRenderer.CSS_CLASS,
+    function() {
+      return new goog.ui.Tab(null);
+    });

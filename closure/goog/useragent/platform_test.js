@@ -19,7 +19,6 @@ goog.require('goog.testing.MockUserAgent');
 goog.require('goog.testing.jsunit');
 goog.require('goog.userAgent');
 goog.require('goog.userAgent.platform');
-goog.require('goog.userAgentTestUtil');
 
 var mockAgent;
 
@@ -34,7 +33,23 @@ function tearDown() {
 }
 
 function updateUserAgentUtils() {
-  goog.userAgentTestUtil.reinitializeUserAgent();
+  goog.userAgent.PLATFORM = goog.userAgent.determinePlatform_();
+  goog.userAgent.initPlatform_();
+
+  // Unfortunately we can't isolate the useragent setting in a function
+  // we can call, because things rely on it compiling to nothing when
+  // one of the ASSUME flags is set, and the compiler isn't smart enough
+  // to do that when the setting is done inside a function that's inlined.
+  goog.userAgent.MAC = goog.userAgent.detectedMac_;
+  goog.userAgent.WINDOWS = goog.userAgent.detectedWindows_;
+  goog.userAgent.LINUX = goog.userAgent.detectedLinux_;
+  goog.userAgent.X11 = goog.userAgent.detectedX11_;
+  goog.userAgent.ANDROID = goog.userAgent.detectedAndroid_;
+  goog.userAgent.IPHONE = goog.userAgent.detectedIPhone_;
+  goog.userAgent.IPAD = goog.userAgent.detectedIPad_;
+
+  goog.userAgent.platform.VERSION =
+      goog.userAgent.platform.determineVersion_();
 }
 
 function testWindows() {
@@ -80,6 +95,10 @@ function testMac() {
   var ff = 'Mozilla/5.0 (Macintosh; U; Intel Mac OS X 10.5; en-US;' +
       'rv:1.9.1.7) Gecko/20091221 Firefox/3.5.7 GTB6';
 
+  // An old camino version that doesn't report a Mac version.
+  var camino = 'Mozilla/5.0 (Macintosh; U; Intel Mac OS X; en; rv:1.8.1.11)' +
+      'Gecko/20071128 Camino/1.5.4';
+
   mockAgent.setNavigator({platform: 'IntelMac'});
 
   mockAgent.setUserAgentString(chrome);
@@ -89,6 +108,10 @@ function testMac() {
   mockAgent.setUserAgentString(ff);
   updateUserAgentUtils();
   assertEquals('10.5', goog.userAgent.platform.VERSION);
+
+  mockAgent.setUserAgentString(camino);
+  updateUserAgentUtils();
+  assertEquals('10', goog.userAgent.platform.VERSION);
 }
 
 function testChromeOnAndroid() {
@@ -148,33 +171,4 @@ function testIPad() {
   updateUserAgentUtils();
   assertTrue(goog.userAgent.IPAD);
   assertEquals('4.2.1', goog.userAgent.platform.VERSION);
-}
-
-function testIPod22() {
-  // Borrowing from webserver/browser_rules for user agents
-  var uaString = 'Mozilla/5.0 (iPod; U; CPU iPhone OS 2_2 like ' +
-      'Mac OS X; en-us) AppleWebKit/525.18.1 (KHTML, like Gecko) Mobile/5G77a';
-
-  // Need to set this lest the testing platform be used for detection.
-  mockAgent.setNavigator({platform: 'iPod'});
-
-  mockAgent.setUserAgentString(uaString);
-  updateUserAgentUtils();
-  assertTrue(goog.userAgent.IPOD);
-  assertEquals('2.2', goog.userAgent.platform.VERSION);
-}
-
-function testIPod91() {
-  // Borrowing from webserver/browser_rules for user agents
-  var uaString = 'Mozilla/5.0 (iPod; CPU iPhone OS 9_1 like ' +
-      'Mac OS X) AppleWebKit/601.1 (KHTML, like Gecko) ' +
-      'CriOS/47.0.2526.70 Mobile/13B143 Safari/601.1.46,gzip(gfe)';
-
-  // Need to set this lest the testing platform be used for detection.
-  mockAgent.setNavigator({platform: 'iPod'});
-
-  mockAgent.setUserAgentString(uaString);
-  updateUserAgentUtils();
-  assertTrue(goog.userAgent.IPOD);
-  assertEquals('9.1', goog.userAgent.platform.VERSION);
 }

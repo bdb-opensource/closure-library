@@ -19,7 +19,6 @@
 goog.provide('goog.demos.SampleComponent');
 
 goog.require('goog.dom');
-goog.require('goog.dom.TagName');
 goog.require('goog.dom.classlist');
 goog.require('goog.events.EventType');
 goog.require('goog.events.KeyCodes');
@@ -42,7 +41,7 @@ goog.require('goog.ui.Component');
  * @final
  */
 goog.demos.SampleComponent = function(opt_label, opt_domHelper) {
-  goog.demos.SampleComponent.base(this, 'constructor', opt_domHelper);
+  goog.base(this, opt_domHelper);
 
   /**
    * The label to display.
@@ -91,7 +90,7 @@ goog.demos.SampleComponent.prototype.changeColor_ = function() {
  * @override
  */
 goog.demos.SampleComponent.prototype.createDom = function() {
-  this.decorateInternal(this.dom_.createElement(goog.dom.TagName.DIV));
+  this.decorateInternal(this.dom_.createElement('div'));
 };
 
 
@@ -103,7 +102,7 @@ goog.demos.SampleComponent.prototype.createDom = function() {
  * @override
  */
 goog.demos.SampleComponent.prototype.decorateInternal = function(element) {
-  goog.demos.SampleComponent.base(this, 'decorateInternal', element);
+  goog.base(this, 'decorateInternal', element);
   if (!this.getLabelText()) {
     this.setLabelText(this.initialLabel_);
   }
@@ -114,14 +113,14 @@ goog.demos.SampleComponent.prototype.decorateInternal = function(element) {
   elem.tabIndex = 0;
 
   this.kh_ = new goog.events.KeyHandler(elem);
-  this.getHandler().listen(
-      this.kh_, goog.events.KeyHandler.EventType.KEY, this.onKey_);
+  this.getHandler().listen(this.kh_, goog.events.KeyHandler.EventType.KEY,
+      this.onKey_);
 };
 
 
 /** @override */
 goog.demos.SampleComponent.prototype.disposeInternal = function() {
-  goog.demos.SampleComponent.base(this, 'disposeInternal');
+  goog.base(this, 'disposeInternal');
   if (this.kh_) {
     this.kh_.dispose();
   }
@@ -133,9 +132,19 @@ goog.demos.SampleComponent.prototype.disposeInternal = function() {
  * @override
  */
 goog.demos.SampleComponent.prototype.enterDocument = function() {
-  goog.demos.SampleComponent.base(this, 'enterDocument');
-  this.getHandler().listen(
-      this.getElement(), goog.events.EventType.CLICK, this.onDivClicked_);
+  goog.base(this, 'enterDocument');
+  this.getHandler().listen(this.getElement(), goog.events.EventType.CLICK,
+      this.onDivClicked_);
+};
+
+
+/**
+ * Called when component's element is known to have been removed from the
+ * document.
+ * @override
+ */
+goog.demos.SampleComponent.prototype.exitDocument = function() {
+  goog.base(this, 'exitDocument');
 };
 
 

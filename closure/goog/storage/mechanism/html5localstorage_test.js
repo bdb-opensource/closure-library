@@ -20,18 +20,8 @@ goog.require('goog.storage.mechanism.HTML5LocalStorage');
 goog.require('goog.storage.mechanism.mechanismSeparationTester');
 /** @suppress {extraRequire} */
 goog.require('goog.storage.mechanism.mechanismSharingTester');
-/** @suppress {extraRequire} */
-goog.require('goog.storage.mechanism.mechanismTestDefinition');
 goog.require('goog.testing.jsunit');
 goog.require('goog.userAgent');
-goog.require('goog.userAgent.product');
-
-function shouldRunTests() {
-  // Disabled in Safari because Apple SafariDriver runs tests in Private
-  // Browsing mode, and Safari does not permit writing to localStorage in
-  // Private Browsing windows.
-  return !goog.userAgent.product.SAFARI;
-}
 
 function setUp() {
   var localStorage = new goog.storage.mechanism.HTML5LocalStorage();

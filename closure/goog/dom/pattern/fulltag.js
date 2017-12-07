@@ -44,17 +44,23 @@ goog.require('goog.dom.pattern.Tag');
  * @final
  */
 goog.dom.pattern.FullTag = function(tag, opt_attrs, opt_styles, opt_test) {
-  /**
-   * Tracks the matcher's depth to detect the end of the tag.
-   *
-   * @private {number}
-   */
-  this.depth_ = 0;
-
-  goog.dom.pattern.FullTag.base(
-      this, 'constructor', tag, opt_attrs, opt_styles, opt_test);
+  goog.dom.pattern.StartTag.call(
+      this,
+      tag,
+      opt_attrs,
+      opt_styles,
+      opt_test);
 };
 goog.inherits(goog.dom.pattern.FullTag, goog.dom.pattern.StartTag);
+
+
+/**
+ * Tracks the matcher's depth to detect the end of the tag.
+ *
+ * @type {number}
+ * @private
+ */
+goog.dom.pattern.FullTag.prototype.depth_ = 0;
 
 
 /**
@@ -81,7 +87,8 @@ goog.dom.pattern.FullTag.prototype.matchToken = function(token, type) {
   } else {
     this.depth_ += type;
 
-    return this.depth_ ? goog.dom.pattern.MatchType.MATCHING :
-                         goog.dom.pattern.MatchType.MATCH;
+    return this.depth_ ?
+           goog.dom.pattern.MatchType.MATCHING :
+           goog.dom.pattern.MatchType.MATCH;
   }
 };

@@ -28,7 +28,6 @@
 
 goog.provide('goog.ui.style.app.ButtonRenderer');
 
-goog.require('goog.dom.TagName');
 goog.require('goog.dom.classlist');
 goog.require('goog.ui.Button');
 goog.require('goog.ui.CustomButtonRenderer');
@@ -64,14 +63,13 @@ goog.ui.style.app.ButtonRenderer.CSS_CLASS = goog.getCssName('goog-button');
  * Array of arrays of CSS classes that we want composite classes added and
  * removed for in IE6 and lower as a workaround for lack of multi-class CSS
  * selector support.
- * @type {Array<Array<string>>}
+ * @type {Array.<Array.<string>>}
  */
 goog.ui.style.app.ButtonRenderer.IE6_CLASS_COMBINATIONS = [];
 
 
 /**
  * Returns the button's contents wrapped in the following DOM structure:
- *
  *    <div class="goog-inline-block goog-button-base goog-button">
  *      <div class="goog-inline-block goog-button-base-outer-box">
  *        <div class="goog-button-base-inner-box">
@@ -90,24 +88,22 @@ goog.ui.style.app.ButtonRenderer.prototype.createDom;
 /** @override */
 goog.ui.style.app.ButtonRenderer.prototype.getContentElement = function(
     element) {
-  return element && /** @type {Element} */ (
-                        element.firstChild.firstChild.firstChild.lastChild);
+  return element && /** @type {Element} */(
+      element.firstChild.firstChild.firstChild.lastChild);
 };
 
 
 /**
  * Takes a text caption or existing DOM structure, and returns the content
  * wrapped in a pseudo-rounded-corner box.  Creates the following DOM structure:
- *
- *    <div class="goog-inline-block goog-button-base-outer-box">
- *      <div class="goog-inline-block goog-button-base-inner-box">
- *        <div class="goog-button-base-pos">
- *          <div class="goog-button-base-top-shadow">&nbsp;</div>
- *          <div class="goog-button-base-content">Contents...</div>
- *        </div>
+ *  <div class="goog-inline-block goog-button-base-outer-box">
+ *    <div class="goog-inline-block goog-button-base-inner-box">
+ *      <div class="goog-button-base-pos">
+ *        <div class="goog-button-base-top-shadow">&nbsp;</div>
+ *        <div class="goog-button-base-content">Contents...</div>
  *      </div>
  *    </div>
- *
+ *  </div>
  * Used by both {@link #createDom} and {@link #decorate}.  To be overridden
  * by subclasses.
  * @param {goog.ui.ControlContent} content Text caption or DOM structure to wrap
@@ -116,24 +112,19 @@ goog.ui.style.app.ButtonRenderer.prototype.getContentElement = function(
  * @return {Element} Pseudo-rounded-corner box containing the content.
  * @override
  */
-goog.ui.style.app.ButtonRenderer.prototype.createButton = function(
-    content, dom) {
+goog.ui.style.app.ButtonRenderer.prototype.createButton = function(content,
+    dom) {
   var baseClass = this.getStructuralCssClass();
   var inlineBlock = goog.ui.INLINE_BLOCK_CLASSNAME + ' ';
   return dom.createDom(
-      goog.dom.TagName.DIV,
-      inlineBlock + goog.getCssName(baseClass, 'outer-box'),
+      'div', inlineBlock + goog.getCssName(baseClass, 'outer-box'),
       dom.createDom(
-          goog.dom.TagName.DIV,
-          inlineBlock + goog.getCssName(baseClass, 'inner-box'),
-          dom.createDom(
-              goog.dom.TagName.DIV, goog.getCssName(baseClass, 'pos'),
+          'div', inlineBlock + goog.getCssName(baseClass, 'inner-box'),
+          dom.createDom('div', goog.getCssName(baseClass, 'pos'),
               dom.createDom(
-                  goog.dom.TagName.DIV,
-                  goog.getCssName(baseClass, 'top-shadow'), '\u00A0'),
+                  'div', goog.getCssName(baseClass, 'top-shadow'), '\u00A0'),
               dom.createDom(
-                  goog.dom.TagName.DIV, goog.getCssName(baseClass, 'content'),
-                  content))));
+                  'div', goog.getCssName(baseClass, 'content'), content))));
 };
 
 
@@ -153,15 +144,19 @@ goog.ui.style.app.ButtonRenderer.prototype.hasBoxStructure = function(
   var outer = button.getDomHelper().getFirstElementChild(element);
   var outerClassName = goog.getCssName(baseClass, 'outer-box');
   if (outer && goog.dom.classlist.contains(outer, outerClassName)) {
+
     var inner = button.getDomHelper().getFirstElementChild(outer);
     var innerClassName = goog.getCssName(baseClass, 'inner-box');
     if (inner && goog.dom.classlist.contains(inner, innerClassName)) {
+
       var pos = button.getDomHelper().getFirstElementChild(inner);
       var posClassName = goog.getCssName(baseClass, 'pos');
       if (pos && goog.dom.classlist.contains(pos, posClassName)) {
+
         var shadow = button.getDomHelper().getFirstElementChild(pos);
         var shadowClassName = goog.getCssName(baseClass, 'top-shadow');
         if (shadow && goog.dom.classlist.contains(shadow, shadowClassName)) {
+
           var content = button.getDomHelper().getNextElementSibling(shadow);
           var contentClassName = goog.getCssName(baseClass, 'content');
           if (content &&
@@ -200,7 +195,8 @@ goog.ui.style.app.ButtonRenderer.prototype.getIe6ClassCombinations =
 
 // Register a decorator factory function for goog.ui.style.app.ButtonRenderer.
 goog.ui.registry.setDecoratorByClassName(
-    goog.ui.style.app.ButtonRenderer.CSS_CLASS, function() {
-      return new goog.ui.Button(
-          null, goog.ui.style.app.ButtonRenderer.getInstance());
+    goog.ui.style.app.ButtonRenderer.CSS_CLASS,
+    function() {
+      return new goog.ui.Button(null,
+          goog.ui.style.app.ButtonRenderer.getInstance());
     });

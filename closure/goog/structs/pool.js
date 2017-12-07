@@ -31,7 +31,7 @@ goog.require('goog.structs.Set');
 
 /**
  * A generic pool class. If min is greater than max, an error is thrown.
- * @param {number=} opt_minCount Min. number of objects (Default: 0).
+ * @param {number=} opt_minCount Min. number of objects (Default: 1).
  * @param {number=} opt_maxCount Max. number of objects (Default: 10).
  * @constructor
  * @extends {goog.Disposable}
@@ -54,19 +54,19 @@ goog.structs.Pool = function(opt_minCount, opt_maxCount) {
 
   // Make sure that the max and min constraints are valid.
   if (this.minCount_ > this.maxCount_) {
-    throw new Error(goog.structs.Pool.ERROR_MIN_MAX_);
+    throw Error(goog.structs.Pool.ERROR_MIN_MAX_);
   }
 
   /**
    * Set used to store objects that are currently in the pool and available
    * to be used.
-   * @private {goog.structs.Queue<T>}
+   * @private {goog.structs.Queue.<T>}
    */
   this.freeQueue_ = new goog.structs.Queue();
 
   /**
    * Set used to store objects that are currently in the pool and in use.
-   * @private {goog.structs.Set<T>}
+   * @private {goog.structs.Set.<T>}
    */
   this.inUseSet_ = new goog.structs.Set();
 
@@ -87,6 +87,11 @@ goog.structs.Pool = function(opt_minCount, opt_maxCount) {
 
   // Make sure that the minCount constraint is satisfied.
   this.adjustForMinMax();
+
+
+  // TODO(user): Remove once JSCompiler's undefined properties warnings
+  // don't error for guarded properties.
+  var magicProps = {canBeReused: 0};
 };
 goog.inherits(goog.structs.Pool, goog.Disposable);
 
@@ -120,7 +125,7 @@ goog.structs.Pool.ERROR_DISPOSE_UNRELEASED_OBJS_ =
 goog.structs.Pool.prototype.setMinimumCount = function(min) {
   // Check count constraints.
   if (min > this.maxCount_) {
-    throw new Error(goog.structs.Pool.ERROR_MIN_MAX_);
+    throw Error(goog.structs.Pool.ERROR_MIN_MAX_);
   }
   this.minCount_ = min;
 
@@ -131,13 +136,13 @@ goog.structs.Pool.prototype.setMinimumCount = function(min) {
 
 /**
  * Sets the maximum count of the pool.
- * If max is less than the min count of the pool, an error is thrown.
+ * If max is less than the max count of the pool, an error is thrown.
  * @param {number} max The maximum count of the pool.
  */
 goog.structs.Pool.prototype.setMaximumCount = function(max) {
   // Check count constraints.
   if (max < this.minCount_) {
-    throw new Error(goog.structs.Pool.ERROR_MIN_MAX_);
+    throw Error(goog.structs.Pool.ERROR_MIN_MAX_);
   }
   this.maxCount_ = max;
 
@@ -358,7 +363,7 @@ goog.structs.Pool.prototype.isEmpty = function() {
 goog.structs.Pool.prototype.disposeInternal = function() {
   goog.structs.Pool.superClass_.disposeInternal.call(this);
   if (this.getInUseCount() > 0) {
-    throw new Error(goog.structs.Pool.ERROR_DISPOSE_UNRELEASED_OBJS_);
+    throw Error(goog.structs.Pool.ERROR_DISPOSE_UNRELEASED_OBJS_);
   }
   delete this.inUseSet_;
 

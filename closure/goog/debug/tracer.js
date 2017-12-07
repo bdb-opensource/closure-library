@@ -21,8 +21,6 @@
 goog.provide('goog.debug.Trace');
 
 goog.require('goog.array');
-goog.require('goog.asserts');
-goog.require('goog.debug.Logger');
 goog.require('goog.iter');
 goog.require('goog.log');
 goog.require('goog.structs.Map');
@@ -34,8 +32,6 @@ goog.require('goog.structs.SimplePool');
  * Class used for singleton goog.debug.Trace.  Used for timing slow points in
  * the code. Based on the java Tracer class but optimized for javascript.
  * See com.google.common.tracing.Tracer.
- * It is also possible to bridge from this class to other tracer classes via
- * adding listeners.
  * @constructor
  * @private
  */
@@ -43,70 +39,81 @@ goog.debug.Trace_ = function() {
 
   /**
    * Events in order.
-   * @private {!Array<!goog.debug.Trace_.Event_>}
+   * @type {Array.<goog.debug.Trace_.Event_>}
+   * @private
    */
   this.events_ = [];
 
   /**
    * Outstanding events that have started but haven't yet ended. The keys are
    * numeric ids and the values are goog.debug.Trace_.Event_ objects.
-   * @private {!goog.structs.Map<number, !goog.debug.Trace_.Event_>}
+   * @type {goog.structs.Map}
+   * @private
    */
   this.outstandingEvents_ = new goog.structs.Map();
 
   /**
    * Start time of the event trace
-   * @private {number}
+   * @type {number}
+   * @private
    */
   this.startTime_ = 0;
 
   /**
    * Cummulative overhead of calls to startTracer
-   * @private {number}
+   * @type {number}
+   * @private
    */
   this.tracerOverheadStart_ = 0;
 
   /**
    * Cummulative overhead of calls to endTracer
-   * @private {number}
+   * @type {number}
+   * @private
    */
   this.tracerOverheadEnd_ = 0;
 
   /**
    * Cummulative overhead of calls to addComment
-   * @private {number}
+   * @type {number}
+   * @private
    */
   this.tracerOverheadComment_ = 0;
 
   /**
    * Keeps stats on different types of tracers. The keys are strings and the
    * values are goog.debug.Stat
-   * @private {!goog.structs.Map}
+   * @type {goog.structs.Map}
+   * @private
    */
   this.stats_ = new goog.structs.Map();
 
   /**
    * Total number of traces created in the trace.
-   * @private {number}
+   * @type {number}
+   * @private
    */
   this.tracerCount_ = 0;
 
   /**
    * Total number of comments created in the trace.
-   * @private {number}
+   * @type {number}
+   * @private
    */
   this.commentCount_ = 0;
 
   /**
    * Next id to use for the trace.
-   * @private {number}
+   * @type {number}
+   * @private
    */
   this.nextId_ = 1;
 
   /**
    * A pool for goog.debug.Trace_.Event_ objects so we don't keep creating and
    * garbage collecting these (which is very expensive in IE6).
-   * @private {!goog.structs.SimplePool}
+   * @type {goog.structs.SimplePool}
+   * @private
    */
   this.eventPool_ = new goog.structs.SimplePool(0, 4000);
   this.eventPool_.createObject = function() {
@@ -117,43 +124,40 @@ goog.debug.Trace_ = function() {
   /**
    * A pool for goog.debug.Trace_.Stat_ objects so we don't keep creating and
    * garbage collecting these (which is very expensive in IE6).
-   * @private {!goog.structs.SimplePool}
+   * @type {goog.structs.SimplePool}
+   * @private
    */
   this.statPool_ = new goog.structs.SimplePool(0, 50);
   this.statPool_.createObject = function() {
     return new goog.debug.Trace_.Stat_();
   };
 
-  var self = this;
-
-  /** @private {!goog.structs.SimplePool} */
+  var that = this;
   this.idPool_ = new goog.structs.SimplePool(0, 2000);
 
   // TODO(nicksantos): SimplePool is supposed to only return objects.
   // Reconcile this so that we don't have to cast to number below.
-  this.idPool_.createObject = function() { return String(self.nextId_++); };
+  this.idPool_.createObject = function() {
+    return String(that.nextId_++);
+  };
   this.idPool_.disposeObject = function(obj) {};
 
   /**
    * Default threshold below which a tracer shouldn't be reported
-   * @private {number}
+   * @type {number}
+   * @private
    */
   this.defaultThreshold_ = 3;
-
-  /**
-   * An object containing three callback functions to be called when starting or
-   * stopping a trace, or creating a comment trace.
-   * @private {!goog.debug.Trace_.TracerCallbacks}
-   */
-  this.traceCallbacks_ = {};
 };
 
 
 /**
  * Logger for the tracer
- * @private @const {?goog.log.Logger}
+ * @type {goog.log.Logger}
+ * @private
  */
-goog.debug.Trace_.prototype.logger_ = goog.log.getLogger('goog.debug.Trace');
+goog.debug.Trace_.prototype.logger_ =
+    goog.log.getLogger('goog.debug.Trace');
 
 
 /**
@@ -225,8 +229,7 @@ goog.debug.Trace_.Stat_.prototype.type;
  */
 goog.debug.Trace_.Stat_.prototype.toString = function() {
   var sb = [];
-  sb.push(
-      this.type, ' ', this.count, ' (', Math.round(this.time * 10) / 10,
+  sb.push(this.type, ' ', this.count, ' (', Math.round(this.time * 10) / 10,
       ' ms)');
   if (this.varAlloc) {
     sb.push(' [VarAlloc = ', this.varAlloc, ']');
@@ -262,8 +265,8 @@ goog.debug.Trace_.Event_.prototype.type;
  *     if there was no previous event.
  * @return {string} The formatted tracer string.
  */
-goog.debug.Trace_.Event_.prototype.toTraceString = function(
-    startTime, prevTime, indent) {
+goog.debug.Trace_.Event_.prototype.toTraceString = function(startTime, prevTime,
+    indent) {
   var sb = [];
 
   if (prevTime == -1) {
@@ -305,73 +308,6 @@ goog.debug.Trace_.Event_.prototype.toString = function() {
 
 
 /**
- * A class to specify the types of the callback functions used by
- * {@code addTraceCallbacks}.
- * @record
- */
-goog.debug.Trace_.TracerCallbacks = function() {
-  /**
-   * A callback function to be called at {@code startTrace} with two parameters:
-   * a number as the started trace id and a string as the comment on the trace.
-   * @type {function(number, string)|undefined}
-   */
-  this.start;
-  /**
-   * A callback function to be called at {@code stopTrace} with one parameter:
-   * a number as the trace id being stopped.
-   * @type {function(number)|undefined}
-   */
-  this.stop;
-  /**
-   * A callback function to be called at {@code addComment} with two parameters:
-   * a string as the comment on the trace and an optional time stamp number (in
-   * milliseconds since epoch) when the comment should be added as a trace.
-   * @type {function(string, ?number=)|undefined}
-   */
-  this.comment;
-};
-
-/**
- * A function that combines two function with the same parameters in a sequence.
- * @param {!Function|undefined} fn1 The first function to be combined.
- * @param {!Function|undefined} fn2 The second function to be combined.
- * @return {!Function|undefined} A function that calls the inputs in sequence.
- * @private
- */
-goog.debug.Trace_.TracerCallbacks.sequence_ = function(fn1, fn2) {
-  return !fn1 ? fn2 : !fn2 ? fn1 : function() {
-    fn1.apply(undefined, arguments);
-    fn2.apply(undefined, arguments);
-  };
-};
-
-
-/**
- * Removes all registered callback functions. Mainly used for testing.
- */
-goog.debug.Trace_.prototype.removeAllListeners = function() {
-  this.traceCallbacks_ = {};
-};
-
-
-/**
- * Adds up to three callback functions which are called on {@code startTracer},
- * {@code stopTracer} and {@code addComment} in order to bridge from the Closure
- * tracer singleton object to any tracer class.
- * @param {!goog.debug.Trace_.TracerCallbacks} callbacks An object literal
- *   containing the callback functions.
- */
-goog.debug.Trace_.prototype.addTraceCallbacks = function(callbacks) {
-  this.traceCallbacks_.start = goog.debug.Trace_.TracerCallbacks.sequence_(
-      this.traceCallbacks_.start, callbacks.start);
-  this.traceCallbacks_.stop = goog.debug.Trace_.TracerCallbacks.sequence_(
-      this.traceCallbacks_.stop, callbacks.stop);
-  this.traceCallbacks_.comment = goog.debug.Trace_.TracerCallbacks.sequence_(
-      this.traceCallbacks_.comment, callbacks.comment);
-};
-
-
-/**
  * Add the ability to explicitly set the start time. This is useful for example
  * for measuring initial load time where you can set a variable as soon as the
  * main page of the app is loaded and then later call this function when the
@@ -386,7 +322,7 @@ goog.debug.Trace_.prototype.setStartTime = function(startTime) {
 /**
  * Initializes and resets the current trace
  * @param {number} defaultThreshold The default threshold below which the
- * tracer output will be suppressed. Can be overridden on a per-Tracer basis.
+ * tracer output will be supressed. Can be overridden on a per-Tracer basis.
  */
 goog.debug.Trace_.prototype.initCurrentTrace = function(defaultThreshold) {
   this.reset(defaultThreshold);
@@ -404,12 +340,20 @@ goog.debug.Trace_.prototype.clearCurrentTrace = function() {
 /**
  * Resets the trace.
  * @param {number} defaultThreshold The default threshold below which the
- * tracer output will be suppressed. Can be overridden on a per-Tracer basis.
+ * tracer output will be supressed. Can be overridden on a per-Tracer basis.
  */
 goog.debug.Trace_.prototype.reset = function(defaultThreshold) {
   this.defaultThreshold_ = defaultThreshold;
 
-  this.releaseEvents_();
+  for (var i = 0; i < this.events_.length; i++) {
+    var id = /** @type {Object} */ (this.eventPool_).id;
+    if (id) {
+      this.idPool_.releaseObject(id);
+    }
+    this.eventPool_.releaseObject(this.events_[i]);
+  }
+
+  this.events_.length = 0;
   this.outstandingEvents_.clear();
   this.startTime_ = goog.debug.Trace_.now();
   this.tracerOverheadStart_ = 0;
@@ -432,21 +376,6 @@ goog.debug.Trace_.prototype.reset = function(defaultThreshold) {
 
 
 /**
- * @private
- */
-goog.debug.Trace_.prototype.releaseEvents_ = function() {
-  for (var i = 0; i < this.events_.length; i++) {
-    var event = this.events_[i];
-    if (event.id) {
-      this.idPool_.releaseObject(event.id);
-    }
-    this.eventPool_.releaseObject(event);
-  }
-  this.events_.length = 0;
-};
-
-
-/**
  * Starts a tracer
  * @param {string} comment A comment used to identify the tracer. Does not
  *     need to be unique.
@@ -465,13 +394,20 @@ goog.debug.Trace_.prototype.startTracer = function(comment, opt_type) {
   var varAlloc = this.getTotalVarAlloc();
   var outstandingEventCount = this.outstandingEvents_.getCount();
   if (this.events_.length + outstandingEventCount > this.MAX_TRACE_SIZE) {
-    goog.log.warning(
-        this.logger_, 'Giant thread trace. Clearing to avoid memory leak.');
+    goog.log.warning(this.logger_,
+        'Giant thread trace. Clearing to avoid memory leak.');
     // This is the more likely case. This usually means that we
     // either forgot to clear the trace or else we are performing a
     // very large number of events
     if (this.events_.length > this.MAX_TRACE_SIZE / 2) {
-      this.releaseEvents_();
+      for (var i = 0; i < this.events_.length; i++) {
+        var event = this.events_[i];
+        if (event.id) {
+          this.idPool_.releaseObject(event.id);
+        }
+        this.eventPool_.releaseObject(event);
+      }
+      this.events_.length = 0;
     }
 
     // This is less likely and probably indicates that a lot of traces
@@ -484,10 +420,8 @@ goog.debug.Trace_.prototype.startTracer = function(comment, opt_type) {
 
   goog.debug.Logger.logToProfilers('Start : ' + comment);
 
-  /** @const */
-  var event =
-      /** @type {!goog.debug.Trace_.Event_} */ (this.eventPool_.getObject());
-  event.stopTime = undefined;
+  var event = /** @type {goog.debug.Trace_.Event_} */ (
+      this.eventPool_.getObject());
   event.totalVarAlloc = varAlloc;
   event.eventType = goog.debug.Trace_.EventType.START;
   event.id = Number(this.idPool_.getObject());
@@ -499,9 +433,6 @@ goog.debug.Trace_.prototype.startTracer = function(comment, opt_type) {
   var now = goog.debug.Trace_.now();
   event.startTime = event.eventTime = now;
   this.tracerOverheadStart_ += now - tracerStartTime;
-  if (this.traceCallbacks_.start) {
-    this.traceCallbacks_.start(event.id, event.toString());
-  }
   return event.id;
 };
 
@@ -532,10 +463,6 @@ goog.debug.Trace_.prototype.stopTracer = function(id, opt_silenceThreshold) {
   if (startEvent == null) {
     return null;
   }
-  goog.asserts.assertNumber(id);
-  if (this.traceCallbacks_.stop) {
-    this.traceCallbacks_.stop(Number(id));
-  }
 
   this.outstandingEvents_.remove(String(id));
 
@@ -552,10 +479,10 @@ goog.debug.Trace_.prototype.stopTracer = function(id, opt_silenceThreshold) {
         break;
       }
     }
+
   } else {
-    stopEvent =
-        /** @type {goog.debug.Trace_.Event_} */ (this.eventPool_.getObject());
-    stopEvent.id = undefined;
+    stopEvent = /** @type {goog.debug.Trace_.Event_} */ (
+        this.eventPool_.getObject());
     stopEvent.eventType = goog.debug.Trace_.EventType.STOP;
     stopEvent.startTime = startEvent.startTime;
     stopEvent.comment = startEvent.comment;
@@ -621,16 +548,13 @@ goog.debug.Trace_.prototype.getTotalVarAlloc = function() {
  * @param {?number=} opt_timeStamp The timestamp to insert the comment. If not
  *    specified, the current time wil be used.
  */
-goog.debug.Trace_.prototype.addComment = function(
-    comment, opt_type, opt_timeStamp) {
+goog.debug.Trace_.prototype.addComment = function(comment, opt_type,
+                                                  opt_timeStamp) {
   var now = goog.debug.Trace_.now();
   var timeStamp = opt_timeStamp ? opt_timeStamp : now;
 
-  var eventComment =
-      /** @type {goog.debug.Trace_.Event_} */ (this.eventPool_.getObject());
-  eventComment.startTime = undefined;
-  eventComment.stopTime = undefined;
-  eventComment.id = undefined;
+  var eventComment = /** @type {goog.debug.Trace_.Event_} */ (
+      this.eventPool_.getObject());
   eventComment.eventType = goog.debug.Trace_.EventType.COMMENT;
   eventComment.eventTime = timeStamp;
   eventComment.type = opt_type;
@@ -639,9 +563,6 @@ goog.debug.Trace_.prototype.addComment = function(
   this.commentCount_++;
 
   if (opt_timeStamp) {
-    if (this.traceCallbacks_.comment) {
-      this.traceCallbacks_.comment(eventComment.toString(), opt_timeStamp);
-    }
     var numEvents = this.events_.length;
     for (var i = 0; i < numEvents; i++) {
       var event = this.events_[i];
@@ -655,10 +576,7 @@ goog.debug.Trace_.prototype.addComment = function(
     if (i == numEvents) {
       this.events_.push(eventComment);
     }
-  } else {  // No time_stamp
-    if (this.traceCallbacks_.comment) {
-      this.traceCallbacks_.comment(eventComment.toString());
-    }
+  } else {
     this.events_.push(eventComment);
   }
 
@@ -682,11 +600,12 @@ goog.debug.Trace_.prototype.addComment = function(
 goog.debug.Trace_.prototype.getStat_ = function(type) {
   var stat = this.stats_.get(type);
   if (!stat) {
-    stat = /** @type {goog.debug.Trace_.Event_} */ (this.statPool_.getObject());
+    stat = /** @type {goog.debug.Trace_.Event_} */ (
+        this.statPool_.getObject());
     stat.type = type;
     this.stats_.set(type, stat);
   }
-  return /** @type {goog.debug.Trace_.Stat_} */ (stat);
+  return /** @type {goog.debug.Trace_.Stat_} */(stat);
 };
 
 
@@ -727,10 +646,10 @@ goog.debug.Trace_.prototype.toString = function() {
 
     sb.push(' Unstopped timers:\n');
     goog.iter.forEach(this.outstandingEvents_, function(startEvent) {
-      sb.push(
-          '  ', startEvent, ' (', now - startEvent.startTime,
+      sb.push('  ', startEvent, ' (', now - startEvent.startTime,
           ' ms, started at ',
-          goog.debug.Trace_.formatTime_(startEvent.startTime), ')\n');
+          goog.debug.Trace_.formatTime_(startEvent.startTime),
+          ')\n');
     });
   }
 
@@ -742,12 +661,11 @@ goog.debug.Trace_.prototype.toString = function() {
     }
   }
 
-  sb.push(
-      'Total tracers created ', this.tracerCount_, '\n',
-      'Total comments created ', this.commentCount_, '\n', 'Overhead start: ',
-      this.tracerOverheadStart_, ' ms\n', 'Overhead end: ',
-      this.tracerOverheadEnd_, ' ms\n', 'Overhead comment: ',
-      this.tracerOverheadComment_, ' ms\n');
+  sb.push('Total tracers created ', this.tracerCount_, '\n',
+      'Total comments created ', this.commentCount_, '\n',
+      'Overhead start: ', this.tracerOverheadStart_, ' ms\n',
+      'Overhead end: ', this.tracerOverheadEnd_, ' ms\n',
+      'Overhead comment: ', this.tracerOverheadComment_, ' ms\n');
 
   return sb.join('');
 };
@@ -784,7 +702,7 @@ goog.debug.Trace_.formatTime_ = function(time) {
 
   // TODO their must be a nicer way to get zero padded integers
   return String(100 + sec).substring(1, 3) + '.' +
-      String(1000 + ms).substring(1, 4);
+         String(1000 + ms).substring(1, 4);
 };
 
 

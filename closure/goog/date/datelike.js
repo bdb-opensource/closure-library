@@ -20,8 +20,6 @@
 
 goog.provide('goog.date.DateLike');
 
-goog.forwardDeclare('goog.date.Date');  // circular reference
-
 
 /**
  * @typedef {(Date|goog.date.Date)}

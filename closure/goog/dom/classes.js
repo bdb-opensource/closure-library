@@ -22,7 +22,6 @@
  * Note: these utilities are meant to operate on HTMLElements and
  * will not work on elements with differing interfaces (such as SVGElements).
  *
- * @author arv@google.com (Erik Arvidsson)
  */
 
 
@@ -35,7 +34,6 @@ goog.require('goog.array');
  * Sets the entire class name of an element.
  * @param {Node} element DOM node to set class of.
  * @param {string} className Class name(s) to apply to element.
- * @deprecated Use goog.dom.classlist.set instead.
  */
 goog.dom.classes.set = function(element, className) {
   element.className = className;
@@ -45,9 +43,8 @@ goog.dom.classes.set = function(element, className) {
 /**
  * Gets an array of class names on an element
  * @param {Node} element DOM node to get class of.
- * @return {!Array<?>} Class names on {@code element}. Some browsers add extra
+ * @return {!Array} Class names on {@code element}. Some browsers add extra
  *     properties to the array. Do not depend on any of these!
- * @deprecated Use goog.dom.classlist.get instead.
  */
 goog.dom.classes.get = function(element) {
   var className = element.className;
@@ -63,7 +60,6 @@ goog.dom.classes.get = function(element) {
  * @param {Node} element DOM node to add class to.
  * @param {...string} var_args Class names to add.
  * @return {boolean} Whether class was added (or all classes were added).
- * @deprecated Use goog.dom.classlist.add or goog.dom.classlist.addAll instead.
  */
 goog.dom.classes.add = function(element, var_args) {
   var classes = goog.dom.classes.get(element);
@@ -81,8 +77,6 @@ goog.dom.classes.add = function(element, var_args) {
  * @param {...string} var_args Class name(s) to remove.
  * @return {boolean} Whether all classes in {@code var_args} were found and
  *     removed.
- * @deprecated Use goog.dom.classlist.remove or goog.dom.classlist.removeAll
- *     instead.
  */
 goog.dom.classes.remove = function(element, var_args) {
   var classes = goog.dom.classes.get(element);
@@ -97,9 +91,9 @@ goog.dom.classes.remove = function(element, var_args) {
  * Helper method for {@link goog.dom.classes.add} and
  * {@link goog.dom.classes.addRemove}. Adds one or more classes to the supplied
  * classes array.
- * @param {Array<string>} classes All class names for the element, will be
+ * @param {Array.<string>} classes All class names for the element, will be
  *     updated to have the classes supplied in {@code args} added.
- * @param {Array<string>} args Class names to add.
+ * @param {Array.<string>} args Class names to add.
  * @private
  */
 goog.dom.classes.add_ = function(classes, args) {
@@ -114,15 +108,16 @@ goog.dom.classes.add_ = function(classes, args) {
 /**
  * Helper method for {@link goog.dom.classes.remove} and
  * {@link goog.dom.classes.addRemove}. Calculates the difference of two arrays.
- * @param {!Array<string>} arr1 First array.
- * @param {!Array<string>} arr2 Second array.
- * @return {!Array<string>} The first array without the elements of the second
+ * @param {!Array.<string>} arr1 First array.
+ * @param {!Array.<string>} arr2 Second array.
+ * @return {!Array.<string>} The first array without the elements of the second
  *     array.
  * @private
  */
 goog.dom.classes.getDifference_ = function(arr1, arr2) {
-  return goog.array.filter(
-      arr1, function(item) { return !goog.array.contains(arr2, item); });
+  return goog.array.filter(arr1, function(item) {
+    return !goog.array.contains(arr2, item);
+  });
 };
 
 
@@ -133,7 +128,6 @@ goog.dom.classes.getDifference_ = function(arr1, arr2) {
  * @param {string} fromClass Class to remove.
  * @param {string} toClass Class to add.
  * @return {boolean} Whether classes were switched.
- * @deprecated Use goog.dom.classlist.swap instead.
  */
 goog.dom.classes.swap = function(element, fromClass, toClass) {
   var classes = goog.dom.classes.get(element);
@@ -166,11 +160,10 @@ goog.dom.classes.swap = function(element, fromClass, toClass) {
  * more than two class names that you want to swap.
  *
  * @param {Node} element DOM node to swap classes on.
- * @param {?(string|Array<string>)} classesToRemove Class or classes to
+ * @param {?(string|Array.<string>)} classesToRemove Class or classes to
  *     remove, if null no classes are removed.
- * @param {?(string|Array<string>)} classesToAdd Class or classes to add, if
+ * @param {?(string|Array.<string>)} classesToAdd Class or classes to add, if
  *     null no classes are added.
- * @deprecated Use goog.dom.classlist.addRemove instead.
  */
 goog.dom.classes.addRemove = function(element, classesToRemove, classesToAdd) {
   var classes = goog.dom.classes.get(element);
@@ -196,7 +189,6 @@ goog.dom.classes.addRemove = function(element, classesToRemove, classesToAdd) {
  * @param {Node} element DOM node to test.
  * @param {string} className Class name to test for.
  * @return {boolean} Whether element has the class.
- * @deprecated Use goog.dom.classlist.contains instead.
  */
 goog.dom.classes.has = function(element, className) {
   return goog.array.contains(goog.dom.classes.get(element), className);
@@ -209,8 +201,6 @@ goog.dom.classes.has = function(element, className) {
  * @param {string} className Class name to add or remove.
  * @param {boolean} enabled Whether to add or remove the class (true adds,
  *     false removes).
- * @deprecated Use goog.dom.classlist.enable or goog.dom.classlist.enableAll
- *     instead.
  */
 goog.dom.classes.enable = function(element, className, enabled) {
   if (enabled) {
@@ -229,7 +219,6 @@ goog.dom.classes.enable = function(element, className, enabled) {
  * @return {boolean} True if class was added, false if it was removed
  *     (in other words, whether element has the class after this function has
  *     been called).
- * @deprecated Use goog.dom.classlist.toggle instead.
  */
 goog.dom.classes.toggle = function(element, className) {
   var add = !goog.dom.classes.has(element, className);

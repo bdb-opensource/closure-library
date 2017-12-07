@@ -224,12 +224,10 @@ goog.ds.BaseDataNode.prototype.getDataName = goog.abstractMethod;
 goog.ds.BaseDataNode.prototype.getDataPath = function() {
   var parentPath = '';
   var myName = this.getDataName();
-  if (this.getParent()) {
+  if (this.getParent && this.getParent()) {
     parentPath = this.getParent().getDataPath() +
-        (myName.indexOf(
-             /** @suppress {missingRequire} */ goog.ds.STR_ARRAY_START) != -1 ?
-             '' :
-             /** @suppress {missingRequire} */ goog.ds.STR_PATH_SEPARATOR);
+        (myName.indexOf(goog.ds.STR_ARRAY_START) != -1 ? '' :
+        goog.ds.STR_PATH_SEPARATOR);
   }
 
   return parentPath + myName;
@@ -253,10 +251,10 @@ goog.ds.BaseDataNode.prototype.getLoadState = function() {
 
 /**
  * Gets the parent node. Subclasses implement this function
- * @return {?goog.ds.DataNode}
+ * @type {Function}
  * @protected
  */
-goog.ds.BaseDataNode.prototype.getParent = goog.abstractMethod;
+goog.ds.BaseDataNode.prototype.getParent = null;
 
 
 /**
@@ -333,7 +331,7 @@ goog.ds.DataNodeList.prototype.removeNode = goog.abstractMethod;
  * names: eval, toSource, toString, unwatch, valueOf, watch. Behavior is
  * undefined if these names are used.
  *
- * @param {Array<goog.ds.DataNode>=} opt_nodes optional nodes to add to list.
+ * @param {Array.<goog.ds.DataNode>=} opt_nodes optional nodes to add to list.
  * @constructor
  * @extends {goog.ds.DataNodeList}
  */
@@ -479,7 +477,7 @@ goog.inherits(goog.ds.EmptyNodeList, goog.ds.BasicNodeList);
  * @override
  */
 goog.ds.EmptyNodeList.prototype.add = function(node) {
-  throw new Error('Can\'t add to EmptyNodeList');
+  throw Error('Can\'t add to EmptyNodeList');
 };
 
 
@@ -499,7 +497,7 @@ goog.ds.EmptyNodeList.prototype.add = function(node) {
  *     node list is sorted. Should take 2 arguments to compare, and return a
  *     negative integer, zero, or a positive integer depending on whether the
  *     first argument is less than, equal to, or greater than the second.
- * @param {Array<goog.ds.DataNode>=} opt_nodes optional nodes to add to list;
+ * @param {Array.<goog.ds.DataNode>=} opt_nodes optional nodes to add to list;
  *    these are assumed to be in sorted order.
  * @extends {goog.ds.BasicNodeList}
  * @constructor
@@ -653,6 +651,8 @@ goog.ds.Util.makeReferenceNode = function(node, name) {
   var nodeCreator = function() {};
   nodeCreator.prototype = node;
   var newNode = new nodeCreator();
-  newNode.getDataName = function() { return name; };
+  newNode.getDataName = function() {
+    return name;
+  };
   return newNode;
 };

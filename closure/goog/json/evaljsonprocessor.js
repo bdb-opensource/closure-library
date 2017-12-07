@@ -32,14 +32,13 @@ goog.require('goog.json.Serializer');
  *
  * @param {?goog.json.Replacer=} opt_replacer An optional replacer to use during
  *     serialization.
- * @param {?boolean=} opt_useUnsafeParsing Whether to skip validation before
- *     evaluating. Safe parsing is very slow on large strings. On the other
+ * @param {?boolean=} opt_useUnsafeParsing Whether to use goog.json.unsafeParse
+ *     for parsing. Safe parsing is very slow on large strings. On the other
  *     hand, unsafe parsing uses eval() without checking whether the string is
  *     valid, so it should only be used if you trust the source of the string.
  * @constructor
  * @implements {goog.json.Processor}
  * @final
- * @deprecated Use goog.json.NativeJsonProcessor.
  */
 goog.json.EvalJsonProcessor = function(opt_replacer, opt_useUnsafeParsing) {
   /**
@@ -48,8 +47,11 @@ goog.json.EvalJsonProcessor = function(opt_replacer, opt_useUnsafeParsing) {
    */
   this.serializer_ = new goog.json.Serializer(opt_replacer);
 
-  /** @private {boolean} */
-  this.useUnsafeParsing_ = opt_useUnsafeParsing || false;
+  /**
+   * @type {function(string): *}
+   * @private
+   */
+  this.parser_ = opt_useUnsafeParsing ? goog.json.unsafeParse : goog.json.parse;
 };
 
 
@@ -61,8 +63,5 @@ goog.json.EvalJsonProcessor.prototype.stringify = function(object) {
 
 /** @override */
 goog.json.EvalJsonProcessor.prototype.parse = function(s) {
-  if (this.useUnsafeParsing_) {
-    return eval('(' + s + ')');
-  }
-  return goog.json.parse(s);
+  return this.parser_(s);
 };

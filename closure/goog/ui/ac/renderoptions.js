@@ -26,7 +26,8 @@ goog.provide('goog.ui.ac.RenderOptions');
  * matches.  Used as an optional argument in the callback from the matcher.
  * @constructor
  */
-goog.ui.ac.RenderOptions = function() {};
+goog.ui.ac.RenderOptions = function() {
+};
 
 
 /**

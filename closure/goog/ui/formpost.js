@@ -16,13 +16,11 @@
  * @fileoverview Utility for making the browser submit a hidden form, which can
  * be used to effect a POST from JavaScript.
  *
- * @author dpb@google.com (David P. Baker)
  */
 
 goog.provide('goog.ui.FormPost');
 
 goog.require('goog.array');
-goog.require('goog.dom.InputType');
 goog.require('goog.dom.TagName');
 goog.require('goog.dom.safe');
 goog.require('goog.html.SafeHtml');
@@ -45,9 +43,8 @@ goog.inherits(goog.ui.FormPost, goog.ui.Component);
 
 /** @override */
 goog.ui.FormPost.prototype.createDom = function() {
-  this.setElementInternal(
-      this.getDomHelper().createDom(
-          goog.dom.TagName.FORM, {'method': 'POST', 'style': 'display:none'}));
+  this.setElementInternal(this.getDomHelper().createDom(goog.dom.TagName.FORM,
+      {'method': 'POST', 'style': 'display:none'}));
 };
 
 
@@ -88,10 +85,10 @@ goog.ui.FormPost.prototype.setParameters_ = function(form, parameters) {
     value = parameters[name];
     if (goog.isArrayLike(value)) {
       goog.array.forEach(value, goog.bind(function(innerValue) {
-        html.push(this.createInput_(name, String(innerValue)));
+        html.push(this.createInput_(name, innerValue));
       }, this));
     } else {
-      html.push(this.createInput_(name, String(value)));
+      html.push(this.createInput_(name, value));
     }
   }
   goog.dom.safe.setInnerHtml(form, goog.html.SafeHtml.concat(html));
@@ -106,7 +103,6 @@ goog.ui.FormPost.prototype.setParameters_ = function(form, parameters) {
  * @private
  */
 goog.ui.FormPost.prototype.createInput_ = function(name, value) {
-  return goog.html.SafeHtml.create(
-      'input',
-      {'type': goog.dom.InputType.HIDDEN, 'name': name, 'value': value});
+  return goog.html.SafeHtml.create('input',
+      {'type': 'hidden', 'name': name, 'value': value});
 };

@@ -15,22 +15,23 @@
 goog.provide('goog.testing.fs.FileEntryTest');
 goog.setTestOnly('goog.testing.fs.FileEntryTest');
 
+goog.require('goog.testing.AsyncTestCase');
 goog.require('goog.testing.MockClock');
 goog.require('goog.testing.fs.FileEntry');
 goog.require('goog.testing.fs.FileSystem');
 goog.require('goog.testing.jsunit');
 
+var asyncTestCase = goog.testing.AsyncTestCase.createAndInstall();
 var fs, file, fileEntry, mockClock, currentTime;
 
 function setUp() {
-  // Temporarily install the MockClock for predictable timestamps on new files.
   mockClock = new goog.testing.MockClock(true);
+
   fs = new goog.testing.fs.FileSystem();
   fileEntry = fs.getRoot().createDirectorySync('foo').createFileSync('bar');
+}
 
-  // Uninstall the MockClock since it interferes with goog.Promise execution.
-  // Tests that require specific timing may reinstall the MockClock and manually
-  // advance promises using mockClock.tick().
+function tearDown() {
   mockClock.uninstall();
 }
 
@@ -43,38 +44,45 @@ function testIsDirectory() {
 }
 
 function testFile() {
-  var testFile =
-      new goog.testing.fs.FileEntry(fs, fs.getRoot(), 'test', 'hello world');
-  return testFile.file().then(function(f) {
+  var testFile = new goog.testing.fs.FileEntry(fs, fs.getRoot(),
+                                               'test', 'hello world');
+  testFile.file().addCallback(function(f) {
     assertEquals('test', f.name);
     assertEquals('hello world', f.toString());
+
+    asyncTestCase.continueTesting();
   });
+  waitForAsync('testFile');
 }
 
 function testGetLastModified() {
   // Advance the clock to a known time.
-  mockClock.install();
   mockClock.tick(53);
-  var testFile = new goog.testing.fs.FileEntry(
-      fs, fs.getRoot(), 'timeTest', 'hello world');
-  var promise = testFile.getLastModified()
-                    .then(function(date) { assertEquals(53, date.getTime()); })
-                    .thenAlways(function() { mockClock.uninstall(); });
+  var testFile = new goog.testing.fs.FileEntry(fs, fs.getRoot(),
+                                               'timeTest', 'hello world');
   mockClock.tick();
-  return promise;
+  testFile.getLastModified().addCallback(function(date) {
+    assertEquals(53, date.getTime());
+    asyncTestCase.continueTesting();
+  });
+  waitForAsync('testGetLastModified');
 }
 
 function testGetMetadata() {
   // Advance the clock to a known time.
-  mockClock.install();
   mockClock.tick(54);
-  var testFile = new goog.testing.fs.FileEntry(
-      fs, fs.getRoot(), 'timeTest', 'hello world');
-  var promise = testFile.getMetadata()
-                    .then(function(metadata) {
-                      assertEquals(54, metadata.modificationTime.getTime());
-                    })
-                    .thenAlways(function() { mockClock.uninstall(); });
+  var testFile = new goog.testing.fs.FileEntry(fs, fs.getRoot(),
+                                               'timeTest', 'hello world');
   mockClock.tick();
-  return promise;
+  testFile.getMetadata().addCallback(function(metadata) {
+    assertEquals(54, metadata.modificationTime.getTime());
+    asyncTestCase.continueTesting();
+  });
+  waitForAsync('testGetMetadata');
+}
+
+
+function waitForAsync(msg) {
+  asyncTestCase.waitForAsync(msg);
+  mockClock.tick();
 }

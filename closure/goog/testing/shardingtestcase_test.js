@@ -23,7 +23,8 @@ goog.require('goog.testing.jsunit');
 goog.testing.TestCase.initializeTestRunner(
     new goog.testing.ShardingTestCase(1, 2));
 
-function testA() {}
+function testA() {
+}
 
 function testB() {
   fail('testB should not be in this shard');

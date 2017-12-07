@@ -38,7 +38,7 @@ goog.net.ChannelDebug = function() {
   /**
    * The logger instance.
    * @const
-   * @private {?goog.debug.Logger}
+   * @private
    */
   this.logger_ = goog.log.getLogger('goog.net.BrowserChannel');
 };
@@ -70,11 +70,12 @@ goog.net.ChannelDebug.prototype.browserOfflineResponse = function(url) {
  * @param {number} attempt Which attempt # the request was.
  * @param {?string} postData The data posted in the request.
  */
-goog.net.ChannelDebug.prototype.xmlHttpChannelRequest = function(
-    verb, uri, id, attempt, postData) {
+goog.net.ChannelDebug.prototype.xmlHttpChannelRequest =
+    function(verb, uri, id, attempt, postData) {
   this.info(
-      'XMLHTTP REQ (' + id + ') [attempt ' + attempt + ']: ' + verb + '\n' +
-      uri + '\n' + this.maybeRedactPostData_(postData));
+      'XMLHTTP REQ (' + id + ') [attempt ' + attempt + ']: ' +
+      verb + '\n' + uri + '\n' +
+      this.maybeRedactPostData_(postData));
 };
 
 
@@ -87,11 +88,11 @@ goog.net.ChannelDebug.prototype.xmlHttpChannelRequest = function(
  * @param {goog.net.XmlHttp.ReadyState} readyState The ready state.
  * @param {number} statusCode The HTTP status code.
  */
-goog.net.ChannelDebug.prototype.xmlHttpChannelResponseMetaData = function(
-    verb, uri, id, attempt, readyState, statusCode) {
+goog.net.ChannelDebug.prototype.xmlHttpChannelResponseMetaData =
+    function(verb, uri, id, attempt, readyState, statusCode)  {
   this.info(
-      'XMLHTTP RESP (' + id + ') [ attempt ' + attempt + ']: ' + verb + '\n' +
-      uri + '\n' + readyState + ' ' + statusCode);
+      'XMLHTTP RESP (' + id + ') [ attempt ' + attempt + ']: ' +
+      verb + '\n' + uri + '\n' + readyState + ' ' + statusCode);
 };
 
 
@@ -101,10 +102,11 @@ goog.net.ChannelDebug.prototype.xmlHttpChannelResponseMetaData = function(
  * @param {?string} responseText The response text.
  * @param {?string=} opt_desc Optional request description.
  */
-goog.net.ChannelDebug.prototype.xmlHttpChannelResponseText = function(
-    id, responseText, opt_desc) {
+goog.net.ChannelDebug.prototype.xmlHttpChannelResponseText =
+    function(id, responseText, opt_desc) {
   this.info(
-      'XMLHTTP TEXT (' + id + '): ' + this.redactResponse_(responseText) +
+      'XMLHTTP TEXT (' + id + '): ' +
+      this.redactResponse_(responseText) +
       (opt_desc ? ' ' + opt_desc : ''));
 };
 
@@ -116,11 +118,11 @@ goog.net.ChannelDebug.prototype.xmlHttpChannelResponseText = function(
  * @param {string|number|undefined} id The request id.
  * @param {number} attempt Which attempt # the request was.
  */
-goog.net.ChannelDebug.prototype.tridentChannelRequest = function(
-    verb, uri, id, attempt) {
+goog.net.ChannelDebug.prototype.tridentChannelRequest =
+    function(verb, uri, id, attempt) {
   this.info(
-      'TRIDENT REQ (' + id + ') [ attempt ' + attempt + ']: ' + verb + '\n' +
-      uri);
+      'TRIDENT REQ (' + id + ') [ attempt ' + attempt + ']: ' +
+      verb + '\n' + uri);
 };
 
 
@@ -129,9 +131,11 @@ goog.net.ChannelDebug.prototype.tridentChannelRequest = function(
  * @param {string|number|undefined} id The request id.
  * @param {string} responseText The response text.
  */
-goog.net.ChannelDebug.prototype.tridentChannelResponseText = function(
-    id, responseText) {
-  this.info('TRIDENT TEXT (' + id + '): ' + this.redactResponse_(responseText));
+goog.net.ChannelDebug.prototype.tridentChannelResponseText =
+    function(id, responseText) {
+  this.info(
+      'TRIDENT TEXT (' + id + '): ' +
+      this.redactResponse_(responseText));
 };
 
 
@@ -140,9 +144,10 @@ goog.net.ChannelDebug.prototype.tridentChannelResponseText = function(
  * @param {string|number|undefined} id The request id.
  * @param {boolean} successful Whether the request was successful.
  */
-goog.net.ChannelDebug.prototype.tridentChannelResponseDone = function(
-    id, successful) {
-  this.info('TRIDENT TEXT (' + id + '): ' + successful ? 'success' : 'failure');
+goog.net.ChannelDebug.prototype.tridentChannelResponseDone =
+    function(id, successful) {
+  this.info(
+      'TRIDENT TEXT (' + id + '): ' + successful ? 'success' : 'failure');
 };
 
 
@@ -211,12 +216,15 @@ goog.net.ChannelDebug.prototype.severe = function(text) {
 goog.net.ChannelDebug.prototype.redactResponse_ = function(responseText) {
   // first check if it's not JS - the only non-JS should be the magic cookie
   if (!responseText ||
-      responseText == goog.net.ChannelDebug.MAGIC_RESPONSE_COOKIE) {
+      /** @suppress {missingRequire}.  The require creates a circular
+       *  dependency.
+       */
+      responseText == goog.net.BrowserChannel.MAGIC_RESPONSE_COOKIE) {
     return responseText;
   }
-
+  /** @preserveTry */
   try {
-    var responseArray = JSON.parse(responseText);
+    var responseArray = goog.json.unsafeParse(responseText);
     if (responseArray) {
       for (var i = 0; i < responseArray.length; i++) {
         if (goog.isArray(responseArray[i])) {
@@ -235,7 +243,7 @@ goog.net.ChannelDebug.prototype.redactResponse_ = function(responseText) {
 
 /**
  * Removes data from a response array that may be sensitive.
- * @param {Array<?>} array The array to clean.
+ * @param {Array} array The array to clean.
  * @private
  */
 goog.net.ChannelDebug.prototype.maybeRedactArray_ = function(array) {
@@ -284,19 +292,9 @@ goog.net.ChannelDebug.prototype.maybeRedactPostData_ = function(data) {
       if (keyParts.length >= 2 && keyParts[1] == 'type') {
         out += key + '=' + value + '&';
       } else {
-        out += key + '=' +
-            'redacted' +
-            '&';
+        out += key + '=' + 'redacted' + '&';
       }
     }
   }
   return out;
 };
-
-
-/**
- * The normal response for forward channel requests.
- * Used only before version 8 of the protocol.
- * @const
- */
-goog.net.ChannelDebug.MAGIC_RESPONSE_COOKIE = 'y2f%';

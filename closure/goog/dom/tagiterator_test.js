@@ -17,7 +17,6 @@ goog.setTestOnly('goog.dom.TagIteratorTest');
 
 goog.require('goog.dom');
 goog.require('goog.dom.TagIterator');
-goog.require('goog.dom.TagName');
 goog.require('goog.dom.TagWalkType');
 goog.require('goog.iter');
 goog.require('goog.iter.StopIteration');
@@ -28,36 +27,32 @@ var it;
 var pos;
 
 function assertStartTag(type) {
-  assertEquals(
-      'Position ' + pos + ' should be start tag',
+  assertEquals('Position ' + pos + ' should be start tag',
       goog.dom.TagWalkType.START_TAG, it.tagType);
   assertTrue('isStartTag should return true', it.isStartTag());
   assertFalse('isEndTag should return false', it.isEndTag());
   assertFalse('isNonElement should return false', it.isNonElement());
-  assertEquals(
-      'Position ' + pos + ' should be ' + type, String(type), it.node.tagName);
+  assertEquals('Position ' + pos + ' should be ' + type, type,
+      it.node.tagName);
 }
 
 function assertEndTag(type) {
-  assertEquals(
-      'Position ' + pos + ' should be end tag', goog.dom.TagWalkType.END_TAG,
-      it.tagType);
+  assertEquals('Position ' + pos + ' should be end tag',
+      goog.dom.TagWalkType.END_TAG, it.tagType);
   assertFalse('isStartTag should return false', it.isStartTag());
   assertTrue('isEndTag should return true', it.isEndTag());
   assertFalse('isNonElement should return false', it.isNonElement());
-  assertEquals(
-      'Position ' + pos + ' should be ' + type, String(type), it.node.tagName);
+  assertEquals('Position ' + pos + ' should be ' + type, type,
+      it.node.tagName);
 }
 
 function assertTextNode(value) {
-  assertEquals(
-      'Position ' + pos + ' should be text node', goog.dom.TagWalkType.OTHER,
-      it.tagType);
+  assertEquals('Position ' + pos + ' should be text node',
+      goog.dom.TagWalkType.OTHER, it.tagType);
   assertFalse('isStartTag should return false', it.isStartTag());
   assertFalse('isEndTag should return false', it.isEndTag());
   assertTrue('isNonElement should return true', it.isNonElement());
-  assertEquals(
-      'Position ' + pos + ' should be "' + value + '"', value,
+  assertEquals('Position ' + pos + ' should be "' + value + '"', value,
       it.node.nodeValue);
 }
 
@@ -69,47 +64,47 @@ function testBasicHTML() {
     pos++;
     switch (pos) {
       case 1:
-        assertStartTag(goog.dom.TagName.DIV);
+        assertStartTag('DIV');
         break;
       case 2:
-        assertStartTag(goog.dom.TagName.A);
+        assertStartTag('A');
         break;
       case 3:
         assertTextNode('T');
         break;
       case 4:
-        assertStartTag(goog.dom.TagName.B);
+        assertStartTag('B');
         assertEquals('Depth at <B> should be 3', 3, it.depth);
         break;
       case 5:
         assertTextNode('e');
         break;
       case 6:
-        assertEndTag(goog.dom.TagName.B);
+        assertEndTag('B');
         break;
       case 7:
         assertTextNode('xt');
         break;
       case 8:
-        assertEndTag(goog.dom.TagName.A);
+        assertEndTag('A');
         break;
       case 9:
-        assertStartTag(goog.dom.TagName.SPAN);
+        assertStartTag('SPAN');
         break;
       case 10:
-        assertEndTag(goog.dom.TagName.SPAN);
+        assertEndTag('SPAN');
         break;
       case 11:
-        assertStartTag(goog.dom.TagName.P);
+        assertStartTag('P');
         break;
       case 12:
         assertTextNode('Text');
         break;
       case 13:
-        assertEndTag(goog.dom.TagName.P);
+        assertEndTag('P');
         break;
       case 14:
-        assertEndTag(goog.dom.TagName.DIV);
+        assertEndTag('DIV');
         assertEquals('Depth at end should be 0', 0, it.depth);
         break;
       default:
@@ -126,29 +121,29 @@ function testSkipTag() {
     pos++;
     switch (pos) {
       case 1:
-        assertStartTag(goog.dom.TagName.DIV);
+        assertStartTag('DIV');
         break;
       case 2:
-        assertStartTag(goog.dom.TagName.A);
+        assertStartTag('A');
         it.skipTag();
         break;
       case 3:
-        assertStartTag(goog.dom.TagName.SPAN);
+        assertStartTag('SPAN');
         break;
       case 4:
-        assertEndTag(goog.dom.TagName.SPAN);
+        assertEndTag('SPAN');
         break;
       case 5:
-        assertStartTag(goog.dom.TagName.P);
+        assertStartTag('P');
         break;
       case 6:
         assertTextNode('Text');
         break;
       case 7:
-        assertEndTag(goog.dom.TagName.P);
+        assertEndTag('P');
         break;
       case 8:
-        assertEndTag(goog.dom.TagName.DIV);
+        assertEndTag('DIV');
         assertEquals('Depth at end should be 0', 0, it.depth);
         break;
       default:
@@ -166,29 +161,29 @@ function testRestartTag() {
     pos++;
     switch (pos) {
       case 1:
-        assertStartTag(goog.dom.TagName.DIV);
+        assertStartTag('DIV');
         break;
       case 2:
-        assertStartTag(goog.dom.TagName.A);
+        assertStartTag('A');
         it.skipTag();
         break;
       case 3:
-        assertStartTag(goog.dom.TagName.SPAN);
+        assertStartTag('SPAN');
         break;
       case 4:
-        assertEndTag(goog.dom.TagName.SPAN);
+        assertEndTag('SPAN');
         break;
       case 5:
-        assertStartTag(goog.dom.TagName.P);
+        assertStartTag('P');
         break;
       case 6:
         assertTextNode('Text');
         break;
       case 7:
-        assertEndTag(goog.dom.TagName.P);
+        assertEndTag('P');
         break;
       case 8:
-        assertEndTag(goog.dom.TagName.DIV);
+        assertEndTag('DIV');
         assertEquals('Depth at end should be 0', 0, it.depth);
 
         // Do them all again, starting after this element.
@@ -213,30 +208,30 @@ function testSkipTagReverse() {
     pos--;
     switch (pos) {
       case 1:
-        assertStartTag(goog.dom.TagName.DIV);
+        assertStartTag('DIV');
         assertEquals('Depth at end should be 0', 0, it.depth);
         break;
       case 2:
-        assertEndTag(goog.dom.TagName.A);
+        assertEndTag('A');
         it.skipTag();
         break;
       case 3:
-        assertStartTag(goog.dom.TagName.SPAN);
+        assertStartTag('SPAN');
         break;
       case 4:
-        assertEndTag(goog.dom.TagName.SPAN);
+        assertEndTag('SPAN');
         break;
       case 5:
-        assertStartTag(goog.dom.TagName.P);
+        assertStartTag('P');
         break;
       case 6:
         assertTextNode('Text');
         break;
       case 7:
-        assertEndTag(goog.dom.TagName.P);
+        assertEndTag('P');
         break;
       case 8:
-        assertEndTag(goog.dom.TagName.DIV);
+        assertEndTag('DIV');
         break;
       default:
         throw goog.iter.StopIteration;
@@ -253,30 +248,30 @@ function testUnclosedLI() {
     pos++;
     switch (pos) {
       case 1:
-        assertStartTag(goog.dom.TagName.UL);
+        assertStartTag('UL');
         break;
       case 2:
-        assertStartTag(goog.dom.TagName.LI);
+        assertStartTag('LI');
         assertEquals('Depth at <LI> should be 2', 2, it.depth);
         break;
       case 3:
         assertTextNode('Not');
         break;
       case 4:
-        assertEndTag(goog.dom.TagName.LI);
+        assertEndTag('LI');
         break;
       case 5:
-        assertStartTag(goog.dom.TagName.LI);
+        assertStartTag('LI');
         assertEquals('Depth at second <LI> should be 2', 2, it.depth);
         break;
       case 6:
         assertTextNode('Closed');
         break;
       case 7:
-        assertEndTag(goog.dom.TagName.LI);
+        assertEndTag('LI');
         break;
       case 8:
-        assertEndTag(goog.dom.TagName.UL);
+        assertEndTag('UL');
         assertEquals('Depth at end should be 0', 0, it.depth);
         break;
       default:
@@ -293,31 +288,31 @@ function testReversedUnclosedLI() {
     pos--;
     switch (pos) {
       case 1:
-        assertStartTag(goog.dom.TagName.UL);
+        assertStartTag('UL');
         assertEquals('Depth at start should be 0', 0, it.depth);
         break;
       case 2:
-        assertStartTag(goog.dom.TagName.LI);
+        assertStartTag('LI');
         break;
       case 3:
         assertTextNode('Not');
         break;
       case 4:
-        assertEndTag(goog.dom.TagName.LI);
+        assertEndTag('LI');
         assertEquals('Depth at <LI> should be 2', 2, it.depth);
         break;
       case 5:
-        assertStartTag(goog.dom.TagName.LI);
+        assertStartTag('LI');
         break;
       case 6:
         assertTextNode('Closed');
         break;
       case 7:
-        assertEndTag(goog.dom.TagName.LI);
+        assertEndTag('LI');
         assertEquals('Depth at second <LI> should be 2', 2, it.depth);
         break;
       case 8:
-        assertEndTag(goog.dom.TagName.UL);
+        assertEndTag('UL');
         break;
       default:
         throw goog.iter.StopIteration;
@@ -333,13 +328,13 @@ function testConstrained() {
     pos++;
     switch (pos) {
       case 1:
-        assertStartTag(goog.dom.TagName.DIV);
+        assertStartTag('DIV');
         break;
       case 2:
         assertTextNode('text');
         break;
       case 3:
-        assertEndTag(goog.dom.TagName.DIV);
+        assertEndTag('DIV');
         break;
     }
   });
@@ -355,24 +350,24 @@ function testUnconstrained() {
     pos++;
     switch (pos) {
       case 1:
-        assertStartTag(goog.dom.TagName.DIV);
+        assertStartTag('DIV');
         break;
       case 2:
         assertTextNode('text');
         break;
       case 3:
-        assertEndTag(goog.dom.TagName.DIV);
+        assertEndTag('DIV');
         break;
     }
   });
 
-  assertNotEquals(
-      'Unonstrained iterator should not stop at position 3.', 3, pos);
+  assertNotEquals('Unonstrained iterator should not stop at position 3.', 3,
+      pos);
 }
 
 function testConstrainedText() {
-  it = new goog.dom.TagIterator(
-      goog.dom.getElement('test3').firstChild, false, false);
+  it = new goog.dom.TagIterator(goog.dom.getElement('test3').firstChild,
+      false, false);
   pos = 0;
 
   goog.iter.forEach(it, function() {
@@ -384,7 +379,8 @@ function testConstrainedText() {
     }
   });
 
-  assertEquals('Constrained text iterator should stop at position 1.', 1, pos);
+  assertEquals('Constrained text iterator should stop at position 1.', 1,
+      pos);
 }
 
 function testReverseConstrained() {
@@ -395,19 +391,19 @@ function testReverseConstrained() {
     pos--;
     switch (pos) {
       case 1:
-        assertStartTag(goog.dom.TagName.DIV);
+        assertStartTag('DIV');
         break;
       case 2:
         assertTextNode('text');
         break;
       case 3:
-        assertEndTag(goog.dom.TagName.DIV);
+        assertEndTag('DIV');
         break;
     }
   });
 
-  assertEquals(
-      'Constrained reversed iterator should stop at position 1.', 1, pos);
+  assertEquals('Constrained reversed iterator should stop at position 1.', 1,
+      pos);
 }
 
 function testSpliceRemoveSingleNode() {
@@ -415,7 +411,9 @@ function testSpliceRemoveSingleNode() {
   testDiv.innerHTML = '<br/>';
   it = new goog.dom.TagIterator(testDiv.firstChild);
 
-  goog.iter.forEach(it, function(node, dummy, i) { i.splice(); });
+  goog.iter.forEach(it, function(node, dummy, i) {
+    i.splice();
+  });
 
   assertEquals('Node not removed', 0, testDiv.childNodes.length);
 }
@@ -429,13 +427,13 @@ function testSpliceRemoveFirstTextNode() {
     if (node.nodeType == 3 && node.data == 'hello') {
       i.splice();
     }
-    if (node.nodeName == goog.dom.TagName.EM) {
-      i.splice(goog.dom.createDom(goog.dom.TagName.I, null, node.childNodes));
+    if (node.nodeName == 'EM') {
+      i.splice(goog.dom.createDom('I', null, node.childNodes));
     }
   });
 
-  goog.testing.dom.assertHtmlMatches(
-      '<b>world</b><i>goodbye</i>', testDiv.innerHTML);
+  goog.testing.dom.assertHtmlMatches('<b>world</b><i>goodbye</i>',
+      testDiv.innerHTML);
 }
 
 function testSpliceReplaceFirstTextNode() {
@@ -445,14 +443,14 @@ function testSpliceReplaceFirstTextNode() {
 
   goog.iter.forEach(it, function(node, dummy, i) {
     if (node.nodeType == 3 && node.data == 'hello') {
-      i.splice(goog.dom.createDom(goog.dom.TagName.EM, null, 'HELLO'));
-    } else if (node.nodeName == goog.dom.TagName.EM) {
-      i.splice(goog.dom.createDom(goog.dom.TagName.I, null, node.childNodes));
+      i.splice(goog.dom.createDom('EM', null, 'HELLO'));
+    } else if (node.nodeName == 'EM') {
+      i.splice(goog.dom.createDom('I', null, node.childNodes));
     }
   });
 
-  goog.testing.dom.assertHtmlMatches(
-      '<i>HELLO</i><b>world</b>', testDiv.innerHTML);
+  goog.testing.dom.assertHtmlMatches('<i>HELLO</i><b>world</b>',
+      testDiv.innerHTML);
 }
 
 function testSpliceReplaceSingleNode() {
@@ -461,9 +459,7 @@ function testSpliceReplaceSingleNode() {
   it = new goog.dom.TagIterator(testDiv.firstChild);
 
   goog.iter.forEach(it, function(node, dummy, i) {
-    i.splice(
-        goog.dom.createDom(goog.dom.TagName.LINK),
-        goog.dom.createDom(goog.dom.TagName.IMG));
+    i.splice(goog.dom.createDom('link'), goog.dom.createDom('img'));
   });
 
   goog.testing.dom.assertHtmlMatches('<link><img>', testDiv.innerHTML);
@@ -474,11 +470,12 @@ function testSpliceFlattenSingleNode() {
   testDiv.innerHTML = '<div><b>one</b>two<i>three</i></div>';
   it = new goog.dom.TagIterator(testDiv.firstChild);
 
-  goog.iter.forEach(
-      it, function(node, dummy, i) { i.splice(node.childNodes); });
+  goog.iter.forEach(it, function(node, dummy, i) {
+    i.splice(node.childNodes);
+  });
 
-  goog.testing.dom.assertHtmlMatches(
-      '<b>one</b>two<i>three</i>', testDiv.innerHTML);
+  goog.testing.dom.assertHtmlMatches('<b>one</b>two<i>three</i>',
+      testDiv.innerHTML);
 }
 
 function testSpliceMiddleNode() {
@@ -487,8 +484,8 @@ function testSpliceMiddleNode() {
   it = new goog.dom.TagIterator(testDiv);
 
   goog.iter.forEach(it, function(node, dummy, i) {
-    if (node.nodeName == goog.dom.TagName.B) {
-      i.splice(goog.dom.createDom(goog.dom.TagName.IMG));
+    if (node.nodeName == 'B') {
+      i.splice(goog.dom.createDom('IMG'));
     }
   });
 
@@ -501,8 +498,8 @@ function testSpliceMiddleNodeReversed() {
   it = new goog.dom.TagIterator(testDiv, true);
 
   goog.iter.forEach(it, function(node, dummy, i) {
-    if (node.nodeName == goog.dom.TagName.B) {
-      i.splice(goog.dom.createDom(goog.dom.TagName.IMG));
+    if (node.nodeName == 'B') {
+      i.splice(goog.dom.createDom('IMG'));
     }
   });
 
@@ -515,8 +512,8 @@ function testSpliceMiddleNodeAtEndTag() {
   it = new goog.dom.TagIterator(testDiv);
 
   goog.iter.forEach(it, function(node, dummy, i) {
-    if (node.tagName == goog.dom.TagName.B && i.isEndTag()) {
-      i.splice(goog.dom.createDom(goog.dom.TagName.IMG));
+    if (node.tagName == 'B' && i.isEndTag()) {
+      i.splice(goog.dom.createDom('IMG'));
     }
   });
 
@@ -530,18 +527,18 @@ function testSpliceMultipleNodes() {
 
   goog.iter.forEach(it, function(node, dummy, i) {
     var replace = null;
-    if (node.nodeName == goog.dom.TagName.STRONG) {
-      replace = goog.dom.createDom(goog.dom.TagName.B, null, node.childNodes);
-    } else if (node.nodeName == goog.dom.TagName.EM) {
-      replace = goog.dom.createDom(goog.dom.TagName.I, null, node.childNodes);
+    if (node.nodeName == 'STRONG') {
+      replace = goog.dom.createDom('B', null, node.childNodes);
+    } else if (node.nodeName == 'EM') {
+      replace = goog.dom.createDom('I', null, node.childNodes);
     }
     if (replace) {
       i.splice(replace);
     }
   });
 
-  goog.testing.dom.assertHtmlMatches(
-      '<b>this</b> is <i>from IE</i>', testDiv.innerHTML);
+  goog.testing.dom.assertHtmlMatches('<b>this</b> is <i>from IE</i>',
+      testDiv.innerHTML);
 }
 
 function testSpliceMultipleNodesAtEnd() {
@@ -551,18 +548,18 @@ function testSpliceMultipleNodesAtEnd() {
 
   goog.iter.forEach(it, function(node, dummy, i) {
     var replace = null;
-    if (node.nodeName == goog.dom.TagName.STRONG && i.isEndTag()) {
-      replace = goog.dom.createDom(goog.dom.TagName.B, null, node.childNodes);
-    } else if (node.nodeName == goog.dom.TagName.EM && i.isEndTag()) {
-      replace = goog.dom.createDom(goog.dom.TagName.I, null, node.childNodes);
+    if (node.nodeName == 'STRONG' && i.isEndTag()) {
+      replace = goog.dom.createDom('B', null, node.childNodes);
+    } else if (node.nodeName == 'EM' && i.isEndTag()) {
+      replace = goog.dom.createDom('I', null, node.childNodes);
     }
     if (replace) {
       i.splice(replace);
     }
   });
 
-  goog.testing.dom.assertHtmlMatches(
-      '<b>this</b> is <i>from IE</i>', testDiv.innerHTML);
+  goog.testing.dom.assertHtmlMatches('<b>this</b> is <i>from IE</i>',
+      testDiv.innerHTML);
 }
 
 function testSpliceMultipleNodesReversed() {
@@ -572,16 +569,16 @@ function testSpliceMultipleNodesReversed() {
 
   goog.iter.forEach(it, function(node, dummy, i) {
     var replace = null;
-    if (node.nodeName == goog.dom.TagName.STRONG) {
-      replace = goog.dom.createDom(goog.dom.TagName.B, null, node.childNodes);
-    } else if (node.nodeName == goog.dom.TagName.EM) {
-      replace = goog.dom.createDom(goog.dom.TagName.I, null, node.childNodes);
+    if (node.nodeName == 'STRONG') {
+      replace = goog.dom.createDom('B', null, node.childNodes);
+    } else if (node.nodeName == 'EM') {
+      replace = goog.dom.createDom('I', null, node.childNodes);
     }
     if (replace) {
       i.splice(replace);
     }
   });
 
-  goog.testing.dom.assertHtmlMatches(
-      '<b>this</b> is <i>from IE</i>', testDiv.innerHTML);
+  goog.testing.dom.assertHtmlMatches('<b>this</b> is <i>from IE</i>',
+      testDiv.innerHTML);
 }

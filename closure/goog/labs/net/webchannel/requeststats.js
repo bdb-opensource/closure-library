@@ -17,7 +17,6 @@
  * ChannelRequest.
  *
  * @visibility {:internal}
- * @visibility {:legacy_users}
  */
 
 
@@ -39,7 +38,7 @@ var requestStats = goog.labs.net.webChannel.requestStats;
 
 /**
  * Events fired.
- * @const
+ * @type {Object}
  */
 requestStats.Event = {};
 
@@ -84,8 +83,8 @@ requestStats.ServerReachability = {
  * @extends {goog.events.Event}
  */
 requestStats.ServerReachabilityEvent = function(target, reachabilityType) {
-  goog.events.Event.call(
-      this, requestStats.Event.SERVER_REACHABILITY_EVENT, target);
+  goog.events.Event.call(this,
+      requestStats.Event.SERVER_REACHABILITY_EVENT, target);
 
   /**
    * @type {requestStats.ServerReachability}
@@ -143,7 +142,7 @@ requestStats.Stat = {
 
   /**
    * Event indicating that the second piece of test data was received and it was
-   * received separately from the first.
+   * recieved separately from the first.
    */
   TEST_STAGE_TWO_DATA_TWO: 6,
 
@@ -202,7 +201,10 @@ requestStats.Stat = {
    * The browser declared itself offline during the lifetime of a request, or
    * was offline when a request was initially made.
    */
-  BROWSER_OFFLINE: 20
+  BROWSER_OFFLINE: 20,
+
+  /** ActiveX is blocked by the machine's admin settings. */
+  ACTIVE_X_BLOCKED: 21
 };
 
 
@@ -268,7 +270,8 @@ requestStats.Event.TIMING_EVENT = 'timingevent';
  * @extends {goog.events.Event}
  */
 requestStats.TimingEvent = function(target, size, rtt, retries) {
-  goog.events.Event.call(this, requestStats.Event.TIMING_EVENT, target);
+  goog.events.Event.call(this,
+      requestStats.Event.TIMING_EVENT, target);
 
   /**
    * @type {number}
@@ -299,7 +302,8 @@ goog.inherits(requestStats.TimingEvent, goog.events.Event);
 requestStats.notifyTimingEvent = function(size, rtt, retries) {
   var target = requestStats.statEventTarget_;
   target.dispatchEvent(
-      new requestStats.TimingEvent(target, size, rtt, retries));
+      new requestStats.TimingEvent(
+          target, size, rtt, retries));
 };
 
 
@@ -331,7 +335,7 @@ requestStats.setEndThreadExecutionHook = function(endHook) {
  * @type {Function}
  * @private
  */
-requestStats.startExecutionHook_ = function() {};
+requestStats.startExecutionHook_ = function() { };
 
 
 /**
@@ -340,7 +344,7 @@ requestStats.startExecutionHook_ = function() {};
  * @type {Function}
  * @private
  */
-requestStats.endExecutionHook_ = function() {};
+requestStats.endExecutionHook_ = function() { };
 
 
 /**
@@ -368,7 +372,7 @@ requestStats.onEndExecution = function() {
  */
 requestStats.setTimeout = function(fn, ms) {
   if (!goog.isFunction(fn)) {
-    throw new Error('Fn must not be null and must be a function');
+    throw Error('Fn must not be null and must be a function');
   }
   return goog.global.setTimeout(function() {
     requestStats.onStartExecution();

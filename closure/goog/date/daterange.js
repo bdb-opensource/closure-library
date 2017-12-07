@@ -16,7 +16,6 @@
  * @fileoverview Date range data structure. Based loosely on
  * com.google.common.util.DateRange.
  *
- * @author dpb@google.com (David P. Baker)
  */
 
 goog.provide('goog.date.DateRange');
@@ -33,7 +32,6 @@ goog.require('goog.iter.StopIteration');
 /**
  * Constructs a date range.
  * @constructor
- * @struct
  * @param {goog.date.Date} startDate The first date in the range.
  * @param {goog.date.Date} endDate The last date in the range.
  * @final
@@ -98,7 +96,7 @@ goog.date.DateRange.prototype.contains = function(date) {
 
 
 /**
- * @return {!goog.date.DateRange.Iterator} An iterator over the date range.
+ * @return {!goog.iter.Iterator} An iterator over the date range.
  */
 goog.date.DateRange.prototype.iterator = function() {
   return new goog.date.DateRange.Iterator(this);
@@ -141,6 +139,22 @@ goog.date.DateRange.offsetInDays_ = function(date, offset) {
 
 
 /**
+ * Calculates the Monday before a date. If the input is a Monday, returns the
+ * input. Does not modify its input.
+ * @param {goog.date.Date} date The input date.
+ * @return {!goog.date.Date} If |date| is a Monday, return |date|; otherwise
+ *     return the Monday before |date|.
+ * @private
+ */
+goog.date.DateRange.currentOrLastMonday_ = function(date) {
+  var newDate = date.clone();
+  newDate.add(new goog.date.Interval(goog.date.Interval.DAYS,
+      -newDate.getIsoWeekday()));
+  return newDate;
+};
+
+
+/**
  * Calculates a date that is a number of months after the first day in the
  * month that contains its input. Does not modify its input.
  * @param {goog.date.Date} date The input date.
@@ -166,7 +180,7 @@ goog.date.DateRange.offsetInMonths_ = function(date, offset) {
 goog.date.DateRange.yesterday = function(opt_today) {
   var today = goog.date.DateRange.cloneOrCreate_(opt_today);
   var yesterday = goog.date.DateRange.offsetInDays_(today, -1);
-  return new goog.date.DateRange(yesterday, yesterday.clone());
+  return new goog.date.DateRange(yesterday, yesterday);
 };
 
 
@@ -178,7 +192,7 @@ goog.date.DateRange.yesterday = function(opt_today) {
  */
 goog.date.DateRange.today = function(opt_today) {
   var today = goog.date.DateRange.cloneOrCreate_(opt_today);
-  return new goog.date.DateRange(today, today.clone());
+  return new goog.date.DateRange(today, today);
 };
 
 
@@ -192,8 +206,8 @@ goog.date.DateRange.today = function(opt_today) {
 goog.date.DateRange.last7Days = function(opt_today) {
   var today = goog.date.DateRange.cloneOrCreate_(opt_today);
   var yesterday = goog.date.DateRange.offsetInDays_(today, -1);
-  return new goog.date.DateRange(
-      goog.date.DateRange.offsetInDays_(today, -7), yesterday);
+  return new goog.date.DateRange(goog.date.DateRange.offsetInDays_(today, -7),
+      yesterday);
 };
 
 
@@ -210,7 +224,8 @@ goog.date.DateRange.thisMonth = function(opt_today) {
   return new goog.date.DateRange(
       goog.date.DateRange.offsetInMonths_(today, 0),
       goog.date.DateRange.offsetInDays_(
-          goog.date.DateRange.offsetInMonths_(today, 1), -1));
+          goog.date.DateRange.offsetInMonths_(today, 1),
+          -1));
 };
 
 
@@ -227,7 +242,8 @@ goog.date.DateRange.lastMonth = function(opt_today) {
   return new goog.date.DateRange(
       goog.date.DateRange.offsetInMonths_(today, -1),
       goog.date.DateRange.offsetInDays_(
-          goog.date.DateRange.offsetInMonths_(today, 0), -1));
+          goog.date.DateRange.offsetInMonths_(today, 0),
+          -1));
 };
 
 
@@ -278,8 +294,8 @@ goog.date.DateRange.lastWeek = function(opt_today) {
 goog.date.DateRange.lastBusinessWeek = function(opt_today) {
   // TODO(user): should be i18nized.
   var today = goog.date.DateRange.cloneOrCreate_(opt_today);
-  var start =
-      goog.date.DateRange.offsetInDays_(today, -7 - today.getIsoWeekday());
+  var start = goog.date.DateRange.offsetInDays_(today,
+      - 7 - today.getIsoWeekday());
   var end = goog.date.DateRange.offsetInDays_(start, 4);
   return new goog.date.DateRange(start, end);
 };
@@ -295,7 +311,8 @@ goog.date.DateRange.lastBusinessWeek = function(opt_today) {
  */
 goog.date.DateRange.allTime = function(opt_today) {
   return new goog.date.DateRange(
-      goog.date.DateRange.MINIMUM_DATE, goog.date.DateRange.MAXIMUM_DATE);
+      goog.date.DateRange.MINIMUM_DATE,
+      goog.date.DateRange.MAXIMUM_DATE);
 };
 
 
@@ -355,7 +372,7 @@ goog.date.DateRange.standardDateRange = function(dateRangeKey, opt_today) {
       return goog.date.DateRange.allTime(opt_today);
 
     default:
-      throw new Error('no such date range key: ' + dateRangeKey);
+      throw Error('no such date range key: ' + dateRangeKey);
   }
 };
 
@@ -376,8 +393,7 @@ goog.date.DateRange.cloneOrCreate_ = function(opt_today) {
 /**
  * Creates an iterator over the dates in a {@link goog.date.DateRange}.
  * @constructor
- * @struct
- * @extends {goog.iter.Iterator<goog.date.Date>}
+ * @extends {goog.iter.Iterator}
  * @param {goog.date.DateRange} dateRange The date range to iterate.
  * @final
  */

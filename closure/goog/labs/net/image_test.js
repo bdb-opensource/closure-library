@@ -18,48 +18,66 @@
  * @author nnaze@google.com (Nathan Naze)
  */
 
+
+/** @suppress {extraProvide} */
 goog.provide('goog.labs.net.imageTest');
 
+goog.require('goog.events');
 goog.require('goog.labs.net.image');
 goog.require('goog.string');
-goog.require('goog.testing.TestCase');
+goog.require('goog.testing.AsyncTestCase');
 goog.require('goog.testing.jsunit');
 goog.require('goog.testing.recordFunction');
 
-goog.setTestOnly('goog.labs.net.imageTest');
+goog.setTestOnly('goog.labs.net.ImageTest');
 
-
-function setUpPage() {
-  goog.testing.TestCase.getActiveTestCase().promiseTimeout = 10000;  // 10s
-}
+var asyncTestCase = goog.testing.AsyncTestCase.createAndInstall();
 
 function testValidImage() {
   var url = 'testdata/cleardot.gif';
 
-  return goog.labs.net.image.load(url).then(function(value) {
+  asyncTestCase.waitForAsync('image load');
+
+  goog.labs.net.image.load(url).then(function(value) {
     assertEquals('IMG', value.tagName);
     assertTrue(goog.string.endsWith(value.src, url));
+    assertEquals('Listeners should have been cleaned up.',
+                 0, goog.events.getTotalListenerCount());
+    asyncTestCase.continueTesting();
   });
 }
 
 function testInvalidImage() {
-  var url = 'testdata/invalid.gif';  // This file does not exist.
 
-  return goog.labs.net.image.load(url).then(
-      function() { fail('Invalid image should not resolve'); },
-      function(errResult) { assertNull(errResult); });
+  var url = 'testdata/invalid.gif'; // This file does not exist.
+
+  asyncTestCase.waitForAsync('image load');
+
+  goog.labs.net.image.load(url).then(
+      fail /* opt_onResolved */,
+      function() {
+        assertEquals('Listeners should have been cleaned up.',
+            0, goog.events.getTotalListenerCount());
+        asyncTestCase.continueTesting();
+      });
 }
 
 function testImageFactory() {
   var returnedImage = new Image();
-  var factory = function() { return returnedImage; };
+  var factory = function() {
+    return returnedImage;
+  };
   var countedFactory = goog.testing.recordFunction(factory);
 
   var url = 'testdata/cleardot.gif';
 
-  return goog.labs.net.image.load(url, countedFactory).then(function(value) {
+  asyncTestCase.waitForAsync('image load');
+  goog.labs.net.image.load(url, countedFactory).then(function(value) {
     assertEquals(returnedImage, value);
     assertEquals(1, countedFactory.getCallCount());
+    assertEquals('Listeners should have been cleaned up.',
+                 0, goog.events.getTotalListenerCount());
+    asyncTestCase.continueTesting();
   });
 }
 
@@ -68,7 +86,11 @@ function testExistingImage() {
 
   var url = 'testdata/cleardot.gif';
 
-  return goog.labs.net.image.load(url, image).then(function(value) {
+  asyncTestCase.waitForAsync('image load');
+  goog.labs.net.image.load(url, image).then(function(value) {
     assertEquals(image, value);
+    assertEquals('Listeners should have been cleaned up.',
+                 0, goog.events.getTotalListenerCount());
+    asyncTestCase.continueTesting();
   });
 }

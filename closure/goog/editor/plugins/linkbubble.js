@@ -22,11 +22,11 @@ goog.provide('goog.editor.plugins.LinkBubble.Action');
 
 goog.require('goog.array');
 goog.require('goog.dom');
-goog.require('goog.dom.Range');
 goog.require('goog.dom.TagName');
 goog.require('goog.editor.Command');
 goog.require('goog.editor.Link');
 goog.require('goog.editor.plugins.AbstractBubblePlugin');
+goog.require('goog.editor.range');
 goog.require('goog.functions');
 goog.require('goog.string');
 goog.require('goog.style');
@@ -48,27 +48,27 @@ goog.editor.plugins.LinkBubble = function(var_args) {
 
   /**
    * List of extra actions supported by the bubble.
-   * @type {Array<!goog.editor.plugins.LinkBubble.Action>}
+   * @type {Array.<!goog.editor.plugins.LinkBubble.Action>}
    * @private
    */
   this.extraActions_ = goog.array.toArray(arguments);
 
   /**
    * List of spans corresponding to the extra actions.
-   * @type {Array<!Element>}
+   * @type {Array.<!Element>}
    * @private
    */
   this.actionSpans_ = [];
 
   /**
    * A list of whitelisted URL schemes which are safe to open.
-   * @type {Array<string>}
+   * @type {Array.<string>}
    * @private
    */
   this.safeToOpenSchemes_ = ['http', 'https', 'ftp'];
 };
-goog.inherits(
-    goog.editor.plugins.LinkBubble, goog.editor.plugins.AbstractBubblePlugin);
+goog.inherits(goog.editor.plugins.LinkBubble,
+    goog.editor.plugins.AbstractBubblePlugin);
 
 
 /**
@@ -139,27 +139,19 @@ goog.editor.plugins.LinkBubble.LINK_DIV_ID_ = 'tr_link-div';
  * @desc Text label for link that lets the user click it to see where the link
  *     this bubble is for point to.
  */
-goog.editor.plugins.LinkBubble.MSG_LINK_BUBBLE_TEST_LINK =
-    goog.getMsg('Go to link: ');
+var MSG_LINK_BUBBLE_TEST_LINK = goog.getMsg('Go to link: ');
 
 
 /**
  * @desc Label that pops up a dialog to change the link.
  */
-goog.editor.plugins.LinkBubble.MSG_LINK_BUBBLE_CHANGE = goog.getMsg('Change');
+var MSG_LINK_BUBBLE_CHANGE = goog.getMsg('Change');
 
 
 /**
  * @desc Label that allow the user to remove this link.
  */
-goog.editor.plugins.LinkBubble.MSG_LINK_BUBBLE_REMOVE = goog.getMsg('Remove');
-
-
-/**
- * @desc Message shown in a link bubble when the link is not a valid url.
- */
-goog.editor.plugins.LinkBubble.MSG_INVALID_URL_LINK_BUBBLE =
-    goog.getMsg('invalid url');
+var MSG_LINK_BUBBLE_REMOVE = goog.getMsg('Remove');
 
 
 /**
@@ -176,7 +168,8 @@ goog.editor.plugins.LinkBubble.prototype.stopReferrerLeaks_ = false;
  * @type {boolean}
  * @private
  */
-goog.editor.plugins.LinkBubble.prototype.blockOpeningUnsafeSchemes_ = true;
+goog.editor.plugins.LinkBubble.prototype.blockOpeningUnsafeSchemes_ =
+    true;
 
 
 /**
@@ -216,11 +209,11 @@ goog.editor.plugins.LinkBubble.prototype.setBlockOpeningUnsafeSchemes =
  * Schemes should all be in lowercase. If the plugin is set to block opening
  * unsafe schemes, user-entered URLs will be converted to lowercase and checked
  * against this list. The whitelist has no effect if blocking is not enabled.
- * @param {Array<string>} schemes String array of URL schemes to allow (http,
+ * @param {Array.<string>} schemes String array of URL schemes to allow (http,
  *     https, etc.).
  */
-goog.editor.plugins.LinkBubble.prototype.setSafeToOpenSchemes = function(
-    schemes) {
+goog.editor.plugins.LinkBubble.prototype.setSafeToOpenSchemes =
+    function(schemes) {
   this.safeToOpenSchemes_ = schemes;
 };
 
@@ -232,15 +225,15 @@ goog.editor.plugins.LinkBubble.prototype.getTrogClassId = function() {
 
 
 /** @override */
-goog.editor.plugins.LinkBubble.prototype.isSupportedCommand = function(
-    command) {
+goog.editor.plugins.LinkBubble.prototype.isSupportedCommand =
+    function(command) {
   return command == goog.editor.Command.UPDATE_LINK_BUBBLE;
 };
 
 
 /** @override */
-goog.editor.plugins.LinkBubble.prototype.execCommandInternal = function(
-    command, var_args) {
+goog.editor.plugins.LinkBubble.prototype.execCommandInternal =
+    function(command, var_args) {
   if (command == goog.editor.Command.UPDATE_LINK_BUBBLE) {
     this.updateLink_();
   }
@@ -253,18 +246,16 @@ goog.editor.plugins.LinkBubble.prototype.execCommandInternal = function(
  */
 goog.editor.plugins.LinkBubble.prototype.updateLink_ = function() {
   var targetEl = this.getTargetElement();
-  if (targetEl) {
-    this.closeBubble();
-    this.createBubble(targetEl);
-  }
+  this.closeBubble();
+  this.createBubble(targetEl);
 };
 
 
 /** @override */
 goog.editor.plugins.LinkBubble.prototype.getBubbleTargetFromSelection =
     function(selectedElement) {
-  var bubbleTarget = goog.dom.getAncestorByTagNameAndClass(
-      selectedElement, goog.dom.TagName.A);
+  var bubbleTarget = goog.dom.getAncestorByTagNameAndClass(selectedElement,
+      goog.dom.TagName.A);
 
   if (!bubbleTarget) {
     // See if the selection is touching the right side of a link, and if so,
@@ -314,7 +305,7 @@ goog.editor.plugins.LinkBubble.prototype.getTargetUrl = function() {
 
 /** @override */
 goog.editor.plugins.LinkBubble.prototype.getBubbleType = function() {
-  return String(goog.dom.TagName.A);
+  return goog.dom.TagName.A;
 };
 
 
@@ -330,7 +321,7 @@ goog.editor.plugins.LinkBubble.prototype.getBubbleTitle = function() {
  * @protected
  */
 goog.editor.plugins.LinkBubble.prototype.getTestLinkMessage = function() {
-  return goog.editor.plugins.LinkBubble.MSG_LINK_BUBBLE_TEST_LINK;
+  return MSG_LINK_BUBBLE_TEST_LINK;
 };
 
 
@@ -348,37 +339,33 @@ goog.editor.plugins.LinkBubble.prototype.createBubbleContents = function(
   var linkTextSpan;
   if (goog.editor.Link.isLikelyEmailAddress(linkObj.linkText) ||
       !linkObj.valid || !shouldOpenUrl) {
-    linkTextSpan = this.dom_.createDom(
-        goog.dom.TagName.SPAN, {
+    linkTextSpan = this.dom_.createDom(goog.dom.TagName.SPAN,
+        {
           id: goog.editor.plugins.LinkBubble.LINK_TEXT_ID_,
           style: 'color:' + color
-        },
-        this.dom_.createTextNode(linkObj.linkText));
+        }, this.dom_.createTextNode(linkObj.linkText));
   } else {
-    var testMsgSpan = this.dom_.createDom(
-        goog.dom.TagName.SPAN,
+    var testMsgSpan = this.dom_.createDom(goog.dom.TagName.SPAN,
         {id: goog.editor.plugins.LinkBubble.TEST_LINK_SPAN_ID_},
         this.getTestLinkMessage());
-    linkTextSpan = this.dom_.createDom(
-        goog.dom.TagName.SPAN, {
+    linkTextSpan = this.dom_.createDom(goog.dom.TagName.SPAN,
+        {
           id: goog.editor.plugins.LinkBubble.LINK_TEXT_ID_,
           style: 'color:' + color
-        },
-        '');
+        }, '');
     var linkText = goog.string.truncateMiddle(linkObj.linkText, 48);
     // Actually creates a pseudo-link that can't be right-clicked to open in a
     // new tab, because that would avoid the logic to stop referrer leaks.
-    this.createLink(
-        goog.editor.plugins.LinkBubble.TEST_LINK_ID_,
-        this.dom_.createTextNode(linkText).data, this.testLink, linkTextSpan);
+    this.createLink(goog.editor.plugins.LinkBubble.TEST_LINK_ID_,
+                    this.dom_.createTextNode(linkText).data,
+                    this.testLink,
+                    linkTextSpan);
   }
 
   var changeLinkSpan = this.createLinkOption(
       goog.editor.plugins.LinkBubble.CHANGE_LINK_SPAN_ID_);
-  this.createLink(
-      goog.editor.plugins.LinkBubble.CHANGE_LINK_ID_,
-      goog.editor.plugins.LinkBubble.MSG_LINK_BUBBLE_CHANGE,
-      this.showLinkDialog_, changeLinkSpan);
+  this.createLink(goog.editor.plugins.LinkBubble.CHANGE_LINK_ID_,
+      MSG_LINK_BUBBLE_CHANGE, this.showLinkDialog_, changeLinkSpan);
 
   // This function is called multiple times - we have to reset the array.
   this.actionSpans_ = [];
@@ -386,22 +373,22 @@ goog.editor.plugins.LinkBubble.prototype.createBubbleContents = function(
     var action = this.extraActions_[i];
     var actionSpan = this.createLinkOption(action.spanId_);
     this.actionSpans_.push(actionSpan);
-    this.createLink(action.linkId_, action.message_, function() {
-      action.actionFn_(this.getTargetUrl());
-    }, actionSpan);
+    this.createLink(action.linkId_, action.message_,
+        function() {
+          action.actionFn_(this.getTargetUrl());
+        },
+        actionSpan);
   }
 
   var removeLinkSpan = this.createLinkOption(
       goog.editor.plugins.LinkBubble.DELETE_LINK_SPAN_ID_);
-  this.createLink(
-      goog.editor.plugins.LinkBubble.DELETE_LINK_ID_,
-      goog.editor.plugins.LinkBubble.MSG_LINK_BUBBLE_REMOVE, this.deleteLink_,
-      removeLinkSpan);
+  this.createLink(goog.editor.plugins.LinkBubble.DELETE_LINK_ID_,
+      MSG_LINK_BUBBLE_REMOVE, this.deleteLink_, removeLinkSpan);
 
   this.onShow();
 
-  var bubbleContents = this.dom_.createDom(
-      goog.dom.TagName.DIV, {id: goog.editor.plugins.LinkBubble.LINK_DIV_ID_},
+  var bubbleContents = this.dom_.createDom(goog.dom.TagName.DIV,
+      {id: goog.editor.plugins.LinkBubble.LINK_DIV_ID_},
       testMsgSpan || '', linkTextSpan, changeLinkSpan);
 
   for (i = 0; i < this.actionSpans_.length; i++) {
@@ -416,18 +403,14 @@ goog.editor.plugins.LinkBubble.prototype.createBubbleContents = function(
 /**
  * Tests the link by opening it in a new tab/window. Should be used as the
  * click event handler for the test pseudo-link.
- * @param {!Event=} opt_event If passed in, the event will be stopped.
  * @protected
  */
-goog.editor.plugins.LinkBubble.prototype.testLink = function(opt_event) {
-  goog.window.open(
-      this.getTestLinkAction_(),
-      {'target': '_blank', 'noreferrer': this.stopReferrerLeaks_},
-      this.getFieldObject().getAppWindow());
-  if (opt_event) {
-    opt_event.stopPropagation();
-    opt_event.preventDefault();
-  }
+goog.editor.plugins.LinkBubble.prototype.testLink = function() {
+  goog.window.open(this.getTestLinkAction_(),
+      {
+        'target': '_blank',
+        'noreferrer': this.stopReferrerLeaks_
+      }, this.getFieldObject().getAppWindow());
 };
 
 
@@ -452,10 +435,14 @@ goog.editor.plugins.LinkBubble.prototype.getLinkToTextObj_ = function() {
   var targetUrl = this.getTargetUrl();
 
   if (this.isInvalidUrl(targetUrl)) {
-    targetUrl = goog.editor.plugins.LinkBubble.MSG_INVALID_URL_LINK_BUBBLE;
+    /**
+     * @desc Message shown in a link bubble when the link is not a valid url.
+     */
+    var MSG_INVALID_URL_LINK_BUBBLE = goog.getMsg('invalid url');
+    targetUrl = MSG_INVALID_URL_LINK_BUBBLE;
     isError = true;
   } else if (goog.editor.Link.isMailto(targetUrl)) {
-    targetUrl = targetUrl.substring(7);  // 7 == "mailto:".length
+    targetUrl = targetUrl.substring(7); // 7 == "mailto:".length
   }
 
   return {linkText: targetUrl, valid: !isError};
@@ -472,40 +459,30 @@ goog.editor.plugins.LinkBubble.prototype.showLinkDialog_ = function(e) {
   // dialog manages to have its OK button pressed, causing it to disappear.
   e.preventDefault();
 
-  this.getFieldObject().execCommand(
-      goog.editor.Command.MODAL_LINK_EDITOR,
+  this.getFieldObject().execCommand(goog.editor.Command.MODAL_LINK_EDITOR,
       new goog.editor.Link(
-          /** @type {HTMLAnchorElement} */ (this.getTargetElement()), false));
+          /** @type {HTMLAnchorElement} */ (this.getTargetElement()),
+          false));
   this.closeBubble();
 };
 
 
 /**
  * Deletes the link associated with the bubble
- * @param {goog.events.BrowserEvent} e The event.
  * @private
  */
-goog.editor.plugins.LinkBubble.prototype.deleteLink_ = function(e) {
-  // Needed when this occurs due to an ENTER key event, else the editor receives
-  // the key press and inserts a newline.
-  e.preventDefault();
-
+goog.editor.plugins.LinkBubble.prototype.deleteLink_ = function() {
   this.getFieldObject().dispatchBeforeChange();
 
   var link = this.getTargetElement();
   var child = link.lastChild;
   goog.dom.flattenElement(link);
-
-  var restoreScrollPosition = this.saveScrollPosition();
-  var range = goog.dom.Range.createFromNodeContents(child);
-  range.collapse(false);
-  range.select();
+  goog.editor.range.placeCursorNextTo(child, false);
 
   this.closeBubble();
 
   this.getFieldObject().dispatchChange();
   this.getFieldObject().focus();
-  restoreScrollPosition();
 };
 
 
@@ -515,11 +492,11 @@ goog.editor.plugins.LinkBubble.prototype.deleteLink_ = function(e) {
  * @override
  */
 goog.editor.plugins.LinkBubble.prototype.onShow = function() {
-  var linkDiv =
-      this.dom_.getElement(goog.editor.plugins.LinkBubble.LINK_DIV_ID_);
+  var linkDiv = this.dom_.getElement(
+      goog.editor.plugins.LinkBubble.LINK_DIV_ID_);
   if (linkDiv) {
-    var testLinkSpan =
-        this.dom_.getElement(goog.editor.plugins.LinkBubble.TEST_LINK_SPAN_ID_);
+    var testLinkSpan = this.dom_.getElement(
+        goog.editor.plugins.LinkBubble.TEST_LINK_SPAN_ID_);
     if (testLinkSpan) {
       var url = this.getTargetUrl();
       goog.style.setElementShown(testLinkSpan, !goog.editor.Link.isMailto(url));
@@ -529,8 +506,8 @@ goog.editor.plugins.LinkBubble.prototype.onShow = function() {
       var action = this.extraActions_[i];
       var actionSpan = this.dom_.getElement(action.spanId_);
       if (actionSpan) {
-        goog.style.setElementShown(
-            actionSpan, action.toShowFn_(this.getTargetUrl()));
+        goog.style.setElementShown(actionSpan, action.toShowFn_(
+            this.getTargetUrl()));
       }
     }
   }
@@ -567,7 +544,8 @@ goog.editor.plugins.LinkBubble.prototype.shouldOpenUrl = function(url) {
  * @return {boolean} Whether the url has a safe scheme.
  * @private
  */
-goog.editor.plugins.LinkBubble.prototype.isSafeSchemeToOpen_ = function(url) {
+goog.editor.plugins.LinkBubble.prototype.isSafeSchemeToOpen_ =
+    function(url) {
   var scheme = goog.uri.utils.getScheme(url) || 'http';
   return goog.array.contains(this.safeToOpenSchemes_, scheme.toLowerCase());
 };
@@ -586,8 +564,8 @@ goog.editor.plugins.LinkBubble.prototype.isSafeSchemeToOpen_ = function(url) {
  * @constructor
  * @final
  */
-goog.editor.plugins.LinkBubble.Action = function(
-    spanId, linkId, message, toShowFn, actionFn) {
+goog.editor.plugins.LinkBubble.Action = function(spanId, linkId, message,
+    toShowFn, actionFn) {
   this.spanId_ = spanId;
   this.linkId_ = linkId;
   this.message_ = message;

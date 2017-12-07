@@ -36,7 +36,7 @@ goog.require('goog.userAgent');
  *     can be used to control exactly how Image instances are created, for
  *     example if they should be created in a particular document element, or
  *     have fields that will trigger CORS image fetches.
- * @return {!goog.Promise<!Image>} A Promise that will be resolved with the
+ * @return {!goog.Promise.<!Image>} A Promise that will be resolved with the
  *     given image if the image successfully loads.
  */
 goog.labs.net.image.load = function(uri, opt_image) {
@@ -60,12 +60,12 @@ goog.labs.net.image.load = function(uri, opt_image) {
     // See:
     // http://msdn.microsoft.com/en-us/library/ie/dn467845(v=vs.85).aspx
     var loadEvent = (goog.userAgent.IE && goog.userAgent.VERSION < 11) ?
-        goog.net.EventType.READY_STATE_CHANGE :
-        goog.events.EventType.LOAD;
+        goog.net.EventType.READY_STATE_CHANGE : goog.events.EventType.LOAD;
 
     var handler = new goog.events.EventHandler();
     handler.listen(
-        image, [loadEvent, goog.net.EventType.ABORT, goog.net.EventType.ERROR],
+        image,
+        [loadEvent, goog.net.EventType.ABORT, goog.net.EventType.ERROR],
         function(e) {
 
           // We only registered listeners for READY_STATE_CHANGE for IE.

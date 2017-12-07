@@ -41,7 +41,9 @@ function testExceedMax1() {
   };
 
   var getCount2 = 0;
-  var callback2 = function(obj) { getCount2++; };
+  var callback2 = function(obj) {
+    getCount2++;
+  };
 
   p.getObject(callback1);
   p.getObject(callback1);
@@ -65,7 +67,9 @@ function testExceedMax2() {
   };
 
   var getCount2 = 0;
-  var callback2 = function(obj) { getCount2++; };
+  var callback2 = function(obj) {
+    getCount2++;
+  };
 
   p.getObject(callback1);
   p.getObject(callback2);
@@ -82,13 +86,19 @@ function testExceedMax3() {
   var p = new goog.structs.PriorityPool(0, 2);
 
   var obj1 = null;
-  var callback1 = function(obj) { obj1 = obj; };
+  var callback1 = function(obj) {
+    obj1 = obj;
+  };
 
   var obj2 = null;
-  var callback2 = function(obj) { obj2 = obj; };
+  var callback2 = function(obj) {
+    obj2 = obj;
+  };
 
   var obj3 = null;
-  var callback3 = function(obj) { obj3 = obj; };
+  var callback3 = function(obj) {
+    obj3 = obj;
+  };
 
   p.getObject(callback1);
   p.getObject(callback2);
@@ -100,7 +110,7 @@ function testExceedMax3() {
 }
 
 function testExceedMax4() {
-  var p = new goog.structs.PriorityPool();  // default: 10
+  var p = new goog.structs.PriorityPool(); // default: 10
   var objs = [];
 
   var getCount1 = 0;
@@ -110,7 +120,9 @@ function testExceedMax4() {
   };
 
   var getCount2 = 0;
-  var callback2 = function(obj) { getCount2++; };
+  var callback2 = function(obj) {
+    getCount2++;
+  };
 
   for (var i = 0; i < 12; i++) {
     p.getObject(i < 10 ? callback1 : callback2);
@@ -125,7 +137,9 @@ function testReleaseAndGet1() {
   var p = new goog.structs.PriorityPool(0, 10);
 
   var o = null;
-  var callback = function(obj) { o = obj; };
+  var callback = function(obj) {
+    o = obj;
+  };
 
   p.getObject(callback);
   assertEquals(1, p.getCount());
@@ -142,7 +156,9 @@ function testReleaseAndGet2() {
   var p = new NoObjectReusePriorityPool(0, 10);
 
   var o = null;
-  var callback = function(obj) { o = obj; };
+  var callback = function(obj) {
+    o = obj;
+  };
 
   p.getObject(callback);
   assertEquals(1, p.getCount());
@@ -158,13 +174,19 @@ function testReleaseAndGet2() {
 function testReleaseAndGet3() {
   var p = new goog.structs.PriorityPool(0, 10);
   var o1 = null;
-  var callback1 = function(obj) { o1 = obj; };
+  var callback1 = function(obj) {
+    o1 = obj;
+  };
 
   var o2 = null;
-  var callback2 = function(obj) { o2 = obj; };
+  var callback2 = function(obj) {
+    o2 = obj;
+  };
 
   var o3 = null;
-  var callback3 = function(obj) { o3 = obj; };
+  var callback3 = function(obj) {
+    o3 = obj;
+  };
 
   var o4 = {};
 
@@ -188,13 +210,19 @@ function testReleaseAndGet4() {
   var p = new NoObjectReusePriorityPool(0, 10);
 
   var o1 = null;
-  var callback1 = function(obj) { o1 = obj; };
+  var callback1 = function(obj) {
+    o1 = obj;
+  };
 
   var o2 = null;
-  var callback2 = function(obj) { o2 = obj; };
+  var callback2 = function(obj) {
+    o2 = obj;
+  };
 
   var o3 = null;
-  var callback3 = function(obj) { o3 = obj; };
+  var callback3 = function(obj) {
+    o3 = obj;
+  };
 
   var o4 = {};
 
@@ -216,13 +244,19 @@ function testReleaseAndGet4() {
 function testIsInPool1() {
   var p = new goog.structs.PriorityPool();
   var o1 = null;
-  var callback1 = function(obj) { o1 = obj; };
+  var callback1 = function(obj) {
+    o1 = obj;
+  };
 
   var o2 = null;
-  var callback2 = function(obj) { o2 = obj; };
+  var callback2 = function(obj) {
+    o2 = obj;
+  };
 
   var o3 = null;
-  var callback3 = function(obj) { o3 = obj; };
+  var callback3 = function(obj) {
+    o3 = obj;
+  };
 
   var o4 = {};
   var o5 = {};
@@ -264,7 +298,9 @@ function testSetMin2() {
   assertEquals(0, p.getFreeCount());
 
   var o1 = null;
-  var callback1 = function(obj) { o1 = obj; };
+  var callback1 = function(obj) {
+    o1 = obj;
+  };
   p.getObject(callback1);
 
   assertEquals(1, p.getCount());
@@ -287,19 +323,29 @@ function testSetMax1() {
   assertEquals(0, p.getFreeCount());
 
   var o1 = null;
-  var callback1 = function(obj) { o1 = obj; };
+  var callback1 = function(obj) {
+    o1 = obj;
+  };
 
   var o2 = null;
-  var callback2 = function(obj) { o2 = obj; };
+  var callback2 = function(obj) {
+    o2 = obj;
+  };
 
   var o3 = null;
-  var callback3 = function(obj) { o3 = obj; };
+  var callback3 = function(obj) {
+    o3 = obj;
+  };
 
   var o4 = null;
-  var callback4 = function(obj) { o4 = obj; };
+  var callback4 = function(obj) {
+    o4 = obj;
+  };
 
   var o5 = null;
-  var callback5 = function(obj) { o5 = obj; };
+  var callback5 = function(obj) {
+    o5 = obj;
+  };
 
   p.getObject(callback1);
   p.getObject(callback2);
@@ -332,7 +378,9 @@ function testInvalidMinMax1() {
   assertEquals(0, p.getInUseCount());
   assertEquals(0, p.getFreeCount());
 
-  assertThrows(function() { p.setMinimumCount(11); });
+  assertThrows(function() {
+    p.setMinimumCount(11);
+  });
 }
 
 
@@ -343,25 +391,35 @@ function testInvalidMinMax2() {
   assertEquals(0, p.getInUseCount());
   assertEquals(5, p.getFreeCount());
 
-  assertThrows(function() { p.setMaximumCount(4); });
+  assertThrows(function() {
+    p.setMaximumCount(4);
+  });
 }
 
 
 function testInvalidMinMax3() {
-  assertThrows(function() { new goog.structs.PriorityPool(10, 1); });
+  assertThrows(function() {
+    new goog.structs.PriorityPool(10, 1);
+  });
 }
 
 function testQueue1() {
   var p = new goog.structs.PriorityPool(0, 2);
 
   var o1 = null;
-  var callback1 = function(obj) { o1 = obj; };
+  var callback1 = function(obj) {
+    o1 = obj;
+  };
 
   var o2 = null;
-  var callback2 = function(obj) { o2 = obj; };
+  var callback2 = function(obj) {
+    o2 = obj;
+  };
 
   var o3 = null;
-  var callback3 = function(obj) { o3 = obj; };
+  var callback3 = function(obj) {
+    o3 = obj;
+  };
 
   p.getObject(callback1);
   p.getObject(callback2);
@@ -380,24 +438,36 @@ function testPriority1() {
   var p = new goog.structs.PriorityPool(0, 2);
 
   var o1 = null;
-  var callback1 = function(obj) { o1 = obj; };
+  var callback1 = function(obj) {
+    o1 = obj;
+  };
 
   var o2 = null;
-  var callback2 = function(obj) { o2 = obj; };
+  var callback2 = function(obj) {
+    o2 = obj;
+  };
 
   var o3 = null;
-  var callback3 = function(obj) { o3 = obj; };
+  var callback3 = function(obj) {
+    o3 = obj;
+  };
 
   var o4 = null;
-  var callback4 = function(obj) { o4 = obj; };
+  var callback4 = function(obj) {
+    o4 = obj;
+  };
 
   var o5 = null;
-  var callback5 = function(obj) { o5 = obj; };
+  var callback5 = function(obj) {
+    o5 = obj;
+  };
 
   var o6 = null;
-  var callback6 = function(obj) { o6 = obj; };
+  var callback6 = function(obj) {
+    o6 = obj;
+  };
 
-  p.getObject(callback1);  // Initially seeded requests.
+  p.getObject(callback1);       // Initially seeded requests.
   p.getObject(callback2);
 
   p.getObject(callback3, 101);  // Lowest priority.

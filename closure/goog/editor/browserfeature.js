@@ -20,7 +20,6 @@
 goog.provide('goog.editor.BrowserFeature');
 
 goog.require('goog.editor.defines');
-goog.require('goog.labs.userAgent.browser');
 goog.require('goog.userAgent');
 goog.require('goog.userAgent.product');
 goog.require('goog.userAgent.product.isVersion');
@@ -29,7 +28,7 @@ goog.require('goog.userAgent.product.isVersion');
 /**
  * Maps browser quirks to boolean values, detailing what the current
  * browser supports.
- * @const
+ * @type {Object}
  */
 goog.editor.BrowserFeature = {
   // Whether this browser uses the IE TextRange object.
@@ -38,7 +37,7 @@ goog.editor.BrowserFeature = {
   // Whether this browser uses the W3C standard Range object.
   // Assumes IE higher versions will be compliance with W3C standard.
   HAS_W3C_RANGES: goog.userAgent.GECKO || goog.userAgent.WEBKIT ||
-      goog.userAgent.OPERA || goog.userAgent.EDGE ||
+      goog.userAgent.OPERA ||
       (goog.userAgent.IE && goog.userAgent.isDocumentModeOrHigher(9)),
 
   // Has the contentEditable attribute, which makes nodes editable.
@@ -56,7 +55,7 @@ goog.editor.BrowserFeature = {
   // If we ever hope to support FF3/contentEditable, all 3 of these issues
   // will need answers. Most just involve refactoring at our end.
   HAS_CONTENT_EDITABLE: goog.userAgent.IE || goog.userAgent.WEBKIT ||
-      goog.userAgent.OPERA || goog.userAgent.EDGE ||
+      goog.userAgent.OPERA ||
       (goog.editor.defines.USE_CONTENTEDITABLE_IN_FIREFOX_3 &&
        goog.userAgent.GECKO && goog.userAgent.isVersionOrHigher('1.9')),
 
@@ -89,13 +88,14 @@ goog.editor.BrowserFeature = {
   HAS_UNSELECTABLE_STYLE: goog.userAgent.GECKO || goog.userAgent.WEBKIT,
 
   // Whether this browser's "FormatBlock" command does not suck.
-  FORMAT_BLOCK_WORKS_FOR_BLOCKQUOTES:
-      goog.userAgent.GECKO || goog.userAgent.WEBKIT || goog.userAgent.OPERA,
+  FORMAT_BLOCK_WORKS_FOR_BLOCKQUOTES: goog.userAgent.GECKO ||
+      goog.userAgent.WEBKIT || goog.userAgent.OPERA,
 
   // Whether this browser's "FormatBlock" command may create multiple
   // blockquotes.
   CREATES_MULTIPLE_BLOCKQUOTES:
-      (goog.userAgent.WEBKIT && !goog.userAgent.isVersionOrHigher('534.16')) ||
+      (goog.userAgent.WEBKIT &&
+       !goog.userAgent.isVersionOrHigher('534.16')) ||
       goog.userAgent.OPERA,
 
   // Whether this browser's "FormatBlock" command will wrap blockquotes
@@ -107,7 +107,6 @@ goog.editor.BrowserFeature = {
 
   // Whether hitting the tab key will fire a keypress event.
   // see http://www.quirksmode.org/js/keys.html
-  // TODO(user): This is fixed in IE8 and higher.
   TAB_FIRES_KEYPRESS: !goog.userAgent.IE,
 
   // Has a standards mode quirk where width=100% doesn't do the right thing,
@@ -141,8 +140,8 @@ goog.editor.BrowserFeature = {
   TABS_THROUGH_IMAGES: goog.userAgent.IE,
 
   // Whether this browser unescapes urls when you extract it from the href tag.
-  UNESCAPES_URLS_WITHOUT_ASKING:
-      goog.userAgent.IE && !goog.userAgent.isVersionOrHigher('7.0'),
+  UNESCAPES_URLS_WITHOUT_ASKING: goog.userAgent.IE &&
+      !goog.userAgent.isVersionOrHigher('7.0'),
 
   // Whether this browser supports execCommand("styleWithCSS") to toggle between
   // inserting html tags or inline styling for things like bold, italic, etc.
@@ -155,8 +154,8 @@ goog.editor.BrowserFeature = {
       goog.userAgent.IE && goog.userAgent.isVersionOrHigher('9'),
 
   // Whether this browser has document.activeElement available.
-  HAS_ACTIVE_ELEMENT: goog.userAgent.IE || goog.userAgent.EDGE ||
-      goog.userAgent.OPERA ||
+  HAS_ACTIVE_ELEMENT:
+      goog.userAgent.IE || goog.userAgent.OPERA ||
       goog.userAgent.GECKO && goog.userAgent.isVersionOrHigher('1.9'),
 
   // Whether this browser supports the setCapture method on DOM elements.
@@ -201,7 +200,7 @@ goog.editor.BrowserFeature = {
 
   // Whether to use keydown for key listening (uses keypress otherwise). Taken
   // from goog.events.KeyHandler.
-  USES_KEYDOWN: goog.userAgent.IE || goog.userAgent.EDGE ||
+  USES_KEYDOWN: goog.userAgent.IE ||
       goog.userAgent.WEBKIT && goog.userAgent.isVersionOrHigher('525'),
 
   // Whether this browser converts spaces to non-breaking spaces when calling
@@ -218,9 +217,9 @@ goog.editor.BrowserFeature = {
 
   // Whether the browser corrupts empty text nodes in Node#normalize,
   // removing them from the Document instead of merging them.
-  NORMALIZE_CORRUPTS_EMPTY_TEXT_NODES:
-      goog.userAgent.GECKO && goog.userAgent.isVersionOrHigher('1.9') ||
-      goog.userAgent.IE || goog.userAgent.EDGE || goog.userAgent.OPERA ||
+  NORMALIZE_CORRUPTS_EMPTY_TEXT_NODES: goog.userAgent.GECKO &&
+      goog.userAgent.isVersionOrHigher('1.9') || goog.userAgent.IE ||
+      goog.userAgent.OPERA ||
       goog.userAgent.WEBKIT && goog.userAgent.isVersionOrHigher('531'),
 
   // Whether the browser corrupts all text nodes in Node#normalize,
@@ -230,8 +229,8 @@ goog.editor.BrowserFeature = {
   // Browsers where executing subscript then superscript (or vv) will cause both
   // to be applied in a nested fashion instead of the first being overwritten by
   // the second.
-  NESTS_SUBSCRIPT_SUPERSCRIPT: goog.userAgent.IE || goog.userAgent.EDGE ||
-      goog.userAgent.GECKO || goog.userAgent.OPERA,
+  NESTS_SUBSCRIPT_SUPERSCRIPT: goog.userAgent.IE || goog.userAgent.GECKO ||
+      goog.userAgent.OPERA,
 
   // Whether this browser can place a cursor in an empty element natively.
   CAN_SELECT_EMPTY_ELEMENT: !goog.userAgent.IE && !goog.userAgent.WEBKIT,
@@ -248,8 +247,7 @@ goog.editor.BrowserFeature = {
   // size, the browser creates a font tag, but the font size in the style attr
   // overrides the font tag. Only webkit removes that font size from the style
   // attr.
-  DOESNT_OVERRIDE_FONT_SIZE_IN_STYLE_ATTR:
-      !goog.userAgent.WEBKIT && !goog.userAgent.EDGE,
+  DOESNT_OVERRIDE_FONT_SIZE_IN_STYLE_ATTR: !goog.userAgent.WEBKIT,
 
   // Implements this spec about dragging files from the filesystem to the
   // browser: http://www.whatwg/org/specs/web-apps/current-work/#dnd
@@ -257,12 +255,10 @@ goog.editor.BrowserFeature = {
                                  goog.userAgent.product.isVersion('4')) ||
       (goog.userAgent.product.SAFARI &&
        goog.userAgent.isVersionOrHigher('533')) ||
-      (goog.userAgent.GECKO && goog.userAgent.isVersionOrHigher('2.0')) ||
-      (goog.userAgent.IE && goog.userAgent.isVersionOrHigher('10')) ||
-      // TODO(user): Remove when b/27923889 is fixed.
-      (goog.userAgent.OPERA &&
-       goog.labs.userAgent.browser.isVersionOrHigher('15')) ||
-      goog.userAgent.EDGE,
+      (goog.userAgent.GECKO &&
+       goog.userAgent.isVersionOrHigher('2.0')) ||
+      (goog.userAgent.IE &&
+       goog.userAgent.isVersionOrHigher('10')),
 
   // Version of Opera that supports the opera-defaultBlock execCommand to change
   // the default block inserted when [return] is pressed. Note that this only is
@@ -272,6 +268,6 @@ goog.editor.BrowserFeature = {
   SUPPORTS_OPERA_DEFAULTBLOCK_COMMAND:
       goog.userAgent.OPERA && goog.userAgent.isVersionOrHigher('11.10'),
 
-  SUPPORTS_FILE_PASTING:
-      goog.userAgent.product.CHROME && goog.userAgent.product.isVersion('12')
+  SUPPORTS_FILE_PASTING: goog.userAgent.product.CHROME &&
+      goog.userAgent.product.isVersion('12')
 };

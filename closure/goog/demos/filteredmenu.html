@@ -17,7 +17,6 @@ See the COPYING file for details.
   goog.require('goog.ui.FilteredMenu');
   goog.require('goog.ui.TriStateMenuItem');
   goog.require('goog.ui.FilterObservingMenuItem');
-  goog.require('goog.dom.TagName');
 </script>
 <link rel="stylesheet" href="css/demo.css">
 <link rel="stylesheet" href="../css/menu.css">
@@ -101,10 +100,10 @@ cm.setObserver(function(item, str) {
   item.setVisible(!b);
   if (!b) {
     item.setContent(this.dom_.createDom(
-        goog.dom.TagName.SPAN,
+        'span',
         null,
         '"',
-        this.dom_.createDom(goog.dom.TagName.B, null, str),
+        this.dom_.createDom('b', null, str),
         '" (create tag)'));
   }
 });

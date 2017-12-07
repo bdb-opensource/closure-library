@@ -14,7 +14,7 @@
 
 
 /**
- * @fileoverview The color theme used by a gauge (goog.ui.Gauge).
+ * @fileoverview The color theme used by a gauge (goog.ui.Guage).
  */
 
 
@@ -34,7 +34,8 @@ goog.require('goog.graphics.Stroke');
  * @constructor
  * @final
  */
-goog.ui.GaugeTheme = function() {};
+goog.ui.GaugeTheme = function() {
+};
 
 
 /**
@@ -54,8 +55,8 @@ goog.ui.GaugeTheme.prototype.getExternalBorderStroke = function() {
  * @return {!goog.graphics.Fill} The fill to use.
  */
 goog.ui.GaugeTheme.prototype.getExternalBorderFill = function(cx, cy, r) {
-  return new goog.graphics.LinearGradient(
-      cx + r, cy - r, cx - r, cy + r, '#f7f7f7', '#cccccc');
+  return new goog.graphics.LinearGradient(cx + r, cy - r, cx - r, cy + r,
+      '#f7f7f7', '#cccccc');
 };
 
 
@@ -115,8 +116,8 @@ goog.ui.GaugeTheme.prototype.getHingeStroke = function() {
  * @return {!goog.graphics.Fill} The fill to use.
  */
 goog.ui.GaugeTheme.prototype.getHingeFill = function(cx, cy, r) {
-  return new goog.graphics.LinearGradient(
-      cx + r, cy - r, cx - r, cy + r, '#4684ee', '#3776d6');
+  return new goog.graphics.LinearGradient(cx + r, cy - r, cx - r, cy + r,
+      '#4684ee', '#3776d6');
 };
 
 

@@ -48,6 +48,7 @@ function testFloatConversionSpecifier() {
   assertEquals('%f', '123.456', f('%f', 123.456));
 
   // Precisions, paddings and other flags are handled on a flag to flag basis.
+
 }
 
 function testAliasedConversionSpecifiers() {
@@ -69,6 +70,7 @@ function testIntegerConversion() {
   assertEquals('%d', '-123', f('%d', -123.456));
 
   // Precisions, paddings and other flags are handled on a flag to flag basis.
+
 }
 
 function testSpaceFlag() {
@@ -213,10 +215,4 @@ function testNonParticipatingGroupHandling() {
   assertEquals(expected, goog.string.format(format, 1, '2', '3', '4'));
   // Bad types
   assertEquals(expected, goog.string.format(format, '1', 2, 3, 4));
-}
-
-function testMinusString() {
-  var format = '%0.1f%%';
-  var expected = '-0.7%';
-  assertEquals(expected, goog.string.format(format, '-0.723'));
 }

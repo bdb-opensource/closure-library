@@ -62,11 +62,8 @@
 
 goog.provide('goog.i18n.MessageFormat');
 
-goog.require('goog.array');
 goog.require('goog.asserts');
-goog.require('goog.i18n.CompactNumberFormatSymbols');
 goog.require('goog.i18n.NumberFormat');
-goog.require('goog.i18n.NumberFormatSymbols');
 goog.require('goog.i18n.ordinalRules');
 goog.require('goog.i18n.pluralRules');
 
@@ -81,67 +78,30 @@ goog.require('goog.i18n.pluralRules');
  */
 goog.i18n.MessageFormat = function(pattern) {
   /**
-   * The pattern we parse and apply positional parameters to.
-   * @type {?string}
-   * @private
-   */
-  this.pattern_ = pattern;
-
-  /**
    * All encountered literals during parse stage. Indices tell us the order of
    * replacement.
-   * @type {?Array<string>}
+   * @type {!Array.<string>}
    * @private
    */
-  this.initialLiterals_ = null;
-
-  /**
-   * Working array with all encountered literals during parse and format stages.
-   * Indices tell us the order of replacement.
-   * @type {?Array<string>}
-   * @private
-   */
-  this.literals_ = null;
+  this.literals_ = [];
 
   /**
    * Input pattern gets parsed into objects for faster formatting.
-   * @type {?Array<!Object>}
+   * @type {!Array.<!Object>}
    * @private
    */
-  this.parsedPattern_ = null;
+  this.parsedPattern_ = [];
 
   /**
    * Locale aware number formatter.
-   * @type {!goog.i18n.NumberFormat}
+   * @type {goog.i18n.NumberFormat}
    * @private
    */
-  this.numberFormatter_ = goog.i18n.MessageFormat.getNumberFormatter_();
+  this.numberFormatter_ = new goog.i18n.NumberFormat(
+      goog.i18n.NumberFormat.Format.DECIMAL);
+
+  this.parsePattern_(pattern);
 };
-
-
-/**
- * Locale associated with the most recently created NumberFormat.
- * @type {?Object}
- * @private
- */
-goog.i18n.MessageFormat.numberFormatterSymbols_ = null;
-
-
-/**
- * Locale associated with the most recently created NumberFormat.
- * @type {?Object}
- * @private
- */
-goog.i18n.MessageFormat.compactNumberFormatterSymbols_ = null;
-
-
-/**
- * Locale aware number formatter. Reference to the most recently created
- * NumberFormat for sharing between MessageFormat instances.
- * @type {?goog.i18n.NumberFormat}
- * @private
- */
-goog.i18n.MessageFormat.numberFormatter_ = null;
 
 
 /**
@@ -204,35 +164,6 @@ goog.i18n.MessageFormat.REGEX_LITERAL_ = new RegExp("'([{}#].*?)'", 'g');
  */
 goog.i18n.MessageFormat.REGEX_DOUBLE_APOSTROPHE_ = new RegExp("''", 'g');
 
-/** @typedef {{ type: goog.i18n.MessageFormat.Element_, value: ? }} */
-goog.i18n.MessageFormat.TypeVal_;
-
-
-/**
- * Gets the a NumberFormat instance for the current locale.
- * If the locale is the same as the previous invocation, returns the same
- * NumberFormat instance. Otherwise, creates a new one.
- * @return {!goog.i18n.NumberFormat}
- * @private
- */
-goog.i18n.MessageFormat.getNumberFormatter_ = function() {
-  var currentSymbols = goog.i18n.NumberFormatSymbols;
-  var currentCompactSymbols = goog.i18n.CompactNumberFormatSymbols;
-
-  if (goog.i18n.MessageFormat.numberFormatterSymbols_ !== currentSymbols ||
-      goog.i18n.MessageFormat.compactNumberFormatterSymbols_ !==
-          currentCompactSymbols) {
-    goog.i18n.MessageFormat.numberFormatterSymbols_ = currentSymbols;
-    goog.i18n.MessageFormat.compactNumberFormatterSymbols_ =
-        currentCompactSymbols;
-    goog.i18n.MessageFormat.numberFormatter_ =
-        new goog.i18n.NumberFormat(goog.i18n.NumberFormat.Format.DECIMAL);
-  }
-
-  return /** @type {!goog.i18n.NumberFormat} */ (
-      goog.i18n.MessageFormat.numberFormatter_);
-};
-
 
 /**
  * Formats a message, treating '#' with special meaning representing
@@ -260,8 +191,8 @@ goog.i18n.MessageFormat.prototype.format = function(namedParameters) {
  *     and 2nd parameter is just a data to be printed out in proper position.
  * @return {string} Formatted message.
  */
-goog.i18n.MessageFormat.prototype.formatIgnoringPound = function(
-    namedParameters) {
+goog.i18n.MessageFormat.prototype.formatIgnoringPound =
+    function(namedParameters) {
   return this.format_(namedParameters, true);
 };
 
@@ -280,13 +211,11 @@ goog.i18n.MessageFormat.prototype.formatIgnoringPound = function(
  * @return {string} Formatted message.
  * @private
  */
-goog.i18n.MessageFormat.prototype.format_ = function(
-    namedParameters, ignorePound) {
-  this.init_();
-  if (!this.parsedPattern_ || this.parsedPattern_.length == 0) {
+goog.i18n.MessageFormat.prototype.format_ =
+    function(namedParameters, ignorePound) {
+  if (this.parsedPattern_.length == 0) {
     return '';
   }
-  this.literals_ = goog.array.clone(this.initialLiterals_);
 
   var result = [];
   this.formatBlock_(this.parsedPattern_, namedParameters, ignorePound, result);
@@ -297,8 +226,8 @@ goog.i18n.MessageFormat.prototype.format_ = function(
   }
 
   while (this.literals_.length > 0) {
-    message = message.replace(
-        this.buildPlaceholder_(this.literals_), this.literals_.pop());
+    message = message.replace(this.buildPlaceholder_(this.literals_),
+                              this.literals_.pop());
   }
 
   return message;
@@ -307,14 +236,13 @@ goog.i18n.MessageFormat.prototype.format_ = function(
 
 /**
  * Parses generic block and returns a formatted string.
- * @param {!Array<!goog.i18n.MessageFormat.TypeVal_>} parsedPattern
- *     Holds parsed tree.
+ * @param {!Array.<!Object>} parsedPattern Holds parsed tree.
  * @param {!Object} namedParameters Parameters that either influence
  *     the formatting or are used as actual data.
  * @param {boolean} ignorePound If true, treat '#' in plural messages as a
  *     literary character, else treat it as an ICU syntax character, resolving
  *     to the number (plural_variable - offset).
- * @param {!Array<string>} result Each formatting stage appends its product
+ * @param {!Array.<!string>} result Each formatting stage appends its product
  *     to the result.
  * @private
  */
@@ -335,18 +263,22 @@ goog.i18n.MessageFormat.prototype.formatBlock_ = function(
         break;
       case goog.i18n.MessageFormat.BlockType_.PLURAL:
         var pattern = parsedPattern[i].value;
-        this.formatPluralOrdinalBlock_(
-            pattern, namedParameters, goog.i18n.pluralRules.select, ignorePound,
-            result);
+        this.formatPluralOrdinalBlock_(pattern,
+                                       namedParameters,
+                                       goog.i18n.pluralRules.select,
+                                       ignorePound,
+                                       result);
         break;
       case goog.i18n.MessageFormat.BlockType_.ORDINAL:
         var pattern = parsedPattern[i].value;
-        this.formatPluralOrdinalBlock_(
-            pattern, namedParameters, goog.i18n.ordinalRules.select,
-            ignorePound, result);
+        this.formatPluralOrdinalBlock_(pattern,
+                                       namedParameters,
+                                       goog.i18n.ordinalRules.select,
+                                       ignorePound,
+                                       result);
         break;
       default:
-        goog.asserts.fail('Unrecognized block type: ' + parsedPattern[i].type);
+        goog.asserts.fail('Unrecognized block type.');
     }
   }
 };
@@ -356,7 +288,7 @@ goog.i18n.MessageFormat.prototype.formatBlock_ = function(
  * Formats simple placeholder.
  * @param {!Object} parsedPattern JSON object containing placeholder info.
  * @param {!Object} namedParameters Parameters that are used as actual data.
- * @param {!Array<string>} result Each formatting stage appends its product
+ * @param {!Array.<!string>} result Each formatting stage appends its product
  *     to the result.
  * @private
  */
@@ -377,14 +309,13 @@ goog.i18n.MessageFormat.prototype.formatSimplePlaceholder_ = function(
 
 /**
  * Formats select block. Only one option is selected.
- * @param {!{argumentIndex:?}} parsedPattern JSON object containing select
- *     block info.
+ * @param {!Object} parsedPattern JSON object containing select block info.
  * @param {!Object} namedParameters Parameters that either influence
  *     the formatting or are used as actual data.
  * @param {boolean} ignorePound If true, treat '#' in plural messages as a
  *     literary character, else treat it as an ICU syntax character, resolving
  *     to the number (plural_variable - offset).
- * @param {!Array<string>} result Each formatting stage appends its product
+ * @param {!Array.<!string>} result Each formatting stage appends its product
  *     to the result.
  * @private
  */
@@ -410,17 +341,16 @@ goog.i18n.MessageFormat.prototype.formatSelectBlock_ = function(
 /**
  * Formats plural or selectordinal block. Only one option is selected and all #
  * are replaced.
- * @param {!{argumentIndex, argumentOffset}} parsedPattern JSON object
- *     containing plural block info.
+ * @param {!Object} parsedPattern JSON object containing plural block info.
  * @param {!Object} namedParameters Parameters that either influence
  *     the formatting or are used as actual data.
- * @param {function(number, number=):string} pluralSelector  A select function
+ * @param {!function(number, number=):string} pluralSelector  A select function
  *     from goog.i18n.pluralRules or goog.i18n.ordinalRules which determines
  *     which plural/ordinal form to use based on the input number's cardinality.
  * @param {boolean} ignorePound If true, treat '#' in plural messages as a
  *     literary character, else treat it as an ICU syntax character, resolving
  *     to the number (plural_variable - offset).
- * @param {!Array<string>} result Each formatting stage appends its product
+ * @param {!Array.<!string>} result Each formatting stage appends its product
  *     to the result.
  * @private
  */
@@ -441,11 +371,11 @@ goog.i18n.MessageFormat.prototype.formatPluralOrdinalBlock_ = function(
   if (!goog.isDef(option)) {
     goog.asserts.assert(diff >= 0, 'Argument index smaller than offset.');
     var item;
-    if (this.numberFormatter_.getMinimumFractionDigits) {  // number formatter?
+    if (this.numberFormatter_.getMinimumFractionDigits) { // number formatter?
       // If we know the number of fractional digits we can make better decisions
       // We can decide (for instance) between "1 dollar" and "1.00 dollars".
-      item = pluralSelector(
-          diff, this.numberFormatter_.getMinimumFractionDigits());
+      item = pluralSelector(diff,
+          this.numberFormatter_.getMinimumFractionDigits());
     } else {
       item = pluralSelector(diff);
     }
@@ -476,19 +406,17 @@ goog.i18n.MessageFormat.prototype.formatPluralOrdinalBlock_ = function(
 
 
 /**
- * Set up the MessageFormat.
  * Parses input pattern into an array, for faster reformatting with
  * different input parameters.
  * Parsing is locale independent.
+ * @param {string} pattern MessageFormat pattern to parse.
  * @private
  */
-goog.i18n.MessageFormat.prototype.init_ = function() {
-  if (this.pattern_) {
-    this.initialLiterals_ = [];
-    var pattern = this.insertPlaceholders_(this.pattern_);
+goog.i18n.MessageFormat.prototype.parsePattern_ = function(pattern) {
+  if (pattern) {
+    pattern = this.insertPlaceholders_(pattern);
 
     this.parsedPattern_ = this.parseBlock_(pattern);
-    this.pattern_ = null;
   }
 };
 
@@ -503,19 +431,21 @@ goog.i18n.MessageFormat.prototype.init_ = function() {
  * @private
  */
 goog.i18n.MessageFormat.prototype.insertPlaceholders_ = function(pattern) {
-  var literals = this.initialLiterals_;
+  var literals = this.literals_;
   var buildPlaceholder = goog.bind(this.buildPlaceholder_, this);
 
   // First replace '' with single quote placeholder since they can be found
   // inside other literals.
   pattern = pattern.replace(
-      goog.i18n.MessageFormat.REGEX_DOUBLE_APOSTROPHE_, function() {
+      goog.i18n.MessageFormat.REGEX_DOUBLE_APOSTROPHE_,
+      function() {
         literals.push("'");
         return buildPlaceholder(literals);
       });
 
   pattern = pattern.replace(
-      goog.i18n.MessageFormat.REGEX_LITERAL_, function(match, text) {
+      goog.i18n.MessageFormat.REGEX_LITERAL_,
+      function(match, text) {
         literals.push(text);
         return buildPlaceholder(literals);
       });
@@ -527,11 +457,12 @@ goog.i18n.MessageFormat.prototype.insertPlaceholders_ = function(pattern) {
 /**
  * Breaks pattern into strings and top level {...} blocks.
  * @param {string} pattern (sub)Pattern to be broken.
- * @return {!Array<goog.i18n.MessageFormat.TypeVal_>}
+ * @return {!Array.<Object>} Each item is {type, value}.
  * @private
  */
 goog.i18n.MessageFormat.prototype.extractParts_ = function(pattern) {
   var prevPos = 0;
+  var inBlock = false;
   var braceStack = [];
   var results = [];
 
@@ -543,8 +474,8 @@ goog.i18n.MessageFormat.prototype.extractParts_ = function(pattern) {
     var pos = match.index;
     if (match[0] == '}') {
       var brace = braceStack.pop();
-      goog.asserts.assert(
-          goog.isDef(brace) && brace == '{', 'No matching { for }.');
+      goog.asserts.assert(goog.isDef(brace) && brace == '{',
+                          'No matching { for }.');
 
       if (braceStack.length == 0) {
         // End of the block.
@@ -553,9 +484,11 @@ goog.i18n.MessageFormat.prototype.extractParts_ = function(pattern) {
         part.value = pattern.substring(prevPos, pos);
         results.push(part);
         prevPos = pos + 1;
+        inBlock = false;
       }
     } else {
       if (braceStack.length == 0) {
+        inBlock = true;
         var substring = pattern.substring(prevPos, pos);
         if (substring != '') {
           results.push({
@@ -570,13 +503,15 @@ goog.i18n.MessageFormat.prototype.extractParts_ = function(pattern) {
   }
 
   // Take care of the final string, and check if the braceStack is empty.
-  goog.asserts.assert(
-      braceStack.length == 0, 'There are mismatched { or } in the pattern.');
+  goog.asserts.assert(braceStack.length == 0,
+                      'There are mismatched { or } in the pattern.');
 
   var substring = pattern.substring(prevPos);
   if (substring != '') {
-    results.push(
-        {type: goog.i18n.MessageFormat.Element_.STRING, value: substring});
+    results.push({
+      type: goog.i18n.MessageFormat.Element_.STRING,
+      value: substring
+    });
   }
 
   return results;
@@ -641,7 +576,7 @@ goog.i18n.MessageFormat.prototype.parseBlockType_ = function(pattern) {
 /**
  * Parses generic block.
  * @param {string} pattern Content of the block to parse.
- * @return {!Array<!Object>} Subblocks marked as strings, select...
+ * @return {!Array.<!Object>} Subblocks marked as strings, select...
  * @private
  */
 goog.i18n.MessageFormat.prototype.parseBlock_ = function(pattern) {
@@ -673,8 +608,7 @@ goog.i18n.MessageFormat.prototype.parseBlock_ = function(pattern) {
           block.value = parts[i].value;
           break;
         default:
-          goog.asserts.fail(
-              'Unknown block type for pattern: ' + parts[i].value);
+          goog.asserts.fail('Unknown block type.');
       }
     } else {
       goog.asserts.fail('Unknown part of the pattern.');
@@ -710,8 +644,8 @@ goog.i18n.MessageFormat.prototype.parseSelectBlock_ = function(pattern) {
     goog.asserts.assertString(key, 'Missing select key element.');
 
     pos++;
-    goog.asserts.assert(
-        pos < parts.length, 'Missing or invalid select value element.');
+    goog.asserts.assert(pos < parts.length,
+                        'Missing or invalid select value element.');
 
     if (goog.i18n.MessageFormat.Element_.BLOCK == parts[pos].type) {
       var value = this.parseBlock_(parts[pos].value);
@@ -722,9 +656,8 @@ goog.i18n.MessageFormat.prototype.parseSelectBlock_ = function(pattern) {
     pos++;
   }
 
-  goog.asserts.assertArray(
-      result[goog.i18n.MessageFormat.OTHER_],
-      'Missing other key in select statement.');
+  goog.asserts.assertArray(result[goog.i18n.MessageFormat.OTHER_],
+                           'Missing other key in select statement.');
   return result;
 };
 
@@ -759,8 +692,8 @@ goog.i18n.MessageFormat.prototype.parsePluralBlock_ = function(pattern) {
     goog.asserts.assertString(key, 'Missing plural key element.');
 
     pos++;
-    goog.asserts.assert(
-        pos < parts.length, 'Missing or invalid plural value element.');
+    goog.asserts.assert(pos < parts.length,
+                        'Missing or invalid plural value element.');
 
     if (goog.i18n.MessageFormat.Element_.BLOCK == parts[pos].type) {
       var value = this.parseBlock_(parts[pos].value);
@@ -771,9 +704,8 @@ goog.i18n.MessageFormat.prototype.parsePluralBlock_ = function(pattern) {
     pos++;
   }
 
-  goog.asserts.assertArray(
-      result[goog.i18n.MessageFormat.OTHER_],
-      'Missing other key in plural statement.');
+  goog.asserts.assertArray(result[goog.i18n.MessageFormat.OTHER_],
+                           'Missing other key in plural statement.');
 
   return result;
 };
@@ -814,8 +746,8 @@ goog.i18n.MessageFormat.prototype.parseOrdinalBlock_ = function(pattern) {
     goog.asserts.assertString(key, 'Missing ordinal key element.');
 
     pos++;
-    goog.asserts.assert(
-        pos < parts.length, 'Missing or invalid ordinal value element.');
+    goog.asserts.assert(pos < parts.length,
+                        'Missing or invalid ordinal value element.');
 
     if (goog.i18n.MessageFormat.Element_.BLOCK == parts[pos].type) {
       var value = this.parseBlock_(parts[pos].value);
@@ -826,9 +758,8 @@ goog.i18n.MessageFormat.prototype.parseOrdinalBlock_ = function(pattern) {
     pos++;
   }
 
-  goog.asserts.assertArray(
-      result[goog.i18n.MessageFormat.OTHER_],
-      'Missing other key in selectordinal statement.');
+  goog.asserts.assertArray(result[goog.i18n.MessageFormat.OTHER_],
+                           'Missing other key in selectordinal statement.');
 
   return result;
 };
@@ -836,7 +767,7 @@ goog.i18n.MessageFormat.prototype.parseOrdinalBlock_ = function(pattern) {
 
 /**
  * Builds a placeholder from the last index of the array.
- * @param {!Array<string>} literals All literals encountered during parse.
+ * @param {!Array} literals All literals encountered during parse.
  * @return {string} \uFDDF_ + last index + _.
  * @private
  */

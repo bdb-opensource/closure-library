@@ -44,22 +44,6 @@ function testInsertsWithDefaultComparator() {
     i += 1;
   });
   assertEquals(i, values.length);
-
-  // Verify that no nodes are visited if the start value is larger than all
-  // values
-  tree.inOrderTraverse(function(value) { fail(); }, 'zed');
-
-  // Verify strings are stored in sorted order
-  i = values.length;
-  tree.reverseOrderTraverse(function(value) {
-    i--;
-    assertEquals(values[i], value);
-  });
-  assertEquals(i, 0);
-
-  // Verify that no nodes are visited if the start value is smaller than all
-  // values
-  tree.reverseOrderTraverse(function(value) { fail(); }, 'aardvark');
 }
 
 
@@ -107,7 +91,9 @@ function testRemovesWithDefaultComparator() {
  * comparator.
  */
 function testInsertsAndRemovesWithCustomComparator() {
-  var tree = new goog.structs.AvlTree(function(a, b) { return a - b; });
+  var tree = new goog.structs.AvlTree(function(a, b) {
+    return a - b;
+  });
 
   var NUM_TO_INSERT = 37;
   var valuesToRemove = [1, 0, 6, 7, 36];
@@ -141,7 +127,9 @@ function testInsertsAndRemovesWithCustomComparator() {
  * the AvlTree and have it maintain the AVL-Tree upperbound on its height.
  */
 function testAvlTreeHeight() {
-  var tree = new goog.structs.AvlTree(function(a, b) { return a - b; });
+  var tree = new goog.structs.AvlTree(function(a, b) {
+    return a - b;
+  });
 
   var NUM_TO_INSERT = 2000;
   var NUM_TO_REMOVE = 500;
@@ -156,10 +144,8 @@ function testAvlTreeHeight() {
     tree.remove(i);
   }
 
-  assertTrue(
-      tree.getHeight() <=
-      1.4405 * (Math.log(NUM_TO_INSERT - NUM_TO_REMOVE + 2) / Math.log(2)) -
-          1.3277);
+  assertTrue(tree.getHeight() <= 1.4405 *
+      (Math.log(NUM_TO_INSERT - NUM_TO_REMOVE + 2) / Math.log(2)) - 1.3277);
 }
 
 
@@ -200,46 +186,13 @@ function testAvlTreeContains() {
 
 /**
  * This test verifies that we can insert values into and remove values from
- * the AvlTree and have its indexOf method correctly determine the in-order
- * index of the values it contains.
- */
-function testAvlTreeIndexOf() {
-  var tree = new goog.structs.AvlTree();
-  var values = ['bill', 'blake', 'elliot', 'jacob', 'john', 'myles', 'ted'];
-
-  // Insert strings into tree out of order
-  tree.add('frodo');
-  tree.add(values[4]);
-  tree.add(values[3]);
-  tree.add(values[0]);
-  tree.add(values[6]);
-  tree.add('samwise');
-  tree.add(values[5]);
-  tree.add(values[1]);
-  tree.add(values[2]);
-  tree.add('pippin');
-
-  // Remove strings from tree
-  assertEquals('samwise', tree.remove('samwise'));
-  assertEquals('pippin', tree.remove('pippin'));
-  assertEquals('frodo', tree.remove('frodo'));
-
-  for (var i = 0; i < values.length; i += 1) {
-    assertEquals(i, tree.indexOf(values[i]));
-  }
-  assertEquals(-1, tree.indexOf('samwise'));
-  assertEquals(-1, tree.indexOf('pippin'));
-  assertEquals(-1, tree.indexOf('frodo'));
-}
-
-
-/**
- * This test verifies that we can insert values into and remove values from
  * the AvlTree and have its minValue and maxValue routines return the correct
  * min and max values contained by the tree.
  */
 function testMinAndMaxValues() {
-  var tree = new goog.structs.AvlTree(function(a, b) { return a - b; });
+  var tree = new goog.structs.AvlTree(function(a, b) {
+    return a - b;
+  });
 
   var NUM_TO_INSERT = 2000;
   var NUM_TO_REMOVE = 500;
@@ -265,7 +218,9 @@ function testMinAndMaxValues() {
  * reverseOrderTraverse routine.
  */
 function testReverseOrderTraverse() {
-  var tree = new goog.structs.AvlTree(function(a, b) { return a - b; });
+  var tree = new goog.structs.AvlTree(function(a, b) {
+    return a - b;
+  });
 
   var NUM_TO_INSERT = 2000;
   var NUM_TO_REMOVE = 500;
@@ -331,7 +286,9 @@ function testGetCountBehavior() {
  * This test verifies that getKthOrder gets the correct value.
  */
 function testGetKthOrder() {
-  var tree = new goog.structs.AvlTree(function(a, b) { return a - b; });
+  var tree = new goog.structs.AvlTree(function(a, b) {
+    return a - b;
+  });
 
   var NUM_TO_INSERT = 2000;
   var NUM_TO_REMOVE = 500;

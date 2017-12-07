@@ -36,8 +36,12 @@ function tearDown() {
 
 function testTextModifyingKeys() {
   var specialTextModifiers = goog.object.createSet(
-      KeyCodes.BACKSPACE, KeyCodes.DELETE, KeyCodes.ENTER, KeyCodes.MAC_ENTER,
-      KeyCodes.TAB, KeyCodes.WIN_IME);
+      KeyCodes.BACKSPACE,
+      KeyCodes.DELETE,
+      KeyCodes.ENTER,
+      KeyCodes.MAC_ENTER,
+      KeyCodes.TAB,
+      KeyCodes.WIN_IME);
 
   if (!goog.userAgent.GECKO) {
     specialTextModifiers[KeyCodes.WIN_KEY_FF_LINUX] = 1;
@@ -53,20 +57,17 @@ function testTextModifyingKeys() {
     var fakeEvent = createEventWithKeyCode(key);
 
     if (KeyCodes.isCharacterKey(key) || (key in specialTextModifiers)) {
-      assertTrue(
-          'Expected key to modify text: ' + keyId,
+      assertTrue('Expected key to modify text: ' + keyId,
           KeyCodes.isTextModifyingKeyEvent(fakeEvent));
     } else {
-      assertFalse(
-          'Expected key to not modify text: ' + keyId,
+      assertFalse('Expected key to not modify text: ' + keyId,
           KeyCodes.isTextModifyingKeyEvent(fakeEvent));
     }
   }
 
   for (var i = KeyCodes.FIRST_MEDIA_KEY; i <= KeyCodes.LAST_MEDIA_KEY; i++) {
     var fakeEvent = createEventWithKeyCode(i);
-    assertFalse(
-        'Expected key to not modify text: ' + i,
+    assertFalse('Expected key to not modify text: ' + i,
         KeyCodes.isTextModifyingKeyEvent(fakeEvent));
   }
 }
@@ -74,25 +75,25 @@ function testTextModifyingKeys() {
 function testKeyCodeZero() {
   var zeroEvent = createEventWithKeyCode(0);
   assertEquals(
-      !goog.userAgent.GECKO, KeyCodes.isTextModifyingKeyEvent(zeroEvent));
+      !goog.userAgent.GECKO,
+      KeyCodes.isTextModifyingKeyEvent(zeroEvent));
   assertEquals(
-      goog.userAgent.WEBKIT || goog.userAgent.EDGE, KeyCodes.isCharacterKey(0));
+      goog.userAgent.WEBKIT,
+      KeyCodes.isCharacterKey(0));
 }
 
 function testPhantomKey() {
   // KeyCode 255 deserves its own test to make sure this does not regress,
   // because it's so weird. See the comments in the KeyCode enum.
   var fakeEvent = createEventWithKeyCode(goog.events.KeyCodes.PHANTOM);
-  assertFalse(
-      'Expected phantom key to not modify text',
+  assertFalse('Expected phantom key to not modify text',
       KeyCodes.isTextModifyingKeyEvent(fakeEvent));
   assertFalse(KeyCodes.isCharacterKey(fakeEvent));
 }
 
 function testNonUsKeyboards() {
   var fakeEvent = createEventWithKeyCode(1092 /* Russian a */);
-  assertTrue(
-      'Expected key to not modify text: 1092',
+  assertTrue('Expected key to not modify text: 1092',
       KeyCodes.isTextModifyingKeyEvent(fakeEvent));
 }
 
@@ -139,7 +140,8 @@ function testNormalizeGeckoKeyCode() {
       goog.events.KeyCodes.normalizeGeckoKeyCode(KeyCodes.COMMA),
       KeyCodes.COMMA);
   assertEquals(
-      goog.events.KeyCodes.normalizeKeyCode(KeyCodes.COMMA), KeyCodes.COMMA);
+      goog.events.KeyCodes.normalizeKeyCode(KeyCodes.COMMA),
+      KeyCodes.COMMA);
 }
 
 function testNormalizeMacWebKitKeyCode() {
@@ -167,5 +169,6 @@ function testNormalizeMacWebKitKeyCode() {
       goog.events.KeyCodes.normalizeMacWebKitKeyCode(KeyCodes.COMMA),
       KeyCodes.COMMA);
   assertEquals(
-      goog.events.KeyCodes.normalizeKeyCode(KeyCodes.COMMA), KeyCodes.COMMA);
+      goog.events.KeyCodes.normalizeKeyCode(KeyCodes.COMMA),
+      KeyCodes.COMMA);
 }

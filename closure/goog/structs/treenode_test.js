@@ -147,8 +147,7 @@ function testGetSubtreeKeys() {
   root.addChild(child1);
   root.addChild(child2);
   child1.addChild(grandchild);
-  assertArrayEquals(
-      'node hierarchy', ['child1', ['grandchild'], 'child2'],
+  assertArrayEquals('node hierarchy', ['child1', ['grandchild'], 'child2'],
       root.getSubtreeKeys());
 }
 
@@ -185,8 +184,8 @@ function testFindCommonAncestor() {
   assertEquals('node and child node', node2, findCommonAncestor(node2, node3));
   assertEquals('node and parent node', node1, findCommonAncestor(node2, node1));
   assertEquals('siblings', node1, findCommonAncestor(node2, node4));
-  assertEquals(
-      'all nodes', node1, findCommonAncestor(node2, node3, node4, node1));
+  assertEquals('all nodes', node1,
+      findCommonAncestor(node2, node3, node4, node1));
   assertNull('disconnected nodes', findCommonAncestor(node3, node5));
 }
 
@@ -264,8 +263,7 @@ function testTraverse() {
     assertEquals('value of this', thisContext, this);
     visitedNodes.push(node);
   }, thisContext);
-  assertArrayEquals(
-      'callback returns nothing => all nodes are visited',
+  assertArrayEquals('callback returns nothing => all nodes are visited',
       [node1, node2, node3, node4], visitedNodes);
 
   visitedNodes = [];
@@ -273,8 +271,8 @@ function testTraverse() {
     visitedNodes.push(node);
     return node != node2;  // Cut off at node2.
   });
-  assertArrayEquals(
-      'children of node2 are skipped', [node1, node2], visitedNodes);
+  assertArrayEquals('children of node2 are skipped',
+      [node1, node2], visitedNodes);
 }
 
 function testAddChild() {
@@ -299,13 +297,14 @@ function testAddChildAt() {
   assertArrayEquals('add first child', [node2], node1.getChildren());
   assertEquals('parent is set', node1, node2.getParent());
   node1.addChildAt(node3, 0);
-  assertArrayEquals('add to the front', [node3, node2], node1.getChildren());
+  assertArrayEquals('add to the front', [node3, node2],
+      node1.getChildren());
   node1.addChildAt(node4, 1);
-  assertArrayEquals(
-      'add to the middle', [node3, node4, node2], node1.getChildren());
+  assertArrayEquals('add to the middle', [node3, node4, node2],
+      node1.getChildren());
   node1.addChildAt(node5, 3);
-  assertArrayEquals(
-      'add to the end', [node3, node4, node2, node5], node1.getChildren());
+  assertArrayEquals('add to the end', [node3, node4, node2, node5],
+      node1.getChildren());
 }
 
 function testReplaceChildAt() {
@@ -375,8 +374,7 @@ function testRemoveChildren() {
   node1.addChild(node3);
 
   node2.removeChildren();
-  assertArrayEquals(
-      'removing a leaf node\'s children has no effect', [],
+  assertArrayEquals('removing a leaf node\'s children has no effect', [],
       node2.getChildren());
   assertEquals('node still has parent', node1, node2.getParent());
 

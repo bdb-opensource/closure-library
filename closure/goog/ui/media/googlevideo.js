@@ -32,7 +32,7 @@
  *
  * <pre>
  *   var video = goog.ui.media.GoogleVideoModel.newInstance(
- *       'https://video.google.com/videoplay?docid=6698933542780842398');
+ *       'http://video.google.com/videoplay?docid=6698933542780842398');
  *   goog.ui.media.GoogleVideo.newControl(video).render();
  * </pre>
  *
@@ -59,9 +59,7 @@
 goog.provide('goog.ui.media.GoogleVideo');
 goog.provide('goog.ui.media.GoogleVideoModel');
 
-goog.require('goog.html.TrustedResourceUrl');
 goog.require('goog.string');
-goog.require('goog.string.Const');
 goog.require('goog.ui.media.FlashObject');
 goog.require('goog.ui.media.Media');
 goog.require('goog.ui.media.MediaModel');
@@ -112,7 +110,9 @@ goog.addSingletonGetter(goog.ui.media.GoogleVideo);
  */
 goog.ui.media.GoogleVideo.newControl = function(dataModel, opt_domHelper) {
   var control = new goog.ui.media.Media(
-      dataModel, goog.ui.media.GoogleVideo.getInstance(), opt_domHelper);
+      dataModel,
+      goog.ui.media.GoogleVideo.getInstance(),
+      opt_domHelper);
   // GoogleVideo videos don't have any thumbnail for now, so we show the
   // "selected" version of the UI at the start, which is the flash player.
   control.setSelected(true);
@@ -146,7 +146,8 @@ goog.ui.media.GoogleVideo.prototype.createDom = function(c) {
       /** @type {goog.ui.media.GoogleVideoModel} */ (control.getDataModel());
 
   var flash = new goog.ui.media.FlashObject(
-      dataModel.getPlayer().getTrustedResourceUrl(), control.getDomHelper());
+      dataModel.getPlayer().getUrl() || '',
+      control.getDomHelper());
   flash.render(div);
 
   return div;
@@ -180,11 +181,14 @@ goog.ui.media.GoogleVideo.prototype.getCssClass = function() {
  * @extends {goog.ui.media.MediaModel}
  * @final
  */
-goog.ui.media.GoogleVideoModel = function(
-    videoId, opt_caption, opt_description, opt_autoplay) {
+goog.ui.media.GoogleVideoModel = function(videoId, opt_caption, opt_description,
+                                          opt_autoplay) {
   goog.ui.media.MediaModel.call(
-      this, goog.ui.media.GoogleVideoModel.buildUrl(videoId), opt_caption,
-      opt_description, goog.ui.media.MediaModel.MimeType.FLASH);
+      this,
+      goog.ui.media.GoogleVideoModel.buildUrl(videoId),
+      opt_caption,
+      opt_description,
+      goog.ui.media.MediaModel.MimeType.FLASH);
 
   /**
    * The GoogleVideo video id.
@@ -193,9 +197,8 @@ goog.ui.media.GoogleVideoModel = function(
    */
   this.videoId_ = videoId;
 
-  this.setPlayer(
-      new goog.ui.media.MediaModel.Player(
-          goog.ui.media.GoogleVideoModel.buildFlashUrl(videoId, opt_autoplay)));
+  this.setPlayer(new goog.ui.media.MediaModel.Player(
+      goog.ui.media.GoogleVideoModel.buildFlashUrl(videoId, opt_autoplay)));
 };
 goog.inherits(goog.ui.media.GoogleVideoModel, goog.ui.media.MediaModel);
 
@@ -209,7 +212,7 @@ goog.inherits(goog.ui.media.GoogleVideoModel, goog.ui.media.MediaModel);
  * @const
  */
 goog.ui.media.GoogleVideoModel.MATCHER_ =
-    /^https?:\/\/(?:www\.)?video\.google\.com\/videoplay.*[\?#]docid=(-?[0-9]+)#?$/i;
+    /^http:\/\/(?:www\.)?video\.google\.com\/videoplay.*[\?#]docid=(-?[0-9]+)#?$/i;
 
 
 /**
@@ -226,16 +229,18 @@ goog.ui.media.GoogleVideoModel.MATCHER_ =
  * @see goog.ui.media.GoogleVideoModel.getVideoId()
  * @throws Error in case the parsing fails.
  */
-goog.ui.media.GoogleVideoModel.newInstance = function(
-    googleVideoUrl, opt_caption, opt_description, opt_autoplay) {
+goog.ui.media.GoogleVideoModel.newInstance = function(googleVideoUrl,
+                                                      opt_caption,
+                                                      opt_description,
+                                                      opt_autoplay) {
   if (goog.ui.media.GoogleVideoModel.MATCHER_.test(googleVideoUrl)) {
     var data = goog.ui.media.GoogleVideoModel.MATCHER_.exec(googleVideoUrl);
     return new goog.ui.media.GoogleVideoModel(
         data[1], opt_caption, opt_description, opt_autoplay);
   }
 
-  throw new Error(
-      'failed to parse video id from GoogleVideo url: ' + googleVideoUrl);
+  throw Error('failed to parse video id from GoogleVideo url: ' +
+      googleVideoUrl);
 };
 
 
@@ -247,7 +252,7 @@ goog.ui.media.GoogleVideoModel.newInstance = function(
  * @return {string} The GoogleVideo URL.
  */
 goog.ui.media.GoogleVideoModel.buildUrl = function(videoId) {
-  return 'https://video.google.com/videoplay?docid=' +
+  return 'http://video.google.com/videoplay?docid=' +
       goog.string.urlEncode(videoId);
 };
 
@@ -259,18 +264,13 @@ goog.ui.media.GoogleVideoModel.buildUrl = function(videoId) {
  * @param {string} videoId The GoogleVideo video ID.
  * @param {boolean=} opt_autoplay Whether the flash movie should start playing
  *     as soon as it is shown, or if it should show a 'play' button.
- * @return {!goog.html.TrustedResourceUrl} The flash URL to be embedded on the
- *     page.
+ * @return {string} The flash URL to be embedded on the page.
  */
 goog.ui.media.GoogleVideoModel.buildFlashUrl = function(videoId, opt_autoplay) {
-  return goog.html.TrustedResourceUrl.format(
-      goog.string.Const.from(
-          'https://video.google.com/googleplayer.swf?docid=%{docid}' +
-          '&hl=en&fs=true%{autoplay}'),
-      {
-        'docid': videoId,
-        'autoplay': opt_autoplay ? goog.string.Const.from('&autoplay=1') : ''
-      });
+  var autoplay = opt_autoplay ? '&autoplay=1' : '';
+  return 'http://video.google.com/googleplayer.swf?docid=' +
+      goog.string.urlEncode(videoId) +
+      '&hl=en&fs=true' + autoplay;
 };
 
 

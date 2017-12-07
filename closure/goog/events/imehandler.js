@@ -37,7 +37,6 @@
  * We currently do a bad job detecting when the IME closes on IE, and
  * make a "best effort" guess on when we know it's closed.
  *
- * @author nicksantos@google.com (Nick Santos) (Ported to Closure)
  */
 
 goog.provide('goog.events.ImeHandler');
@@ -73,35 +72,29 @@ goog.events.ImeHandler = function(el) {
   /**
    * Tracks the keyup event only, because it has a different life-cycle from
    * other events.
-   * @type {goog.events.EventHandler<!goog.events.ImeHandler>}
+   * @type {goog.events.EventHandler.<!goog.events.ImeHandler>}
    * @private
    */
   this.keyUpHandler_ = new goog.events.EventHandler(this);
 
   /**
    * Tracks all the browser events.
-   * @type {goog.events.EventHandler<!goog.events.ImeHandler>}
+   * @type {goog.events.EventHandler.<!goog.events.ImeHandler>}
    * @private
    */
   this.handler_ = new goog.events.EventHandler(this);
 
   if (goog.events.ImeHandler.USES_COMPOSITION_EVENTS) {
-    this.handler_
-        .listen(
-            el, goog.events.EventType.COMPOSITIONSTART,
-            this.handleCompositionStart_)
-        .listen(
-            el, goog.events.EventType.COMPOSITIONEND,
-            this.handleCompositionEnd_)
-        .listen(
-            el, goog.events.EventType.COMPOSITIONUPDATE,
-            this.handleTextModifyingInput_);
+    this.handler_.
+        listen(el, 'compositionstart', this.handleCompositionStart_).
+        listen(el, 'compositionend', this.handleCompositionEnd_).
+        listen(el, 'compositionupdate', this.handleTextModifyingInput_);
   }
 
-  this.handler_
-      .listen(el, goog.events.EventType.TEXTINPUT, this.handleTextInput_)
-      .listen(el, goog.events.EventType.TEXT, this.handleTextModifyingInput_)
-      .listen(el, goog.events.EventType.KEYDOWN, this.handleKeyDown_);
+  this.handler_.
+      listen(el, 'textInput', this.handleTextInput_).
+      listen(el, 'text', this.handleTextModifyingInput_).
+      listen(el, goog.events.EventType.KEYDOWN, this.handleKeyDown_);
 };
 goog.inherits(goog.events.ImeHandler, goog.events.EventTarget);
 
@@ -149,7 +142,8 @@ goog.inherits(goog.events.ImeHandler.Event, goog.events.Event);
  * Whether to use the composition events.
  * @type {boolean}
  */
-goog.events.ImeHandler.USES_COMPOSITION_EVENTS = goog.userAgent.GECKO ||
+goog.events.ImeHandler.USES_COMPOSITION_EVENTS =
+    goog.userAgent.GECKO ||
     (goog.userAgent.WEBKIT && goog.userAgent.isVersionOrHigher(532));
 
 
@@ -183,7 +177,8 @@ goog.events.ImeHandler.prototype.isImeMode = function() {
  * @param {goog.events.BrowserEvent} e The event.
  * @private
  */
-goog.events.ImeHandler.prototype.handleCompositionStart_ = function(e) {
+goog.events.ImeHandler.prototype.handleCompositionStart_ =
+    function(e) {
   this.handleImeActivate_(e);
 };
 
@@ -203,7 +198,8 @@ goog.events.ImeHandler.prototype.handleCompositionEnd_ = function(e) {
  * @param {goog.events.BrowserEvent} e The event.
  * @private
  */
-goog.events.ImeHandler.prototype.handleTextModifyingInput_ = function(e) {
+goog.events.ImeHandler.prototype.handleTextModifyingInput_ =
+    function(e) {
   if (this.isImeMode()) {
     this.processImeComposition_(e);
   }
@@ -231,8 +227,8 @@ goog.events.ImeHandler.prototype.handleImeActivate_ = function(e) {
   // which can use to determine whether IME text has been committed.
   if (goog.userAgent.WEBKIT &&
       !goog.events.ImeHandler.USES_COMPOSITION_EVENTS) {
-    this.keyUpHandler_.listen(
-        this.el_, goog.events.EventType.KEYUP, this.handleKeyUpSafari4_);
+    this.keyUpHandler_.listen(this.el_,
+        goog.events.EventType.KEYUP, this.handleKeyUpSafari4_);
   }
 
   this.imeMode_ = true;
@@ -309,7 +305,8 @@ goog.events.ImeHandler.prototype.handleTextInput_ = function(e) {
   // events. So, we turn down IME mode when it's still there.
   if (!goog.events.ImeHandler.USES_COMPOSITION_EVENTS &&
       goog.userAgent.WEBKIT &&
-      this.lastKeyCode_ == goog.events.KeyCodes.WIN_IME && this.isImeMode()) {
+      this.lastKeyCode_ == goog.events.KeyCodes.WIN_IME &&
+      this.isImeMode()) {
     this.handleImeDeactivate_(e);
   }
 };

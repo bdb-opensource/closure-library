@@ -18,7 +18,6 @@ goog.setTestOnly('goog.testing.editor.TestHelperTest');
 goog.require('goog.dom');
 goog.require('goog.dom.TagName');
 goog.require('goog.editor.node');
-goog.require('goog.testing.TestCase');
 goog.require('goog.testing.editor.TestHelper');
 goog.require('goog.testing.jsunit');
 goog.require('goog.userAgent');
@@ -27,9 +26,6 @@ var root;
 var helper;
 
 function setUp() {
-  // TODO(b/25875505): Fix unreported assertions (go/failonunreportedasserts).
-  goog.testing.TestCase.getActiveTestCase().failOnUnreportedAsserts = false;
-
   root = goog.dom.getElement('root');
   goog.dom.removeChildren(root);
   helper = new goog.testing.editor.TestHelper(root);
@@ -68,32 +64,28 @@ function testFindNode() {
 function testFindNodeDuplicate() {
   // Test duplicate.
   root.innerHTML = 'c<br>c';
-  assertEquals(
-      'Should return first duplicate', helper.findTextNode('c'),
+  assertEquals('Should return first duplicate', helper.findTextNode('c'),
       root.firstChild);
 }
 
 function findNodeWithHierarchy() {
   // Test a more complicated hierarchy.
   root.innerHTML = '<div>a<p>b<span>c</span>d</p>e</div>';
-  assertEquals(
-      String(goog.dom.TagName.DIV),
+  assertEquals(goog.dom.TagName.DIV,
       helper.findTextNode('a').parentNode.tagName);
-  assertEquals(
-      String(goog.dom.TagName.P), helper.findTextNode('b').parentNode.tagName);
-  assertEquals(
-      String(goog.dom.TagName.SPAN),
+  assertEquals(goog.dom.TagName.P,
+      helper.findTextNode('b').parentNode.tagName);
+  assertEquals(goog.dom.TagName.SPAN,
       helper.findTextNode('c').parentNode.tagName);
-  assertEquals(
-      String(goog.dom.TagName.P), helper.findTextNode('d').parentNode.tagName);
-  assertEquals(
-      String(goog.dom.TagName.DIV),
+  assertEquals(goog.dom.TagName.P,
+      helper.findTextNode('d').parentNode.tagName);
+  assertEquals(goog.dom.TagName.DIV,
       helper.findTextNode('e').parentNode.tagName);
 }
 
 function setUpAssertHtmlMatches() {
   var tag1, tag2;
-  if (goog.userAgent.EDGE_OR_IE) {
+  if (goog.userAgent.IE) {
     tag1 = goog.dom.TagName.DIV;
   } else if (goog.userAgent.WEBKIT) {
     tag1 = goog.dom.TagName.P;
@@ -107,7 +99,7 @@ function setUpAssertHtmlMatches() {
   root.appendChild(parent);
   parent.style.fontSize = '2em';
   parent.style.display = 'none';
-  if (goog.userAgent.EDGE_OR_IE || goog.userAgent.GECKO) {
+  if (goog.userAgent.IE || goog.userAgent.GECKO) {
     parent.appendChild(goog.dom.createTextNode('NonWebKitText'));
   }
 
@@ -128,9 +120,8 @@ function setUpAssertHtmlMatches() {
 function testAssertHtmlMatches() {
   setUpAssertHtmlMatches();
 
-  helper.assertHtmlMatches(
-      '<div style="display: none; font-size: 2em">' +
-      '[[IE EDGE GECKO]]NonWebKitText<div class="IE EDGE"><p class="WEBKIT">' +
+  helper.assertHtmlMatches('<div style="display: none; font-size: 2em">' +
+      '[[IE GECKO]]NonWebKitText<div class="IE"><p class="WEBKIT">' +
       '<span class="GECKO"><br class="GECKO WEBKIT">Text</span></p></div>' +
       '</div>[[WEBKIT]]WebKitText');
 }
@@ -139,8 +130,7 @@ function testAssertHtmlMismatchText() {
   setUpAssertHtmlMatches();
 
   var e = assertThrows('Should fail due to mismatched text', function() {
-    helper.assertHtmlMatches(
-        '<div style="display: none; font-size: 2em">' +
+    helper.assertHtmlMatches('<div style="display: none; font-size: 2em">' +
         '[[IE GECKO]]NonWebKitText<div class="IE"><p class="WEBKIT">' +
         '<span class="GECKO"><br class="GECKO WEBKIT">Bad</span></p></div>' +
         '</div>[[WEBKIT]]Extra');
@@ -152,9 +142,8 @@ function testAssertHtmlMismatchTag() {
   setUpAssertHtmlMatches();
 
   var e = assertThrows('Should fail due to mismatched tag', function() {
-    helper.assertHtmlMatches(
-        '<span style="display: none; font-size: 2em">[[IE EDGE GECKO]]' +
-        'NonWebKitText<div class="IE EDGE"><p class="WEBKIT">' +
+    helper.assertHtmlMatches('<span style="display: none; font-size: 2em">' +
+        '[[IE GECKO]]NonWebKitText<div class="IE"><p class="WEBKIT">' +
         '<span class="GECKO"><br class="GECKO WEBKIT">Text</span></p></div>' +
         '</span>[[WEBKIT]]Extra');
   });
@@ -165,9 +154,8 @@ function testAssertHtmlMismatchStyle() {
   setUpAssertHtmlMatches();
 
   var e = assertThrows('Should fail due to mismatched style', function() {
-    helper.assertHtmlMatches(
-        '<div style="display: none; font-size: 3em">[[IE EDGE GECKO]]' +
-        'NonWebKitText<div class="IE EDGE"><p class="WEBKIT">' +
+    helper.assertHtmlMatches('<div style="display: none; font-size: 3em">' +
+        '[[IE GECKO]]NonWebKitText<div class="IE"><p class="WEBKIT">' +
         '<span class="GECKO"><br class="GECKO WEBKIT">Text</span></p></div>' +
         '</div>[[WEBKIT]]Extra');
   });
@@ -178,9 +166,8 @@ function testAssertHtmlMismatchOptionalText() {
   setUpAssertHtmlMatches();
 
   var e = assertThrows('Should fail due to mismatched style', function() {
-    helper.assertHtmlMatches(
-        '<div style="display: none; font-size: 2em">' +
-        '[[IE EDGE GECKO]]Bad<div class="IE EDGE"><p class="WEBKIT">' +
+    helper.assertHtmlMatches('<div style="display: none; font-size: 2em">' +
+        '[[IE GECKO]]Bad<div class="IE"><p class="WEBKIT">' +
         '<span class="GECKO"><br class="GECKO WEBKIT">Text</span></p></div>' +
         '</div>[[WEBKIT]]Bad');
   });

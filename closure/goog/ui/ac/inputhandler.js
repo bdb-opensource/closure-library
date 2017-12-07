@@ -94,8 +94,6 @@ goog.provide('goog.ui.ac.InputHandler');
 goog.require('goog.Disposable');
 goog.require('goog.Timer');
 goog.require('goog.a11y.aria');
-goog.require('goog.a11y.aria.Role');
-goog.require('goog.a11y.aria.State');
 goog.require('goog.dom');
 goog.require('goog.dom.selection');
 goog.require('goog.events.EventHandler');
@@ -123,8 +121,8 @@ goog.require('goog.userAgent.product');
  * @constructor
  * @extends {goog.Disposable}
  */
-goog.ui.ac.InputHandler = function(
-    opt_separators, opt_literals, opt_multi, opt_throttleTime) {
+goog.ui.ac.InputHandler = function(opt_separators, opt_literals,
+    opt_multi, opt_throttleTime) {
   goog.Disposable.call(this);
   var throttleTime = opt_throttleTime || 150;
 
@@ -136,8 +134,8 @@ goog.ui.ac.InputHandler = function(
   this.multi_ = opt_multi != null ? opt_multi : true;
 
   // Set separators depends on this.multi_ being set correctly
-  this.setSeparators(
-      opt_separators || goog.ui.ac.InputHandler.STANDARD_LIST_SEPARATORS);
+  this.setSeparators(opt_separators ||
+      goog.ui.ac.InputHandler.STANDARD_LIST_SEPARATORS);
 
   /**
    * Characters that are used to delimit literal text. Separarator characters
@@ -146,13 +144,6 @@ goog.ui.ac.InputHandler = function(
    * @private
    */
   this.literals_ = opt_literals || '';
-
-  /**
-   * Whether to prevent highlighted item selection when tab is pressed.
-   * @type {boolean}
-   * @private
-   */
-  this.preventSelectionOnTab_ = false;
 
   /**
    * Whether to prevent the default behavior (moving focus to another element)
@@ -177,14 +168,14 @@ goog.ui.ac.InputHandler = function(
 
   /**
    * Event handler used by the input handler to manage events.
-   * @type {goog.events.EventHandler<!goog.ui.ac.InputHandler>}
+   * @type {goog.events.EventHandler.<!goog.ui.ac.InputHandler>}
    * @private
    */
   this.eh_ = new goog.events.EventHandler(this);
 
   /**
    * Event handler to help us find an input element that already has the focus.
-   * @type {goog.events.EventHandler<!goog.ui.ac.InputHandler>}
+   * @type {goog.events.EventHandler.<!goog.ui.ac.InputHandler>}
    * @private
    */
   this.activateHandler_ = new goog.events.EventHandler(this);
@@ -205,7 +196,6 @@ goog.ui.ac.InputHandler = function(
   this.lastKeyCode_ = -1;  // Initialize to a non-existent value.
 };
 goog.inherits(goog.ui.ac.InputHandler, goog.Disposable);
-goog.tagUnsealableClass(goog.ui.ac.InputHandler);
 
 
 /**
@@ -218,8 +208,8 @@ goog.tagUnsealableClass(goog.ui.ac.InputHandler);
  */
 goog.ui.ac.InputHandler.REQUIRES_ASYNC_BLUR_ =
     (goog.userAgent.product.IPHONE || goog.userAgent.product.IPAD) &&
-    // Check the webkit version against the version for iOS 4.2.1.
-    !goog.userAgent.isVersionOrHigher('533.17.9');
+        // Check the webkit version against the version for iOS 4.2.1.
+        !goog.userAgent.isVersionOrHigher('533.17.9');
 
 
 /**
@@ -447,13 +437,12 @@ goog.ui.ac.InputHandler.prototype.setCursorPosition = function(pos) {
  * should be a textarea, input box, or other focusable element with the
  * same interface.
  * @param {Element|goog.events.EventTarget} target An element to attach the
- *     input handler to.
+ *     input handler too.
  */
 goog.ui.ac.InputHandler.prototype.attachInput = function(target) {
   if (goog.dom.isElement(target)) {
     var el = /** @type {!Element} */ (target);
-    goog.a11y.aria.setRole(el, goog.a11y.aria.Role.COMBOBOX);
-    goog.a11y.aria.setState(el, goog.a11y.aria.State.AUTOCOMPLETE, 'list');
+    goog.a11y.aria.setState(el, 'haspopup', true);
   }
 
   this.eh_.listen(target, goog.events.EventType.FOCUS, this.handleFocus);
@@ -469,7 +458,7 @@ goog.ui.ac.InputHandler.prototype.attachInput = function(target) {
       var ownerDocument = goog.dom.getOwnerDocument(
           /** @type {Element} */ (target));
       if (goog.dom.getActiveElement(ownerDocument) == target) {
-        this.processFocus(/** @type {!Element} */ (target));
+        this.processFocus(/** @type {Element} */ (target));
       }
     }
   }
@@ -482,12 +471,6 @@ goog.ui.ac.InputHandler.prototype.attachInput = function(target) {
  *     input handler from.
  */
 goog.ui.ac.InputHandler.prototype.detachInput = function(target) {
-  if (goog.dom.isElement(target)) {
-    var el = /** @type {!Element} */ (target);
-    goog.a11y.aria.removeRole(el);
-    goog.a11y.aria.removeState(el, goog.a11y.aria.State.AUTOCOMPLETE);
-  }
-
   if (target == this.activeElement_) {
     this.handleBlur();
   }
@@ -547,8 +530,8 @@ goog.ui.ac.InputHandler.prototype.selectRow = function(row, opt_multi) {
  *     auto-complete?  Overrides previous setting of opt_multi on constructor.
  * @protected
  */
-goog.ui.ac.InputHandler.prototype.setTokenText = function(
-    tokenText, opt_multi) {
+goog.ui.ac.InputHandler.prototype.setTokenText =
+    function(tokenText, opt_multi) {
   if (goog.isDef(opt_multi) ? opt_multi : this.multi_) {
     var index = this.getTokenIndex_(this.getValue(), this.getCursorPosition());
 
@@ -560,14 +543,14 @@ goog.ui.ac.InputHandler.prototype.setTokenText = function(
 
     // Only add punctuation if there isn't already a separator available.
     if (!this.separatorCheck_.test(replaceValue)) {
-      replaceValue =
-          goog.string.trimRight(replaceValue) + this.defaultSeparator_;
+      replaceValue = goog.string.trimRight(replaceValue) +
+                     this.defaultSeparator_;
     }
 
     // Ensure there's whitespace wrapping the entries, if whitespaceWrapEntries_
     // has been set to true.
     if (this.whitespaceWrapEntries_) {
-      if (index != 0 && !goog.string.isEmptyOrWhitespace(entries[index - 1])) {
+      if (index != 0 && !goog.string.isEmpty(entries[index - 1])) {
         replaceValue = ' ' + replaceValue;
       }
       // Add a space only if it's the last token; otherwise, we assume the
@@ -580,6 +563,7 @@ goog.ui.ac.InputHandler.prototype.setTokenText = function(
     // If the token needs changing, then update the input box and move the
     // cursor to the correct position.
     if (replaceValue != entries[index]) {
+
       // Replace the value in the array.
       entries[index] = replaceValue;
 
@@ -592,7 +576,6 @@ goog.ui.ac.InputHandler.prototype.setTokenText = function(
       // to do this only if there is an uncommitted IME, but this isn't possible
       // to detect. Since text editing is finicky we restrict this
       // workaround to Firefox and IE 9 where it's necessary.
-      // (Note: this has been fixed in Edge and since FF 41)
       if (goog.userAgent.GECKO ||
           (goog.userAgent.IE && goog.userAgent.isVersionOrHigher('9'))) {
         el.blur();
@@ -640,12 +623,12 @@ goog.ui.ac.InputHandler.prototype.disposeInternal = function() {
  * @param {string} separators The separator characters to set.
  * @param {string=} opt_defaultSeparators The defaultSeparator character to set.
  */
-goog.ui.ac.InputHandler.prototype.setSeparators = function(
-    separators, opt_defaultSeparators) {
+goog.ui.ac.InputHandler.prototype.setSeparators =
+    function(separators, opt_defaultSeparators) {
   this.separators_ = separators;
-  this.defaultSeparator_ = goog.isDefAndNotNull(opt_defaultSeparators) ?
-      opt_defaultSeparators :
-      this.separators_.substring(0, 1);
+  this.defaultSeparator_ =
+      goog.isDefAndNotNull(opt_defaultSeparators) ?
+      opt_defaultSeparators : this.separators_.substring(0, 1);
 
   var wspaceExp = this.multi_ ? '[\\s' + this.separators_ + ']+' : '[\\s]+';
 
@@ -669,8 +652,8 @@ goog.ui.ac.InputHandler.prototype.setUpsideDown = function(upsideDown) {
  * @param {boolean} newValue boolean value indicating whether or not
  *     auto-completed tokens should be wrapped with whitespace.
  */
-goog.ui.ac.InputHandler.prototype.setWhitespaceWrapEntries = function(
-    newValue) {
+goog.ui.ac.InputHandler.prototype.setWhitespaceWrapEntries =
+    function(newValue) {
   this.whitespaceWrapEntries_ = newValue;
 };
 
@@ -681,8 +664,8 @@ goog.ui.ac.InputHandler.prototype.setWhitespaceWrapEntries = function(
  * @param {boolean} newValue boolean value indicating whether or not
  * new tokens should be generated from literals.
  */
-goog.ui.ac.InputHandler.prototype.setGenerateNewTokenOnLiteral = function(
-    newValue) {
+goog.ui.ac.InputHandler.prototype.setGenerateNewTokenOnLiteral =
+    function(newValue) {
   this.generateNewTokenOnLiteral_ = newValue;
 };
 
@@ -705,16 +688,6 @@ goog.ui.ac.InputHandler.prototype.setTrimmingRegExp = function(trimmer) {
  */
 goog.ui.ac.InputHandler.prototype.setPreventDefaultOnTab = function(newValue) {
   this.preventDefaultOnTab_ = newValue;
-};
-
-
-/**
- * Sets whether we will prevent highlighted item selection on TAB.
- * @param {boolean} newValue Whether to prevent selection on TAB.
- */
-goog.ui.ac.InputHandler.prototype.setPreventSelectionOnTab = function(
-    newValue) {
-  this.preventSelectionOnTab_ = newValue;
 };
 
 
@@ -801,6 +774,7 @@ goog.ui.ac.InputHandler.prototype.setUpdateDuringTyping = function(value) {
  */
 goog.ui.ac.InputHandler.prototype.handleKeyEvent = function(e) {
   switch (e.keyCode) {
+
     // If the menu is open and 'down' caused a change then prevent the default
     // action and prevent scrolling.  If the box isn't a multi autocomplete
     // and the menu isn't open, we force it open now.
@@ -831,7 +805,7 @@ goog.ui.ac.InputHandler.prototype.handleKeyEvent = function(e) {
     // action is also prevented if the input is a multi input, to prevent the
     // user tabbing out of the field.
     case goog.events.KeyCodes.TAB:
-      if (this.ac_.isOpen() && !e.shiftKey && !this.preventSelectionOnTab_) {
+      if (this.ac_.isOpen() && !e.shiftKey) {
         // Ensure the menu is up to date before completing.
         this.update();
         if (this.ac_.selectHilited() && this.preventDefaultOnTab_) {
@@ -940,17 +914,16 @@ goog.ui.ac.InputHandler.prototype.addEventHandlers_ = function() {
   this.eh_.listen(
       this.keyHandler_, goog.events.KeyHandler.EventType.KEY, this.onKey_);
   if (this.needKeyUpListener()) {
-    this.eh_.listen(
-        this.activeElement_, goog.events.EventType.KEYUP, this.handleKeyUp);
+    this.eh_.listen(this.activeElement_,
+        goog.events.EventType.KEYUP, this.handleKeyUp);
   }
-  this.eh_.listen(
-      this.activeElement_, goog.events.EventType.MOUSEDOWN, this.onMouseDown_);
+  this.eh_.listen(this.activeElement_,
+      goog.events.EventType.MOUSEDOWN, this.onMouseDown_);
 
-  // IE6 also needs a keypress to check if the user typed a separator
+  // IE also needs a keypress to check if the user typed a separator
   if (goog.userAgent.IE) {
-    this.eh_.listen(
-        this.activeElement_, goog.events.EventType.KEYPRESS,
-        this.onIeKeyPress_);
+    this.eh_.listen(this.activeElement_,
+        goog.events.EventType.KEYPRESS, this.onIeKeyPress_);
   }
 };
 
@@ -963,15 +936,14 @@ goog.ui.ac.InputHandler.prototype.removeEventHandlers_ = function() {
   this.eh_.unlisten(
       this.keyHandler_, goog.events.KeyHandler.EventType.KEY, this.onKey_);
   this.keyHandler_.detach();
-  this.eh_.unlisten(
-      this.activeElement_, goog.events.EventType.KEYUP, this.handleKeyUp);
-  this.eh_.unlisten(
-      this.activeElement_, goog.events.EventType.MOUSEDOWN, this.onMouseDown_);
+  this.eh_.unlisten(this.activeElement_,
+      goog.events.EventType.KEYUP, this.handleKeyUp);
+  this.eh_.unlisten(this.activeElement_,
+      goog.events.EventType.MOUSEDOWN, this.onMouseDown_);
 
   if (goog.userAgent.IE) {
-    this.eh_.unlisten(
-        this.activeElement_, goog.events.EventType.KEYPRESS,
-        this.onIeKeyPress_);
+    this.eh_.unlisten(this.activeElement_,
+        goog.events.EventType.KEYPRESS, this.onIeKeyPress_);
   }
 
   if (this.waitingForIme_) {
@@ -1087,7 +1059,7 @@ goog.ui.ac.InputHandler.prototype.onKeyDownOnInactiveElement_ = function(e) {
 
 /**
  * Handles typing in the active input element.  Checks if the key is a special
- * key and does the relevant action as appropriate.
+ * key and does the relevent action as appropriate.
  * @param {goog.events.BrowserEvent} e Browser event object.
  * @private
  */
@@ -1145,7 +1117,8 @@ goog.ui.ac.InputHandler.prototype.onMouseDown_ = function(e) {
  * @param {goog.events.BrowserEvent} e Browser event object.
  * @protected
  */
-goog.ui.ac.InputHandler.prototype.handleMouseDown = function(e) {};
+goog.ui.ac.InputHandler.prototype.handleMouseDown = function(e) {
+};
 
 
 /**
@@ -1293,7 +1266,7 @@ goog.ui.ac.InputHandler.prototype.getTokenIndex_ = function(text, caret) {
 
 
 /**
- * Splits an input string of text at the occurrence of a character in
+ * Splits an input string of text at the occurance of a character in
  * {@link goog.ui.ac.InputHandler.prototype.separators_} and creates
  * an array of tokens.  Each token may contain additional whitespace and
  * formatting marks.  If necessary use
@@ -1301,7 +1274,7 @@ goog.ui.ac.InputHandler.prototype.getTokenIndex_ = function(text, caret) {
  * entries.
  *
  * @param {string} text Input text.
- * @return {!Array<string>} Parsed array.
+ * @return {!Array} Parsed array.
  * @private
  */
 goog.ui.ac.InputHandler.prototype.splitInput_ = function(text) {

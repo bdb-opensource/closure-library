@@ -17,39 +17,20 @@
  *     startsWith, endsWith, etc.
  */
 
-goog.provide('goog.labs.testing.AnyStringMatcher');
+
 goog.provide('goog.labs.testing.ContainsStringMatcher');
 goog.provide('goog.labs.testing.EndsWithMatcher');
+goog.provide('goog.labs.testing.EqualToIgnoringCaseMatcher');
 goog.provide('goog.labs.testing.EqualToIgnoringWhitespaceMatcher');
 goog.provide('goog.labs.testing.EqualsMatcher');
 goog.provide('goog.labs.testing.RegexMatcher');
 goog.provide('goog.labs.testing.StartsWithMatcher');
 goog.provide('goog.labs.testing.StringContainsInOrderMatcher');
 
+
 goog.require('goog.asserts');
 goog.require('goog.labs.testing.Matcher');
 goog.require('goog.string');
-
-
-
-/**
- * Matches any string value.
- *
- * @constructor @struct @implements {goog.labs.testing.Matcher} @final
- */
-goog.labs.testing.AnyStringMatcher = function() {};
-
-
-/** @override */
-goog.labs.testing.AnyStringMatcher.prototype.matches = function(actualValue) {
-  return goog.isString(actualValue);
-};
-
-
-/** @override */
-goog.labs.testing.AnyStringMatcher.prototype.describe = function(actualValue) {
-  return '<' + actualValue + '> is not a string';
-};
 
 
 
@@ -77,8 +58,8 @@ goog.labs.testing.ContainsStringMatcher = function(value) {
  *
  * @override
  */
-goog.labs.testing.ContainsStringMatcher.prototype.matches = function(
-    actualValue) {
+goog.labs.testing.ContainsStringMatcher.prototype.matches =
+    function(actualValue) {
   goog.asserts.assertString(actualValue);
   return goog.string.contains(actualValue, this.value_);
 };
@@ -87,8 +68,8 @@ goog.labs.testing.ContainsStringMatcher.prototype.matches = function(
 /**
  * @override
  */
-goog.labs.testing.ContainsStringMatcher.prototype.describe = function(
-    actualValue) {
+goog.labs.testing.ContainsStringMatcher.prototype.describe =
+    function(actualValue) {
   return actualValue + ' does not contain ' + this.value_;
 };
 
@@ -127,7 +108,8 @@ goog.labs.testing.EndsWithMatcher.prototype.matches = function(actualValue) {
 /**
  * @override
  */
-goog.labs.testing.EndsWithMatcher.prototype.describe = function(actualValue) {
+goog.labs.testing.EndsWithMatcher.prototype.describe =
+    function(actualValue) {
   return actualValue + ' does not end with ' + this.value_;
 };
 
@@ -157,8 +139,8 @@ goog.labs.testing.EqualToIgnoringWhitespaceMatcher = function(value) {
  *
  * @override
  */
-goog.labs.testing.EqualToIgnoringWhitespaceMatcher.prototype.matches = function(
-    actualValue) {
+goog.labs.testing.EqualToIgnoringWhitespaceMatcher.prototype.matches =
+    function(actualValue) {
   goog.asserts.assertString(actualValue);
   var string1 = goog.string.collapseWhitespace(actualValue);
 
@@ -209,7 +191,8 @@ goog.labs.testing.EqualsMatcher.prototype.matches = function(actualValue) {
 /**
  * @override
  */
-goog.labs.testing.EqualsMatcher.prototype.describe = function(actualValue) {
+goog.labs.testing.EqualsMatcher.prototype.describe =
+    function(actualValue) {
   return actualValue + ' is not equal to ' + this.value_;
 };
 
@@ -239,7 +222,8 @@ goog.labs.testing.RegexMatcher = function(regex) {
  *
  * @override
  */
-goog.labs.testing.RegexMatcher.prototype.matches = function(actualValue) {
+goog.labs.testing.RegexMatcher.prototype.matches = function(
+    actualValue) {
   goog.asserts.assertString(actualValue);
   return this.regex_.test(actualValue);
 };
@@ -248,7 +232,8 @@ goog.labs.testing.RegexMatcher.prototype.matches = function(actualValue) {
 /**
  * @override
  */
-goog.labs.testing.RegexMatcher.prototype.describe = function(actualValue) {
+goog.labs.testing.RegexMatcher.prototype.describe =
+    function(actualValue) {
   return actualValue + ' does not match ' + this.regex_;
 };
 
@@ -287,7 +272,8 @@ goog.labs.testing.StartsWithMatcher.prototype.matches = function(actualValue) {
 /**
  * @override
  */
-goog.labs.testing.StartsWithMatcher.prototype.describe = function(actualValue) {
+goog.labs.testing.StartsWithMatcher.prototype.describe =
+    function(actualValue) {
   return actualValue + ' does not start with ' + this.value_;
 };
 
@@ -296,7 +282,7 @@ goog.labs.testing.StartsWithMatcher.prototype.describe = function(actualValue) {
 /**
  * The StringContainsInOrdermatcher.
  *
- * @param {Array<string>} values The expected string values.
+ * @param {Array.<string>} values The expected string values.
  *
  * @constructor
  * @struct
@@ -305,7 +291,7 @@ goog.labs.testing.StartsWithMatcher.prototype.describe = function(actualValue) {
  */
 goog.labs.testing.StringContainsInOrderMatcher = function(values) {
   /**
-   * @type {Array<string>}
+   * @type {Array.<string>}
    * @private
    */
   this.values_ = values;
@@ -317,8 +303,8 @@ goog.labs.testing.StringContainsInOrderMatcher = function(values) {
  *
  * @override
  */
-goog.labs.testing.StringContainsInOrderMatcher.prototype.matches = function(
-    actualValue) {
+goog.labs.testing.StringContainsInOrderMatcher.prototype.matches =
+    function(actualValue) {
   goog.asserts.assertString(actualValue);
   var currentIndex, previousIndex = 0;
   for (var i = 0; i < this.values_.length; i++) {
@@ -335,16 +321,10 @@ goog.labs.testing.StringContainsInOrderMatcher.prototype.matches = function(
 /**
  * @override
  */
-goog.labs.testing.StringContainsInOrderMatcher.prototype.describe = function(
-    actualValue) {
+goog.labs.testing.StringContainsInOrderMatcher.prototype.describe =
+    function(actualValue) {
   return actualValue + ' does not contain the expected values in order.';
 };
-
-
-/** @return {!goog.labs.testing.AnyStringMatcher} */
-function anyString() {
-  return new goog.labs.testing.AnyStringMatcher();
-}
 
 
 /**
@@ -426,7 +406,7 @@ function startsWith(value) {
 /**
  * Matches a string that contains the given strings in order.
  *
- * @param {Array<string>} values The expected value.
+ * @param {Array.<string>} values The expected value.
  *
  * @return {!goog.labs.testing.StringContainsInOrderMatcher} A
  *     StringContainsInOrderMatcher.
