@@ -1,0 +1,15 @@
+{
+  "name": "closure-library",
+  "version": "1.0.0",
+  "description": "Closure Library is a powerful, low level JavaScript library designed for building complex and scalable web applications. It is used by many major Google web applications, such as Gmail and Google Docs.",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/bdb-opensource/closure-library.git"
+  },
+  "author": "Viventium",
+  "license": "Apache",
+  "bugs": {
+    "url": "https://github.com/bdb-opensource/closure-library/issues"
+  },
+  "homepage": "https://github.com/bdb-opensource/closure-library#readme"
+}
